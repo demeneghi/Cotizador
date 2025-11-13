@@ -1811,244 +1811,163 @@
                     const precioVentaNum = parseFloat(this.precio_venta) || 0;
                     const tipoCambioNum = parseFloat(this.tipo_cambio) || 0;
                     
-                    let y = 20;
-                    const margenIzq = 15;
-                    const margenDer = 195;
-                    const anchoLinea = margenDer - margenIzq;
+                    let y = 8;
+                    const margen = 10;
+                    const anchoTotal = 190;
+                    const anchoCol = (anchoTotal - 4) / 2;
                     
-                    // Header con degradado (simulado con rectángulo)
+                    // Header compacto
                     doc.setFillColor(102, 126, 234);
-                    doc.rect(0, 0, 210, 40, 'F');
+                    doc.rect(0, 0, 210, 20, 'F');
                     
-                    // Título
                     doc.setTextColor(255, 255, 255);
-                    doc.setFontSize(24);
+                    doc.setFontSize(16);
                     doc.setFont(undefined, 'bold');
-                    doc.text('COTIZACIÓN DE PIÑA', 105, 18, { align: 'center' });
-                    
-                    doc.setFontSize(12);
+                    doc.text('COTIZACIÓN DE PIÑA', 105, 10, { align: 'center' });
+                    doc.setFontSize(8);
                     doc.setFont(undefined, 'normal');
-                    doc.text('Amador Russell → Chula Brand', 105, 28, { align: 'center' });
-                    doc.text(new Date().toLocaleDateString('es-MX', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    }), 105, 35, { align: 'center' });
+                    doc.text('Amador Russell → Chula Brand | ' + new Date().toLocaleDateString('es-MX'), 105, 16, { align: 'center' });
                     
-                    y = 50;
-                    doc.setTextColor(0, 0, 0);
-                    
-                    // Datos Principales
-                    doc.setFillColor(102, 126, 234);
-                    doc.rect(margenIzq, y, anchoLinea, 8, 'F');
-                    doc.setTextColor(255, 255, 255);
-                    doc.setFontSize(11);
+                    // Datos Principales y Resultados en una fila
+                    doc.setFontSize(7);
                     doc.setFont(undefined, 'bold');
-                    doc.text('DATOS PRINCIPALES', margenIzq + 2, y + 5.5);
-                    
-                    y += 12;
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFontSize(10);
+                    doc.setTextColor(102, 126, 234);
+                    doc.text('DATOS:', margen, y);
                     doc.setFont(undefined, 'normal');
-                    doc.text(`Precio de Venta: $${this.formatNumber(precioVentaNum)} USD`, margenIzq, y);
-                    y += 6;
-                    doc.text(`Tipo de Cambio: $${this.formatNumber(tipoCambioNum)} MXN`, margenIzq, y);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(`PV: $${this.formatNumber(precioVentaNum)} USD | TC: $${this.formatNumber(tipoCambioNum)} MXN`, margen + 15, y);
                     
-                    // Resultados
-                    y += 12;
+                    // Resultados destacados
+                    y += 8;
                     doc.setFillColor(72, 187, 120);
-                    doc.rect(margenIzq, y, anchoLinea, 8, 'F');
+                    doc.roundedRect(margen, y, anchoCol, 14, 2, 2, 'F');
                     doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(7);
+                    doc.text('FLETE CORTO', margen + anchoCol/2, y + 4, { align: 'center' });
                     doc.setFontSize(11);
                     doc.setFont(undefined, 'bold');
-                    doc.text('PRECIOS POR KILOGRAMO', margenIzq + 2, y + 5.5);
+                    doc.text(`$${this.formatNumber(this.precio_kg_corto)} MXN/kg`, margen + anchoCol/2, y + 10, { align: 'center' });
                     
-                    y += 15;
-                    doc.setFillColor(230, 240, 255);
-                    doc.rect(margenIzq, y, (anchoLinea / 2) - 2, 20, 'F');
-                    doc.setTextColor(102, 126, 234);
-                    doc.setFontSize(9);
-                    doc.text('FLETE CORTO', margenIzq + (anchoLinea / 4), y + 5, { align: 'center' });
-                    doc.setFontSize(14);
-                    doc.setFont(undefined, 'bold');
-                    doc.text(`$${this.formatNumber(this.precio_kg_corto)}`, margenIzq + (anchoLinea / 4), y + 13, { align: 'center' });
-                    doc.setFontSize(8);
-                    doc.setFont(undefined, 'normal');
-                    doc.text('MXN por kg', margenIzq + (anchoLinea / 4), y + 18, { align: 'center' });
-                    
-                    doc.setFillColor(230, 240, 255);
-                    doc.rect(margenIzq + (anchoLinea / 2) + 2, y, (anchoLinea / 2) - 2, 20, 'F');
-                    doc.setTextColor(102, 126, 234);
-                    doc.setFontSize(9);
-                    doc.text('FLETE LARGO', margenIzq + (anchoLinea * 3 / 4) + 2, y + 5, { align: 'center' });
-                    doc.setFontSize(14);
-                    doc.setFont(undefined, 'bold');
-                    doc.text(`$${this.formatNumber(this.precio_kg_largo)}`, margenIzq + (anchoLinea * 3 / 4) + 2, y + 13, { align: 'center' });
-                    doc.setFontSize(8);
-                    doc.setFont(undefined, 'normal');
-                    doc.text('MXN por kg', margenIzq + (anchoLinea * 3 / 4) + 2, y + 18, { align: 'center' });
-                    
-                    // Nueva página para flujo de cálculos
-                    doc.addPage();
-                    y = 20;
-                    
-                    // Título de flujo de cálculos
                     doc.setFillColor(102, 126, 234);
-                    doc.rect(0, 0, 210, 25, 'F');
+                    doc.roundedRect(margen + anchoCol + 4, y, anchoCol, 14, 2, 2, 'F');
                     doc.setTextColor(255, 255, 255);
-                    doc.setFontSize(18);
+                    doc.setFontSize(7);
+                    doc.setFont(undefined, 'normal');
+                    doc.text('FLETE LARGO', margen + anchoCol + 4 + anchoCol/2, y + 4, { align: 'center' });
+                    doc.setFontSize(11);
                     doc.setFont(undefined, 'bold');
-                    doc.text('FLUJO DE CÁLCULOS', 105, 15, { align: 'center' });
+                    doc.text(`$${this.formatNumber(this.precio_kg_largo)} MXN/kg`, margen + anchoCol + 4 + anchoCol/2, y + 10, { align: 'center' });
                     
-                    y = 35;
+                    // Flujo de cálculos en 2 columnas
+                    y += 20;
+                    doc.setFillColor(102, 126, 234);
+                    doc.rect(margen, y, anchoTotal, 6, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(9);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('FLUJO DE CÁLCULOS DETALLADOS', 105, y + 4, { align: 'center' });
                     
-                    // Función helper para agregar pasos
-                    const agregarPaso = (numero, titulo, formula, resultado) => {
-                        if (y > 250) {
-                            doc.addPage();
-                            y = 20;
-                        }
-                        
-                        doc.setFillColor(247, 250, 252);
-                        doc.rect(margenIzq, y, anchoLinea, 28, 'F');
-                        doc.setDrawColor(102, 126, 234);
-                        doc.setLineWidth(0.5);
-                        doc.rect(margenIzq, y, anchoLinea, 28);
-                        
-                        doc.setTextColor(102, 126, 234);
-                        doc.setFontSize(9);
-                        doc.setFont(undefined, 'bold');
-                        doc.text(`PASO ${numero}: ${titulo}`, margenIzq + 2, y + 5);
-                        
-                        doc.setTextColor(0, 0, 0);
-                        doc.setFontSize(9);
-                        doc.setFont(undefined, 'normal');
-                        const lineasFormula = doc.splitTextToSize(formula, anchoLinea - 4);
-                        doc.text(lineasFormula, margenIzq + 2, y + 11);
-                        
-                        doc.setFillColor(102, 126, 234);
-                        doc.rect(margenIzq, y + 20, anchoLinea, 8, 'F');
-                        doc.setTextColor(255, 255, 255);
-                        doc.setFontSize(10);
-                        doc.setFont(undefined, 'bold');
-                        doc.text(`= ${resultado}`, margenIzq + 2, y + 25);
-                        
-                        y += 33;
-                    };
+                    y += 10;
+                    const yInicial = y;
                     
-                    // Generar flujo para ambos tipos de flete
-                    ['corto', 'largo'].forEach((tipo, index) => {
-                        if (index > 0) {
-                            doc.addPage();
-                            y = 20;
-                            doc.setFillColor(118, 75, 162);
-                            doc.rect(0, 0, 210, 15, 'F');
-                            doc.setTextColor(255, 255, 255);
-                            doc.setFontSize(14);
-                            doc.setFont(undefined, 'bold');
-                            doc.text(`CÁLCULOS FLETE ${tipo.toUpperCase()}`, 105, 10, { align: 'center' });
-                            y = 25;
-                        } else {
-                            doc.setFillColor(118, 75, 162);
-                            doc.rect(margenIzq, y, anchoLinea, 8, 'F');
-                            doc.setTextColor(255, 255, 255);
-                            doc.setFontSize(11);
-                            doc.setFont(undefined, 'bold');
-                            doc.text(`FLETE ${tipo.toUpperCase()}`, margenIzq + 2, y + 5.5);
-                            y += 12;
-                        }
+                    // Columna FLETE CORTO
+                    let yCorto = yInicial;
+                    doc.setTextColor(118, 75, 162);
+                    doc.setFontSize(8);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('FLETE CORTO', margen + anchoCol/2, yCorto, { align: 'center' });
+                    yCorto += 6;
+                    
+                    const generarPasosCompactos = (xPos, yPos, tipo) => {
+                        let yActual = yPos;
+                        const anchoTarjeta = anchoCol;
                         
                         const costoFleteMXN = tipo === 'corto' ? this.costo_flete_corto_mxn : this.costo_flete_largo_mxn;
                         const cajas = tipo === 'corto' ? this.cajas_flete_corto : this.cajas_flete_largo;
-                        
-                        agregarPaso(1, 'Conversión de Flete a USD',
-                            `${this.formatNumber(costoFleteMXN)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
-                            `$${this.formatNumber(costoFleteMXN / tipoCambioNum)} USD`);
-                        
-                        agregarPaso(2, 'Conversión de Empaque a USD',
-                            `${this.formatNumber(this.costo_empaque_caja_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
-                            `$${this.formatNumber(this.costo_empaque_caja_mxn / tipoCambioNum)} USD`);
-                        
                         const gastosEmbarque = this.calcularGastosEmbarque(costoFleteMXN, cajas);
                         const gastosTotal = tipo === 'largo' ? gastosEmbarque + this.costo_sobrepeso_embarque : gastosEmbarque;
-                        
-                        let formulaGastos = `Flete: $${this.formatNumber(costoFleteMXN / tipoCambioNum)} + Aduana: $${this.formatNumber(this.costo_aduana_embarque)} + Cartón: $${this.formatNumber(this.costo_carton_caja * cajas)} + Empaque: $${this.formatNumber((this.costo_empaque_caja_mxn / tipoCambioNum) * cajas)} + Manejo: $${this.formatNumber(this.costo_manejo_caja * cajas)}`;
-                        if (tipo === 'largo') {
-                            formulaGastos += ` + Sobrepeso: $${this.formatNumber(this.costo_sobrepeso_embarque)}`;
-                        }
-                        
-                        agregarPaso(3, 'Gastos Totales de Embarque', formulaGastos,
-                            `$${this.formatNumber(gastosTotal)} USD`);
-                        
-                        agregarPaso(4, 'Gastos por Caja',
-                            `$${this.formatNumber(gastosTotal)} ÷ ${this.formatNumber(cajas)} cajas`,
-                            `$${this.formatNumber(gastosTotal / cajas)} USD por caja`);
-                        
-                        agregarPaso(5, 'Descuento por Comisión',
-                            `$${this.formatNumber(precioVentaNum)} × ${this.formatNumber(this.comision_venta)}% ÷ 100`,
-                            `$${this.formatNumber(precioVentaNum * this.comision_venta / 100)} USD`);
-                        
                         const precioNeto = precioVentaNum - (precioVentaNum * this.comision_venta / 100) - (gastosTotal / cajas);
-                        agregarPaso(6, 'Precio Neto por Caja',
-                            `$${this.formatNumber(precioVentaNum)} - $${this.formatNumber(precioVentaNum * this.comision_venta / 100)} - $${this.formatNumber(gastosTotal / cajas)}`,
-                            `$${this.formatNumber(precioNeto)} USD`);
-                        
-                        agregarPaso(7, 'Conversión a MXN',
-                            `$${this.formatNumber(precioNeto)} USD × ${this.formatNumber(tipoCambioNum)}`,
-                            `$${this.formatNumber(precioNeto * tipoCambioNum)} MXN`);
-                        
                         const precioKg = tipo === 'corto' ? this.precio_kg_corto : this.precio_kg_largo;
-                        agregarPaso(8, 'Precio por Kilogramo',
-                            `$${this.formatNumber(precioNeto * tipoCambioNum)} MXN ÷ ${this.formatNumber(this.peso_caja)} kg`,
-                            `$${this.formatNumber(precioKg)} MXN/kg`);
-                    });
+                        
+                        const pasos = [
+                            ['1. Flete USD', `$${this.formatNumber(costoFleteMXN / tipoCambioNum)}`],
+                            ['2. Empaque USD', `$${this.formatNumber(this.costo_empaque_caja_mxn / tipoCambioNum)}`],
+                            ['3. Gastos Total', `$${this.formatNumber(gastosTotal)}`],
+                            ['4. Gastos/Caja', `$${this.formatNumber(gastosTotal / cajas)}`],
+                            ['5. Comisión', `$${this.formatNumber(precioVentaNum * this.comision_venta / 100)}`],
+                            ['6. Precio Neto', `$${this.formatNumber(precioNeto)}`],
+                            ['7. Precio MXN', `$${this.formatNumber(precioNeto * tipoCambioNum)}`],
+                            ['8. Precio/Kg', `$${this.formatNumber(precioKg)}`]
+                        ];
+                        
+                        doc.setFontSize(6);
+                        pasos.forEach(([paso, valor]) => {
+                            doc.setFillColor(247, 250, 252);
+                            doc.rect(xPos, yActual, anchoTarjeta, 5, 'F');
+                            doc.setDrawColor(230, 230, 230);
+                            doc.setLineWidth(0.1);
+                            doc.rect(xPos, yActual, anchoTarjeta, 5);
+                            
+                            doc.setTextColor(102, 126, 234);
+                            doc.setFont(undefined, 'bold');
+                            doc.text(paso, xPos + 1, yActual + 3.5);
+                            doc.setTextColor(0, 0, 0);
+                            doc.setFont(undefined, 'normal');
+                            doc.text(valor, xPos + anchoTarjeta - 1, yActual + 3.5, { align: 'right' });
+                            yActual += 5;
+                        });
+                        
+                        return yActual;
+                    };
                     
-                    // Página final con parámetros
-                    doc.addPage();
-                    y = 20;
+                    // Generar ambas columnas
+                    const yFinalCorto = generarPasosCompactos(margen, yCorto, 'corto');
+                    
+                    // Columna FLETE LARGO
+                    let yLargo = yInicial;
+                    doc.setTextColor(118, 75, 162);
+                    doc.setFontSize(8);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('FLETE LARGO', margen + anchoCol + 4 + anchoCol/2, yLargo, { align: 'center' });
+                    yLargo += 6;
+                    
+                    const yFinalLargo = generarPasosCompactos(margen + anchoCol + 4, yLargo, 'largo');
+                    
+                    // Parámetros compactos al final
+                    y = Math.max(yFinalCorto, yFinalLargo) + 6;
                     
                     doc.setFillColor(102, 126, 234);
-                    doc.rect(0, 0, 210, 15, 'F');
+                    doc.rect(margen, y, anchoTotal, 5, 'F');
                     doc.setTextColor(255, 255, 255);
-                    doc.setFontSize(14);
+                    doc.setFontSize(8);
                     doc.setFont(undefined, 'bold');
-                    doc.text('PARÁMETROS UTILIZADOS', 105, 10, { align: 'center' });
+                    doc.text('PARÁMETROS', 105, y + 3.5, { align: 'center' });
                     
-                    y = 25;
+                    y += 7;
                     doc.setTextColor(0, 0, 0);
-                    doc.setFontSize(10);
+                    doc.setFontSize(6);
                     
-                    const parametros = [
-                        ['Comisión de Venta', `${this.formatNumber(this.comision_venta)}%`],
-                        ['Peso por Caja', `${this.formatNumber(this.peso_caja)} kg`],
-                        ['Costo Flete Corto', `$${this.formatNumber(this.costo_flete_corto_mxn)} MXN`],
-                        ['Costo Flete Largo', `$${this.formatNumber(this.costo_flete_largo_mxn)} MXN`],
-                        ['Cajas Flete Corto', `${this.formatNumber(this.cajas_flete_corto)} unidades`],
-                        ['Cajas Flete Largo', `${this.formatNumber(this.cajas_flete_largo)} unidades`],
-                        ['Costo Aduana', `$${this.formatNumber(this.costo_aduana_embarque)} USD`],
-                        ['Costo Cartón/Caja', `$${this.formatNumber(this.costo_carton_caja)} USD`],
-                        ['Costo Empaque/Caja', `$${this.formatNumber(this.costo_empaque_caja_mxn)} MXN`],
-                        ['Costo Manejo/Caja', `$${this.formatNumber(this.costo_manejo_caja)} USD`],
-                        ['Costo Sobrepeso', `$${this.formatNumber(this.costo_sobrepeso_embarque)} USD`]
+                    const params = [
+                        [`Comisión: ${this.formatNumber(this.comision_venta)}%`, `Peso/Caja: ${this.formatNumber(this.peso_caja)}kg`, `Aduana: $${this.formatNumber(this.costo_aduana_embarque)}`],
+                        [`Flete Corto: $${this.formatNumber(this.costo_flete_corto_mxn)}`, `Flete Largo: $${this.formatNumber(this.costo_flete_largo_mxn)}`, `Cajas C: ${this.formatNumber(this.cajas_flete_corto)}`],
+                        [`Cajas L: ${this.formatNumber(this.cajas_flete_largo)}`, `Cartón: $${this.formatNumber(this.costo_carton_caja)}`, `Empaque: $${this.formatNumber(this.costo_empaque_caja_mxn)}`],
+                        [`Manejo: $${this.formatNumber(this.costo_manejo_caja)}`, `Sobrepeso: $${this.formatNumber(this.costo_sobrepeso_embarque)}`, ``]
                     ];
                     
-                    parametros.forEach(([param, valor]) => {
-                        doc.setFont(undefined, 'bold');
-                        doc.text(param + ':', margenIzq, y);
-                        doc.setFont(undefined, 'normal');
-                        doc.text(valor, margenDer, y, { align: 'right' });
-                        y += 6;
+                    params.forEach(fila => {
+                        const anchoParam = anchoTotal / 3;
+                        fila.forEach((texto, i) => {
+                            if (texto) {
+                                doc.text(texto, margen + (i * anchoParam), y);
+                            }
+                        });
+                        y += 4;
                     });
                     
-                    // Footer
-                    const totalPaginas = doc.internal.getNumberOfPages();
-                    for (let i = 1; i <= totalPaginas; i++) {
-                        doc.setPage(i);
-                        doc.setFontSize(8);
-                        doc.setTextColor(128, 128, 128);
-                        doc.text(`Cotizador de Piña - Amador Russell → Chula Brand`, 105, 290, { align: 'center' });
-                        doc.text(`Página ${i} de ${totalPaginas}`, 105, 295, { align: 'center' });
-                    }
+                    // Footer compacto
+                    doc.setFontSize(6);
+                    doc.setTextColor(128, 128, 128);
+                    doc.text('Cotizador de Piña - Amador Russell → Chula Brand', 105, 292, { align: 'center' });
                     
                     // Guardar PDF
                     const fecha = new Date().toISOString().split('T')[0];
