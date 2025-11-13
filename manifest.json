@@ -1,7 +1,7 @@
 {
   "name": "Cotizador de Piña",
   "short_name": "Cotizador",
-  "description": "Cotizador para el departamento de ventas de piña",
+  "description": "Cotizador de Piña - Amador Russell",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#667eea",

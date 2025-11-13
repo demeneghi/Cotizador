@@ -1,6 +1,6 @@
 # Cotizador de Piña - PWA
 
-Aplicación web progresiva (PWA) para el departamento de ventas que permite calcular precios de piña por kilogramo considerando diferentes tipos de flete y costos asociados.
+Aplicación web progresiva (PWA) de Amador Russell que permite calcular precios de piña por kilogramo considerando diferentes tipos de flete y costos asociados.
 
 ## Características
 
@@ -193,9 +193,9 @@ Arrastra la carpeta del proyecto a Netlify Drop
 
 ## Licencia
 
-Uso interno - Departamento de Ventas
+Uso interno - Amador Russell
 
 ## Contacto
 
-Para soporte o modificaciones, contacta al equipo de desarrollo.
+Para soporte o modificaciones, contacta a Amador Russell.
 
