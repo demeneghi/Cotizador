@@ -67,6 +67,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
+            padding-top: max(30px, calc(30px + env(safe-area-inset-top)));
             text-align: center;
         }
 
@@ -609,7 +610,7 @@
             background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             color: white;
             border: none;
-            padding: 16px 32px;
+            padding: 12px 32px;
             border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
@@ -1533,8 +1534,7 @@
 
                 <!-- Botón Compartir Cotización -->
                 <button class="btn-compartir" @click="generarCotizacionHTML()">
-                    <span style="font-size: 20px;">📋</span>
-                    <span>Generar Cotización</span>
+                    <span>Generar informe</span>
                 </button>
 
             </div>
