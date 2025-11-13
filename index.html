@@ -138,16 +138,6 @@
             text-align: center;
         }
 
-        .input-wrapper input:focus {
-            outline: none;
-        }
-
-        .input-wrapper input:read-only {
-            background: #f7fafc;
-            color: #718096;
-            cursor: not-allowed;
-        }
-
         .results-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -269,6 +259,7 @@
         input {
             -webkit-appearance: none;
             appearance: none;
+            outline: none;
         }
 
         .input-prefix {
@@ -294,10 +285,6 @@
             transition: all 0.2s;
         }
 
-        .param-input-wrapper input:focus {
-            outline: none;
-        }
-
         .btn-reset,
         .btn-save {
             border: none;
@@ -319,13 +306,18 @@
             background: #e53e3e;
         }
 
-        .btn-reset:hover {
-            background: #c53030;
+        .btn-reset:hover,
+        .btn-save:hover {
             transform: translateY(-1px);
         }
 
-        .btn-reset:active {
+        .btn-reset:active,
+        .btn-save:active {
             transform: scale(0.98);
+        }
+
+        .btn-reset:hover {
+            background: #c53030;
         }
 
         .btn-save {
@@ -334,11 +326,6 @@
 
         .btn-save:hover {
             background: #38a169;
-            transform: translateY(-1px);
-        }
-
-        .btn-save:active {
-            transform: scale(0.98);
         }
 
         .btn-save.saved {
@@ -354,11 +341,6 @@
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 15px;
-        }
-
-        .button-group button {
-            width: 100%;
-            margin-top: 0;
         }
 
         .accordion-header {
@@ -573,29 +555,33 @@
                 font-size: 13px;
             }
 
-            .input-group,
             .results-grid,
             .params-grid {
                 grid-template-columns: 1fr;
             }
 
             .input-group {
-                gap: 15px;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
             }
 
             .input-wrapper label {
-                font-size: 12px;
+                font-size: 11px;
                 margin-bottom: 6px;
             }
 
             .input-wrapper .input-prefix {
-                padding: 10px 12px;
-                font-size: 14px;
+                padding: 10px 8px;
+                font-size: 13px;
             }
 
             .input-wrapper input {
-                font-size: 20px;
-                padding: 12px 14px;
+                font-size: 18px;
+                padding: 12px 10px;
+            }
+
+            .input-wrapper .input-with-prefix {
+                min-height: 48px;
             }
 
             .results-grid {
@@ -658,11 +644,6 @@
 
             .param-input-wrapper input {
                 font-size: 16px;
-                padding: 12px 10px;
-            }
-
-            .input-prefix {
-                font-size: 13px;
                 padding: 12px 10px;
             }
 
@@ -755,18 +736,26 @@
                 margin-bottom: 12px;
             }
 
+            .input-group {
+                gap: 10px;
+            }
+
             .input-wrapper label {
-                font-size: 11px;
+                font-size: 10px;
             }
 
             .input-wrapper .input-prefix {
-                font-size: 13px;
-                padding: 10px;
+                font-size: 11px;
+                padding: 8px 6px;
             }
 
             .input-wrapper input {
-                font-size: 18px;
-                padding: 12px;
+                font-size: 16px;
+                padding: 10px 6px;
+            }
+
+            .input-wrapper .input-with-prefix {
+                min-height: 44px;
             }
 
             .result-card {
@@ -803,10 +792,6 @@
 
             .param-input-wrapper input {
                 font-size: 16px;
-            }
-
-            .input-prefix {
-                font-size: 13px;
             }
 
             .params-section,
@@ -856,25 +841,25 @@
                     <div class="section-title">Datos Principales</div>
                     <div class="input-group">
                         <div class="input-wrapper">
-                            <label for="precio_venta">Precio de Venta</label>
+                            <label for="precio_venta">Precio Venta</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">USD $</span>
-                            <input 
+                                <input 
                                     type="text" 
-                                id="precio_venta" 
+                                    id="precio_venta" 
                                     x-model.lazy="precio_venta"
-                                placeholder="0.00"
+                                    placeholder="0.00"
                                     inputmode="decimal"
-                            >
+                                >
                             </div>
                         </div>
                         <div class="input-wrapper">
-                            <label for="tipo_cambio">Tipo de Cambio</label>
+                            <label for="tipo_cambio">Tipo Cambio</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">MXN $</span>
-                            <input 
+                                <input 
                                     type="text" 
-                                id="tipo_cambio" 
+                                    id="tipo_cambio" 
                                     x-model.lazy="tipo_cambio"
                                     placeholder="0.00"
                                     inputmode="decimal"
