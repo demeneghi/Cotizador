@@ -1,11 +1,12 @@
-const CACHE_NAME = 'cotizador-pina-v9';
+const CACHE_NAME = 'cotizador-pina-v10';
 const urlsToCache = [
   './icon-192.png',
   './icon-512.png',
   './styles.css',
   './informe.html',
   'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js',
-  'https://fonts.googleapis.com/css2?family=Victor+Mono:wght@400;500;600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Victor+Mono:wght@400;500;600;700&display=swap',
+  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
 ];
 
 // Instalación del Service Worker

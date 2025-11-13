@@ -12,6 +12,9 @@
     
     <!-- Estilos -->
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- html2canvas para captura de imagen -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body class="informe">
     <div class="container">
@@ -78,13 +81,13 @@
 
                 <div class="informe-actions">
                     <button class="btn-share btn-print" onclick="window.print()">
-                        🖨️ Imprimir
+                        🖨️ Imprimir PDF
                     </button>
-                    <button class="btn-share btn-whatsapp" onclick="compartirWhatsApp()">
-                        💬 WhatsApp
+                    <button class="btn-share btn-download" onclick="descargarHTML()">
+                        📥 Descargar HTML
                     </button>
-                    <button class="btn-share btn-telegram" onclick="compartirTelegram()">
-                        ✈️ Telegram
+                    <button class="btn-share btn-image" onclick="descargarImagen()">
+                        📸 Descargar Imagen
                     </button>
                 </div>
 
@@ -185,16 +188,92 @@
         // Cargar informe al abrir la página
         window.addEventListener('load', cargarInforme);
 
-        // Funciones para compartir
-        function compartirWhatsApp() {
-            const texto = encodeURIComponent('Cotización de Piña - Ver informe en: ' + window.location.href);
-            window.open(`https://wa.me/?text=${texto}`, '_blank');
+        // Función para descargar HTML autocontenido
+        async function descargarHTML() {
+            try {
+                const datos = localStorage.getItem('cotizacion_informe') || 
+                              sessionStorage.getItem('cotizacion_informe') ||
+                              (window.location.hash ? decodeURIComponent(window.location.hash.substring(1)) : null);
+                
+                if (!datos) {
+                    alert('No hay datos para generar el informe');
+                    return;
+                }
+
+                // Obtener el CSS
+                const response = await fetch('styles.css');
+                const cssContent = await response.text();
+
+                // Crear HTML completo con CSS embebido
+                const htmlCompleto = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotización de Piña - Informe</title>
+    <style>${cssContent}</style>
+</head>
+<body class="informe">
+    <div class="container">
+        ${document.getElementById('informe-content').innerHTML}
+    </div>
+</body>
+</html>`;
+
+                // Descargar archivo
+                const blob = new Blob([htmlCompleto], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Cotizacion-Pina-${new Date().toISOString().split('T')[0]}.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert('Informe descargado. Ahora puedes compartirlo por WhatsApp o Telegram como archivo.');
+            } catch (error) {
+                console.error('Error descargando HTML:', error);
+                alert('Error al descargar el informe');
+            }
         }
 
-        function compartirTelegram() {
-            const texto = encodeURIComponent('Cotización de Piña');
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://t.me/share/url?url=${url}&text=${texto}`, '_blank');
+        // Función para descargar como imagen
+        async function descargarImagen() {
+            try {
+                // Ocultar botones temporalmente
+                const botones = document.querySelector('.informe-actions');
+                if (botones) botones.style.display = 'none';
+
+                const container = document.querySelector('.container');
+                const canvas = await html2canvas(container, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    windowWidth: 900,
+                    windowHeight: container.scrollHeight
+                });
+
+                // Restaurar botones
+                if (botones) botones.style.display = 'flex';
+
+                // Convertir a imagen y descargar
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Cotizacion-Pina-${new Date().toISOString().split('T')[0]}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    alert('Imagen descargada. Ahora puedes compartirla por WhatsApp o Telegram.');
+                });
+            } catch (error) {
+                console.error('Error generando imagen:', error);
+                alert('Error al generar la imagen');
+            }
         }
     </script>
 </body>
