@@ -23,8 +23,7 @@ Aplicación web progresiva (PWA) para el departamento de ventas que permite calc
 
 ```
 Cotizador-WEB/
-├── index.html          # Aplicación principal
-├── config.json         # Configuración predeterminada
+├── index.html          # Aplicación principal (incluye configuración)
 ├── manifest.json       # Configuración PWA
 ├── sw.js              # Service Worker
 ├── server.py          # Servidor Python para desarrollo local
@@ -155,16 +154,19 @@ Precio/Kg = (Precio Neto × Tipo Cambio) ÷ Peso Caja
 
 ### Modificar Valores Predeterminados
 
-Edita el archivo `config.json` con los valores deseados:
+Los valores predeterminados están definidos en la constante `VALORES_PREDETERMINADOS` al inicio del script en `index.html`:
 
-```json
-{
-  "tipo_cambio": 18.50,
-  "comision_venta": 10.00,
-  "peso_caja": 11.40,
-  ...
-}
+```javascript
+const VALORES_PREDETERMINADOS = {
+    tipo_cambio: 18.50,
+    comision_venta: 10.00,
+    peso_caja: 11.40,
+    costo_flete_corto_mxn: 38000.00,
+    // ... más valores
+};
 ```
+
+Para modificarlos, edita esta constante en el archivo `index.html`.
 
 ### Personalizar Estilos
 

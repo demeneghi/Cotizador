@@ -1336,28 +1336,44 @@
     </div>
 
     <script>
+        const VALORES_PREDETERMINADOS = {
+            tipo_cambio: 18.50,
+            comision_venta: 10.00,
+            peso_caja: 11.40,
+            costo_flete_corto_mxn: 38000.00,
+            costo_flete_largo_mxn: 42000.00,
+            costo_aduana_embarque: 103.00,
+            costo_carton_caja: 1.37,
+            costo_empaque_caja_mxn: 26.00,
+            costo_manejo_caja: 0.22,
+            costo_sobrepeso_embarque: 250.00,
+            cajas_flete_corto: 1650,
+            cajas_flete_largo: 2250,
+            precio_venta: null
+        };
+
         function cotizador() {
             return {
                 // Variables principales
                 precio_venta: null,
-                tipo_cambio: 18.50,
-                comision_venta: 10.00,
-                peso_caja: 11.40,
+                tipo_cambio: VALORES_PREDETERMINADOS.tipo_cambio,
+                comision_venta: VALORES_PREDETERMINADOS.comision_venta,
+                peso_caja: VALORES_PREDETERMINADOS.peso_caja,
                 
                 // Costos de flete (en MXN)
-                costo_flete_corto_mxn: 38000.00,
-                costo_flete_largo_mxn: 42000.00,
+                costo_flete_corto_mxn: VALORES_PREDETERMINADOS.costo_flete_corto_mxn,
+                costo_flete_largo_mxn: VALORES_PREDETERMINADOS.costo_flete_largo_mxn,
                 
                 // Costos adicionales
-                costo_aduana_embarque: 103.00,
-                costo_carton_caja: 1.37,
-                costo_empaque_caja_mxn: 26.00,
-                costo_manejo_caja: 0.22,
-                costo_sobrepeso_embarque: 250.00,
+                costo_aduana_embarque: VALORES_PREDETERMINADOS.costo_aduana_embarque,
+                costo_carton_caja: VALORES_PREDETERMINADOS.costo_carton_caja,
+                costo_empaque_caja_mxn: VALORES_PREDETERMINADOS.costo_empaque_caja_mxn,
+                costo_manejo_caja: VALORES_PREDETERMINADOS.costo_manejo_caja,
+                costo_sobrepeso_embarque: VALORES_PREDETERMINADOS.costo_sobrepeso_embarque,
                 
                 // Número de cajas
-                cajas_flete_corto: 1650,
-                cajas_flete_largo: 2250,
+                cajas_flete_corto: VALORES_PREDETERMINADOS.cajas_flete_corto,
+                cajas_flete_largo: VALORES_PREDETERMINADOS.cajas_flete_largo,
                 
                 // Resultados
                 precio_kg_corto: 0,
@@ -1373,8 +1389,8 @@
                 // Tipo de flete para visualización de cálculos
                 tipoFleteCalc: 'corto',
 
-                async init() {
-                    await this.cargarConfiguracion();
+                init() {
+                    this.cargarConfiguracion();
                     this.calcular();
                     
                     this.$nextTick(() => {
@@ -1391,58 +1407,33 @@
                     });
                 },
 
-                async cargarConfiguracion() {
+                cargarConfiguracion() {
                     const datosGuardados = localStorage.getItem('cotizador_config');
                     
                     if (datosGuardados) {
-                        this.aplicarDatos(JSON.parse(datosGuardados));
-                    } else {
-                        let datos;
-                        try {
-                            const response = await fetch('./config.json');
-                            if (response.ok) {
-                                datos = await response.json();
-                            } else {
-                                throw new Error('Config.json no encontrado');
-                            }
-                        } catch (error) {
-                            datos = {
-                                tipo_cambio: 18.50,
-                                comision_venta: 10.00,
-                                peso_caja: 11.40,
-                                costo_flete_corto_mxn: 38000.00,
-                                costo_flete_largo_mxn: 42000.00,
-                                costo_aduana_embarque: 103.00,
-                                costo_carton_caja: 1.37,
-                                costo_empaque_caja_mxn: 26.00,
-                                costo_manejo_caja: 0.22,
-                                costo_sobrepeso_embarque: 250.00,
-                                cajas_flete_corto: 1650,
-                                cajas_flete_largo: 2250,
-                                precio_venta: null
-                            };
-                        }
+                        const datos = JSON.parse(datosGuardados);
+                        datos.precio_venta = null;
                         this.aplicarDatos(datos);
+                    } else {
+                        this.aplicarDatos({ ...VALORES_PREDETERMINADOS });
                         this.guardarEnLocalStorage();
                     }
                 },
 
                 aplicarDatos(datos, esReset = false) {
-                    if (esReset || (datos.precio_venta !== undefined && datos.precio_venta !== null)) {
-                        this.precio_venta = datos.precio_venta ?? null;
-                    }
-                    this.tipo_cambio = datos.tipo_cambio ?? 18.50;
-                    this.comision_venta = datos.comision_venta ?? 10.00;
-                    this.peso_caja = datos.peso_caja ?? 11.40;
-                    this.costo_flete_corto_mxn = datos.costo_flete_corto_mxn ?? 38000.00;
-                    this.costo_flete_largo_mxn = datos.costo_flete_largo_mxn ?? 42000.00;
-                    this.costo_aduana_embarque = datos.costo_aduana_embarque ?? 103.00;
-                    this.costo_carton_caja = datos.costo_carton_caja ?? 1.37;
-                    this.costo_empaque_caja_mxn = datos.costo_empaque_caja_mxn ?? 26.00;
-                    this.costo_manejo_caja = datos.costo_manejo_caja ?? 0.22;
-                    this.costo_sobrepeso_embarque = datos.costo_sobrepeso_embarque ?? 250.00;
-                    this.cajas_flete_corto = datos.cajas_flete_corto ?? 1650;
-                    this.cajas_flete_largo = datos.cajas_flete_largo ?? 2250;
+                    this.precio_venta = esReset ? (datos.precio_venta ?? VALORES_PREDETERMINADOS.precio_venta) : null;
+                    this.tipo_cambio = datos.tipo_cambio ?? VALORES_PREDETERMINADOS.tipo_cambio;
+                    this.comision_venta = datos.comision_venta ?? VALORES_PREDETERMINADOS.comision_venta;
+                    this.peso_caja = datos.peso_caja ?? VALORES_PREDETERMINADOS.peso_caja;
+                    this.costo_flete_corto_mxn = datos.costo_flete_corto_mxn ?? VALORES_PREDETERMINADOS.costo_flete_corto_mxn;
+                    this.costo_flete_largo_mxn = datos.costo_flete_largo_mxn ?? VALORES_PREDETERMINADOS.costo_flete_largo_mxn;
+                    this.costo_aduana_embarque = datos.costo_aduana_embarque ?? VALORES_PREDETERMINADOS.costo_aduana_embarque;
+                    this.costo_carton_caja = datos.costo_carton_caja ?? VALORES_PREDETERMINADOS.costo_carton_caja;
+                    this.costo_empaque_caja_mxn = datos.costo_empaque_caja_mxn ?? VALORES_PREDETERMINADOS.costo_empaque_caja_mxn;
+                    this.costo_manejo_caja = datos.costo_manejo_caja ?? VALORES_PREDETERMINADOS.costo_manejo_caja;
+                    this.costo_sobrepeso_embarque = datos.costo_sobrepeso_embarque ?? VALORES_PREDETERMINADOS.costo_sobrepeso_embarque;
+                    this.cajas_flete_corto = datos.cajas_flete_corto ?? VALORES_PREDETERMINADOS.cajas_flete_corto;
+                    this.cajas_flete_largo = datos.cajas_flete_largo ?? VALORES_PREDETERMINADOS.cajas_flete_largo;
                 },
 
                 guardarEnLocalStorage() {
@@ -1573,43 +1564,16 @@
                     }
                 },
 
-                async resetearValores() {
+                resetearValores() {
                     if (confirm('¿Estás seguro de que deseas restaurar los valores predeterminados? Se perderá tu configuración actual.')) {
-                        try {
-                            localStorage.removeItem('cotizador_config');
-                            
-                            let datos;
-                            try {
-                                const response = await fetch('./config.json');
-                                if (!response.ok) throw new Error('No se pudo cargar config.json');
-                                datos = await response.json();
-                            } catch (fetchError) {
-                                datos = {
-                                    tipo_cambio: 18.50,
-                                    comision_venta: 10.00,
-                                    peso_caja: 11.40,
-                                    costo_flete_corto_mxn: 38000.00,
-                                    costo_flete_largo_mxn: 42000.00,
-                                    costo_aduana_embarque: 103.00,
-                                    costo_carton_caja: 1.37,
-                                    costo_empaque_caja_mxn: 26.00,
-                                    costo_manejo_caja: 0.22,
-                                    costo_sobrepeso_embarque: 250.00,
-                                    cajas_flete_corto: 1650,
-                                    cajas_flete_largo: 2250,
-                                    precio_venta: null
-                                };
-                            }
-                            
-                            this.aplicarDatos(datos, true);
-                            this.guardarEnLocalStorage();
-                            this.calcular();
-                            this.configuracionGuardada = false;
-                            
-                            alert('Valores restaurados correctamente');
-                        } catch (error) {
-                            alert('Error inesperado al restaurar valores');
-                        }
+                        localStorage.removeItem('cotizador_config');
+                        
+                        this.aplicarDatos({ ...VALORES_PREDETERMINADOS }, true);
+                        this.guardarEnLocalStorage();
+                        this.calcular();
+                        this.configuracionGuardada = false;
+                        
+                        alert('Valores restaurados correctamente');
                     }
                 },
 
