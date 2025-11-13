@@ -28,9 +28,12 @@
         }
 
         function cargarInforme() {
+            console.log('Cargando informe...');
             const datos = localStorage.getItem('cotizacion_informe');
+            console.log('Datos en localStorage:', datos ? 'Encontrados' : 'No encontrados');
             
             if (!datos) {
+                console.error('No hay datos en localStorage con clave cotizacion_informe');
                 document.getElementById('informe-content').innerHTML = `
                     <div class="no-data">
                         <h2>No hay datos de cotización</h2>
@@ -41,7 +44,9 @@
                 return;
             }
 
+            console.log('Parseando datos JSON...');
             const informe = JSON.parse(datos);
+            console.log('Informe parseado:', informe);
             
             document.getElementById('informe-content').innerHTML = `
                 <div class="header">

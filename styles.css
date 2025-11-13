@@ -945,11 +945,11 @@ input:-ms-input-placeholder {
     }
 
     .header h1 {
-        font-size: 24px;
+        font-size: 30px;
     }
 
     .header p {
-        font-size: 13px;
+        font-size: 15px;
     }
 
     .content {
@@ -961,7 +961,7 @@ input:-ms-input-placeholder {
     }
 
     .section-title {
-        font-size: 12px;
+        font-size: 13px;
         margin-bottom: 12px;
     }
 
@@ -1034,7 +1034,7 @@ input:-ms-input-placeholder {
 
     .accordion-header {
         padding: 12px;
-        font-size: 12px;
+        font-size: 13px;
         min-height: 48px;
     }
 
