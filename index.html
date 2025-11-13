@@ -120,11 +120,12 @@
 
         .input-wrapper .input-with-prefix {
             display: flex;
-            align-items: center;
+            align-items: stretch;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             min-width: 0;
             overflow: hidden;
+            min-height: 56px;
         }
 
         .input-wrapper .input-with-prefix:focus-within {
@@ -133,18 +134,21 @@
         }
 
         .input-wrapper .input-prefix {
-            padding: 12px 14px;
+            padding: 0 14px;
             font-size: 16px;
             border-right: 2px solid #e2e8f0;
             flex-shrink: 0;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
+            height: 100%;
         }
 
         .input-wrapper input {
-            padding: 12px 15px;
+            padding: 14px 15px;
             border: none;
             border-radius: 0 6px 6px 0;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 600;
             transition: all 0.2s;
             text-align: center;
@@ -600,7 +604,7 @@
             }
 
             .input-wrapper .input-with-prefix {
-                min-height: 44px;
+                min-height: 50px;
                 border-width: 1px;
                 width: 100%;
                 max-width: 100%;
@@ -611,13 +615,16 @@
             }
 
             .input-wrapper .input-prefix {
-                padding: 8px 4px;
-                font-size: 11px;
+                padding: 0 6px;
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                height: 100%;
             }
 
             .input-wrapper input {
-                font-size: 15px;
-                padding: 8px 4px;
+                font-size: 16px;
+                padding: 12px 6px;
                 flex: 1;
                 min-width: 0;
             }
@@ -792,7 +799,7 @@
             }
 
             .input-wrapper .input-with-prefix {
-                min-height: 42px;
+                min-height: 46px;
                 border-width: 1px;
                 width: 100%;
                 max-width: 100%;
@@ -803,13 +810,16 @@
             }
 
             .input-wrapper .input-prefix {
-                font-size: 10px;
-                padding: 6px 3px;
+                font-size: 11px;
+                padding: 0 5px;
+                display: flex;
+                align-items: center;
+                height: 100%;
             }
 
             .input-wrapper input {
-                font-size: 14px;
-                padding: 6px 3px;
+                font-size: 15px;
+                padding: 10px 5px;
                 flex: 1;
                 min-width: 0;
             }
