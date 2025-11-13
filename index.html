@@ -854,31 +854,29 @@
                             <label for="precio_venta">Precio de Venta</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">USD $</span>
-                            <input 
+                                <input 
                                     type="text" 
-                                id="precio_venta" 
-                                    :value="formatInput(precio_venta, 'moneda')"
-                                    @focus="onInputFocus($event)"
-                                    @input="onInputChange($event, 'precio_venta')"
-                                    @blur="onInputBlur($event, 'precio_venta', 'moneda')"
+                                    id="precio_venta" 
+                                    x-model="precio_venta_input"
+                                    @focus="onInputFocus2($event, 'precio_venta')"
+                                    @blur="onInputBlur2($event, 'precio_venta', 'moneda')"
                                     @keydown="onKeyDown($event, 'precio_venta')"
-                                placeholder="0.00"
+                                    placeholder="0.00"
                                     inputmode="decimal"
                                     pattern="[0-9]*"
-                            >
+                                >
                             </div>
                         </div>
                         <div class="input-wrapper">
                             <label for="tipo_cambio">Tipo de Cambio</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">MXN $</span>
-                            <input 
+                                <input 
                                     type="text" 
-                                id="tipo_cambio" 
-                                    :value="formatInput(tipo_cambio, 'moneda')"
-                                    @focus="onInputFocus($event)"
-                                    @input="onInputChange($event, 'tipo_cambio')"
-                                    @blur="onInputBlur($event, 'tipo_cambio', 'moneda')"
+                                    id="tipo_cambio" 
+                                    x-model="tipo_cambio_input"
+                                    @focus="onInputFocus2($event, 'tipo_cambio')"
+                                    @blur="onInputBlur2($event, 'tipo_cambio', 'moneda')"
                                     @keydown="onKeyDown($event, 'tipo_cambio')"
                                     placeholder="0.00"
                                     inputmode="decimal"
@@ -1388,6 +1386,10 @@
                 
                 // Tipo de flete para visualización de cálculos
                 tipoFleteCalc: 'corto',
+                
+                // Variables temporales para inputs principales (sin formato durante edición)
+                precio_venta_input: '',
+                tipo_cambio_input: '',
 
                 init() {
                     this.cargarConfiguracion();
@@ -1404,6 +1406,28 @@
                                 this.configuracionGuardada = false;
                             });
                         });
+                        
+                        // Watchers para inputs temporales - actualización en tiempo real
+                        this.$watch('precio_venta_input', (value) => {
+                            const cleanValue = this.unformatInput(value);
+                            const numValue = parseFloat(cleanValue);
+                            if (!isNaN(numValue) && isFinite(numValue)) {
+                                this.precio_venta = numValue;
+                                this.calcular();
+                            } else if (cleanValue === '') {
+                                this.precio_venta = null;
+                                this.calcular();
+                            }
+                        });
+                        
+                        this.$watch('tipo_cambio_input', (value) => {
+                            const cleanValue = this.unformatInput(value);
+                            const numValue = parseFloat(cleanValue);
+                            if (!isNaN(numValue) && isFinite(numValue)) {
+                                this.tipo_cambio = numValue;
+                                this.calcular();
+                            }
+                        });
                     });
                 },
 
@@ -1418,6 +1442,9 @@
                         this.aplicarDatos({ ...VALORES_PREDETERMINADOS });
                         this.guardarEnLocalStorage();
                     }
+                    
+                    this.precio_venta_input = '';
+                    this.tipo_cambio_input = this.formatInput(this.tipo_cambio, 'moneda');
                 },
 
                 aplicarDatos(datos, esReset = false) {
@@ -1573,6 +1600,9 @@
                         this.calcular();
                         this.configuracionGuardada = false;
                         
+                        this.precio_venta_input = '';
+                        this.tipo_cambio_input = this.formatInput(this.tipo_cambio, 'moneda');
+                        
                         alert('Valores restaurados correctamente');
                     }
                 },
@@ -1618,27 +1648,30 @@
                     return String(value).replace(/,/g, '');
                 },
 
-                onInputFocus(event) {
-                    const input = event.target;
-                    input.value = this.unformatInput(input.value);
+                onInputFocus2(event, campo) {
+                    const inputVar = campo + '_input';
+                    this[inputVar] = this.unformatInput(this[inputVar]);
                 },
 
-                onInputChange(event, campo) {
-                    const input = event.target;
-                    const cleanValue = this.unformatInput(input.value);
+                onInputBlur2(event, campo, tipo = 'moneda') {
+                    const inputVar = campo + '_input';
+                    const cleanValue = this.unformatInput(this[inputVar]);
                     
                     if (cleanValue === '' || cleanValue === null) {
-                        this[campo] = null;
-                        this.calcular();
+                        this[campo] = campo === 'precio_venta' ? null : 0;
+                        this[inputVar] = '';
                         return;
                     }
                     
-                    const numValue = parseFloat(cleanValue);
-                    
-                    if (!isNaN(numValue) && isFinite(numValue)) {
-                        this[campo] = numValue;
-                        this.calcular();
-                    }
+                    const numValue = parseFloat(cleanValue) || 0;
+                    this[campo] = numValue;
+                    this[inputVar] = this.formatInput(numValue, tipo);
+                    this.calcular();
+                },
+
+                onInputFocus(event) {
+                    const input = event.target;
+                    input.value = this.unformatInput(input.value);
                 },
 
                 onInputBlur(event, campo, tipo = 'moneda') {
@@ -1669,8 +1702,16 @@
                             ? currentValue + step 
                             : currentValue - step;
                         
-                        this[campo] = Math.max(0, Math.round(newValue * 100) / 100);
-                        event.target.value = this.formatInput(this[campo], campo === 'comision_venta' ? 'porcentaje' : 'moneda');
+                        const nuevoValor = Math.max(0, Math.round(newValue * 100) / 100);
+                        this[campo] = nuevoValor;
+                        
+                        // Actualizar también la variable de input temporal si existe
+                        const inputVar = campo + '_input';
+                        if (this.hasOwnProperty(inputVar)) {
+                            const tipo = campo === 'comision_venta' ? 'porcentaje' : 'moneda';
+                            this[inputVar] = this.formatInput(nuevoValor, tipo);
+                        }
+                        
                         this.calcular();
                     }
                 },
