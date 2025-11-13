@@ -98,7 +98,7 @@ body {
 }
 
 .input-wrapper label {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 8px;
@@ -262,7 +262,7 @@ input:-ms-input-placeholder {
 }
 
 .param-label {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
     color: #4a5568;
     text-transform: uppercase;
@@ -724,7 +724,7 @@ input:-ms-input-placeholder {
     }
 
     .input-wrapper label {
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 600;
         margin-bottom: 4px;
     }
@@ -827,7 +827,7 @@ input:-ms-input-placeholder {
     }
 
     .param-label {
-        font-size: 10px;
+        font-size: 12px;
     }
 
     .button-group {
@@ -978,7 +978,7 @@ input:-ms-input-placeholder {
     }
 
     .input-wrapper label {
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 600;
         margin-bottom: 3px;
     }
@@ -1043,7 +1043,7 @@ input:-ms-input-placeholder {
     }
 
     .param-label {
-        font-size: 9px;
+        font-size: 11px;
     }
 
     .param-input-wrapper .input-with-prefix {

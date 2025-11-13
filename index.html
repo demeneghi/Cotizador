@@ -1009,21 +1009,31 @@
                         try {
                             const datosJSON = JSON.stringify(datosInforme);
                             localStorage.setItem('cotizacion_informe', datosJSON);
-                            console.log('Datos guardados en localStorage correctamente');
                             
-                            // Verificar que se guardó
-                            const verificar = localStorage.getItem('cotizacion_informe');
-                            if (verificar) {
-                                console.log('Verificación exitosa - datos en localStorage');
-                                // Pequeño delay para asegurar que localStorage se escriba
+                            // También guardarlo en sessionStorage como respaldo
+                            sessionStorage.setItem('cotizacion_informe', datosJSON);
+                            
+                            console.log('Datos guardados correctamente');
+                            
+                            // Abrir ventana con datos en URL hash (para file://)
+                            const datosEncoded = encodeURIComponent(datosJSON);
+                            
+                            // Para desarrollo local (file://), usar hash
+                            // Para producción (https://), usar localStorage que funciona correctamente
+                            if (window.location.protocol === 'file:') {
+                                // Modo archivo local: usar hash
+                                const ventana = window.open(`./informe.html#${datosEncoded}`, '_blank');
+                                if (!ventana) {
+                                    console.error('No se pudo abrir la ventana. Permite pop-ups.');
+                                }
+                            } else {
+                                // Modo servidor: usar localStorage normalmente
                                 setTimeout(() => {
                                     window.open('./informe.html', '_blank');
                                 }, 100);
-                            } else {
-                                console.error('Error: No se pudo guardar en localStorage');
                             }
                         } catch (storageError) {
-                            console.error('Error guardando en localStorage:', storageError);
+                            console.error('Error guardando datos:', storageError);
                         }
                     } catch (error) {
                         console.error('Error generando cotización:', error);

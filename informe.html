@@ -29,11 +29,32 @@
 
         function cargarInforme() {
             console.log('Cargando informe...');
-            const datos = localStorage.getItem('cotizacion_informe');
-            console.log('Datos en localStorage:', datos ? 'Encontrados' : 'No encontrados');
+            let datos = null;
+            
+            // Intentar obtener datos del hash (para file://)
+            if (window.location.hash && window.location.hash.length > 1) {
+                console.log('Datos encontrados en URL hash');
+                try {
+                    datos = decodeURIComponent(window.location.hash.substring(1));
+                } catch (e) {
+                    console.error('Error decodificando hash:', e);
+                }
+            }
+            
+            // Si no hay en hash, intentar localStorage
+            if (!datos) {
+                datos = localStorage.getItem('cotizacion_informe');
+                console.log('Datos en localStorage:', datos ? 'Encontrados' : 'No encontrados');
+            }
+            
+            // Si no hay en localStorage, intentar sessionStorage
+            if (!datos) {
+                datos = sessionStorage.getItem('cotizacion_informe');
+                console.log('Datos en sessionStorage:', datos ? 'Encontrados' : 'No encontrados');
+            }
             
             if (!datos) {
-                console.error('No hay datos en localStorage con clave cotizacion_informe');
+                console.error('No se encontraron datos en hash, localStorage ni sessionStorage');
                 document.getElementById('informe-content').innerHTML = `
                     <div class="no-data">
                         <h2>No hay datos de cotización</h2>
@@ -46,7 +67,7 @@
 
             console.log('Parseando datos JSON...');
             const informe = JSON.parse(datos);
-            console.log('Informe parseado:', informe);
+            console.log('Informe cargado exitosamente');
             
             document.getElementById('informe-content').innerHTML = `
                 <div class="header">
