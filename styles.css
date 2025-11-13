@@ -1130,10 +1130,97 @@ input:-ms-input-placeholder {
    ESTILOS ESPECÍFICOS PARA INFORME
    ========================================== */
 
-.fecha {
+/* Sobrescribir estilos base para informe empresarial */
+body.informe {
+    background: #f5f5f5;
+    padding: 0;
+}
+
+body.informe .container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+}
+
+body.informe .header {
+    background: white;
+    color: #2d3748;
+    padding: 40px;
+    border-bottom: 3px solid #667eea;
+}
+
+body.informe .header h1 {
+    color: #667eea;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+body.informe .header p {
+    color: #4a5568;
+    opacity: 1;
     font-size: 14px;
-    margin-top: 15px;
-    opacity: 0.85;
+}
+
+.fecha {
+    font-size: 13px;
+    margin-top: 12px;
+    opacity: 1;
+    color: #718096;
+}
+
+.informe-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 20px 40px;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.btn-share {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-whatsapp {
+    background: #25D366;
+    color: white;
+}
+
+.btn-whatsapp:hover {
+    background: #20BA5A;
+    transform: translateY(-1px);
+}
+
+.btn-telegram {
+    background: #0088cc;
+    color: white;
+}
+
+.btn-telegram:hover {
+    background: #0077b3;
+    transform: translateY(-1px);
+}
+
+.btn-print {
+    background: #4a5568;
+    color: white;
+}
+
+.btn-print:hover {
+    background: #2d3748;
+    transform: translateY(-1px);
 }
 
 .datos-principales {
@@ -1144,22 +1231,24 @@ input:-ms-input-placeholder {
 }
 
 .dato-box {
-    background: #f7fafc;
+    background: #f9fafb;
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
     border-left: 4px solid #667eea;
 }
 
 .dato-label {
-    font-size: 12px;
+    font-size: 11px;
     color: #718096;
     font-weight: 600;
     text-transform: uppercase;
     margin-bottom: 8px;
+    letter-spacing: 0.5px;
 }
 
 .dato-value {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 700;
     color: #2d3748;
 }
@@ -1171,13 +1260,17 @@ input:-ms-input-placeholder {
 }
 
 .flujo-columna h3 {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-    color: white;
+    background: white;
+    color: #2d3748;
     padding: 12px;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 15px;
     text-align: center;
     margin-bottom: 20px;
+    border: 2px solid #667eea;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .paso {
@@ -1246,13 +1339,13 @@ input:-ms-input-placeholder {
     color: #2d3748;
 }
 
-.footer {
-    background: #f7fafc;
-    padding: 20px;
+body.informe .footer {
+    background: white;
+    padding: 30px;
     text-align: center;
     border-top: 2px solid #e2e8f0;
     color: #718096;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .no-data {
@@ -1284,24 +1377,62 @@ input:-ms-input-placeholder {
 
 /* Media queries para informe */
 @media print {
-    body { 
+    body.informe { 
         background: white; 
-        padding: 0; 
+        padding: 0;
+        margin: 0;
     }
-    .container { 
-        box-shadow: none; 
+    
+    body.informe .container { 
+        box-shadow: none;
+        margin: 0;
+        max-width: 100%;
+    }
+    
+    .informe-actions {
+        display: none !important;
+    }
+    
+    body.informe .header {
+        border-bottom: 2px solid #667eea;
     }
 }
 
 @media (max-width: 768px) {
+    body.informe .container {
+        margin: 20px;
+    }
+
+    body.informe .header {
+        padding: 30px 20px;
+    }
+
+    body.informe .header h1 {
+        font-size: 24px;
+    }
+
+    .informe-actions {
+        padding: 15px 20px;
+        flex-wrap: wrap;
+    }
+
+    .btn-share {
+        font-size: 13px;
+        padding: 8px 16px;
+    }
+
+    .content {
+        padding: 30px 20px;
+    }
+
     .datos-principales, 
     .flujo-grid, 
     .parametros-grid {
         grid-template-columns: 1fr;
     }
     
-    .resultado-value {
-        font-size: 36px;
+    body.informe .resultado-value {
+        font-size: 32px;
     }
 }
 
