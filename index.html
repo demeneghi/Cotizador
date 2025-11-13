@@ -528,6 +528,65 @@
             color: #667eea;
         }
 
+        .toast-update {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 9999;
+            min-width: 320px;
+            max-width: 90%;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-update-message {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .toast-update-button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .toast-update-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .toast-update-button:active {
+            transform: scale(0.98);
+        }
+
         @media (max-width: 1200px) {
             .params-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -543,7 +602,7 @@
 
             .container {
                 padding: 0 6px;
-                margin-top: 10px;
+            margin-top: 10px;
                 margin-bottom: 20px;
                 max-width: 100%;
                 overflow-x: hidden;
@@ -573,7 +632,7 @@
 
             .section {
                 margin-bottom: 20px;
-                width: 100%;
+            width: 100%;
                 max-width: 100%;
             }
 
@@ -745,6 +804,36 @@
                 font-size: 20px;
                 margin: 3px 0;
             }
+
+            .toast-update {
+                bottom: 15px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                min-width: auto;
+                padding: 14px 18px;
+                gap: 12px;
+            }
+
+            .toast-update-message {
+                font-size: 13px;
+            }
+
+            .toast-update-button {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            @keyframes slideUp {
+                from {
+                    transform: translateY(100px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
         }
 
         @media (max-width: 430px) {
@@ -890,15 +979,45 @@
             .btn-reset {
                 font-size: 14px;
             }
+
+            .toast-update {
+                bottom: 10px;
+                left: 8px;
+                right: 8px;
+                padding: 12px 14px;
+                gap: 10px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .toast-update-message {
+                font-size: 12px;
+            }
+
+            .toast-update-button {
+                width: 100%;
+                padding: 10px 16px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Toast de Actualización -->
+    <div id="updateToast" class="toast-update" style="display: none;">
+        <div class="toast-update-message">
+            Nueva versión disponible
+        </div>
+        <button class="toast-update-button" onclick="actualizarApp()">
+            Actualizar Ahora
+        </button>
+    </div>
+
     <div class="container" x-data="cotizador()">
         <div class="card">
             <div class="header">
                 <h1>Cotizador de Piña</h1>
-                <p>Amador Russell</p>
+                <p>Amador Russell → Chula Brand</p>
             </div>
 
             <div class="content">
@@ -913,7 +1032,7 @@
                             <input 
                                     type="text" 
                                 id="precio_venta" 
-                                    x-model.lazy="precio_venta"
+                                    x-model="precio_venta"
                                 placeholder="0.00"
                                     inputmode="decimal"
                             >
@@ -923,10 +1042,10 @@
                             <label for="tipo_cambio">Tipo Cambio</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">MXN $</span>
-                            <input 
+                                <input 
                                     type="text" 
-                                id="tipo_cambio" 
-                                    x-model.lazy="tipo_cambio"
+                                    id="tipo_cambio" 
+                                    x-model="tipo_cambio"
                                     placeholder="0.00"
                                     inputmode="decimal"
                                 >
@@ -1147,12 +1266,9 @@
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">%</span>
-                                <input 
+                                    <input 
                                         type="text" 
-                                        :value="formatInput(comision_venta, 'porcentaje')"
-                                        @focus="onInputFocus($event)"
-                                        @blur="onInputBlur($event, 'comision_venta', 'porcentaje')"
-                                        @keydown="onKeyDown($event, 'comision_venta')"
+                                        x-model="comision_venta"
                                         inputmode="decimal"
                                         pattern="[0-9]*"
                                     >
@@ -1165,12 +1281,9 @@
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">kg</span>
-                                <input 
+                                    <input 
                                         type="text" 
-                                        :value="formatInput(peso_caja, 'peso')"
-                                        @focus="onInputFocus($event)"
-                                        @blur="onInputBlur($event, 'peso_caja', 'peso')"
-                                        @keydown="onKeyDown($event, 'peso_caja')"
+                                        x-model="peso_caja"
                                         inputmode="decimal"
                                         pattern="[0-9]*"
                                     >
@@ -1193,10 +1306,7 @@
                                     <span class="input-prefix">MXN $</span>
                                 <input 
                                         type="text" 
-                                        :value="formatInput(costo_flete_corto_mxn, 'moneda')"
-                                        @focus="onInputFocus($event)"
-                                        @blur="onInputBlur($event, 'costo_flete_corto_mxn', 'moneda')"
-                                        @keydown="onKeyDown($event, 'costo_flete_corto_mxn')"
+                                        x-model="costo_flete_corto_mxn"
                                         inputmode="decimal"
                                         pattern="[0-9]*"
                                     >
@@ -1211,10 +1321,7 @@
                                     <span class="input-prefix">MXN $</span>
                                 <input 
                                         type="text" 
-                                        :value="formatInput(costo_flete_largo_mxn, 'moneda')"
-                                        @focus="onInputFocus($event)"
-                                        @blur="onInputBlur($event, 'costo_flete_largo_mxn', 'moneda')"
-                                        @keydown="onKeyDown($event, 'costo_flete_largo_mxn')"
+                                        x-model="costo_flete_largo_mxn"
                                         inputmode="decimal"
                                         pattern="[0-9]*"
                                     >
@@ -1229,10 +1336,7 @@
                                     <span class="input-prefix">cajas</span>
                                 <input 
                                         type="text" 
-                                        :value="formatInput(cajas_flete_corto, 'entero')"
-                                        @focus="onInputFocus($event)"
-                                        @blur="onInputBlur($event, 'cajas_flete_corto', 'entero')"
-                                        @keydown="onKeyDown($event, 'cajas_flete_corto')"
+                                        x-model="cajas_flete_corto"
                                         inputmode="numeric"
                                         pattern="[0-9]*"
                                     >
@@ -1247,10 +1351,7 @@
                                     <span class="input-prefix">cajas</span>
                                 <input 
                                         type="text" 
-                                        :value="formatInput(cajas_flete_largo, 'entero')"
-                                        @focus="onInputFocus($event)"
-                                        @blur="onInputBlur($event, 'cajas_flete_largo', 'entero')"
-                                        @keydown="onKeyDown($event, 'cajas_flete_largo')"
+                                        x-model="cajas_flete_largo"
                                         inputmode="numeric"
                                         pattern="[0-9]*"
                                     >
@@ -1273,10 +1374,7 @@
                                     <span class="input-prefix">USD $</span>
                                 <input 
                                         type="text" 
-                                        :value="formatInput(costo_aduana_embarque, 'moneda')"
-                                        @focus="onInputFocus($event)"
-                                        @blur="onInputBlur($event, 'costo_aduana_embarque', 'moneda')"
-                                        @keydown="onKeyDown($event, 'costo_aduana_embarque')"
+                                        x-model="costo_aduana_embarque"
                                         inputmode="decimal"
                                         pattern="[0-9]*"
                                     >
@@ -1291,10 +1389,7 @@
                                     <span class="input-prefix">USD $</span>
                                 <input 
                                         type="text" 
-                                        :value="formatInput(costo_manejo_caja, 'moneda')"
-                                        @focus="onInputFocus($event)"
-                                        @blur="onInputBlur($event, 'costo_manejo_caja', 'moneda')"
-                                        @keydown="onKeyDown($event, 'costo_manejo_caja')"
+                                        x-model="costo_manejo_caja"
                                         inputmode="decimal"
                                         pattern="[0-9]*"
                                     >
@@ -1309,10 +1404,7 @@
                                     <span class="input-prefix">USD $</span>
                                 <input 
                                         type="text" 
-                                        :value="formatInput(costo_sobrepeso_embarque, 'moneda')"
-                                        @focus="onInputFocus($event)"
-                                        @blur="onInputBlur($event, 'costo_sobrepeso_embarque', 'moneda')"
-                                        @keydown="onKeyDown($event, 'costo_sobrepeso_embarque')"
+                                        x-model="costo_sobrepeso_embarque"
                                         inputmode="decimal"
                                         pattern="[0-9]*"
                                     >
@@ -1335,10 +1427,7 @@
                                     <span class="input-prefix">USD $</span>
                                 <input 
                                         type="text" 
-                                        :value="formatInput(costo_carton_caja, 'moneda')"
-                                        @focus="onInputFocus($event)"
-                                        @blur="onInputBlur($event, 'costo_carton_caja', 'moneda')"
-                                        @keydown="onKeyDown($event, 'costo_carton_caja')"
+                                        x-model="costo_carton_caja"
                                         inputmode="decimal"
                                         pattern="[0-9]*"
                                     >
@@ -1353,10 +1442,7 @@
                                     <span class="input-prefix">MXN $</span>
                                 <input 
                                         type="text" 
-                                        :value="formatInput(costo_empaque_caja_mxn, 'moneda')"
-                                        @focus="onInputFocus($event)"
-                                        @blur="onInputBlur($event, 'costo_empaque_caja_mxn', 'moneda')"
-                                        @keydown="onKeyDown($event, 'costo_empaque_caja_mxn')"
+                                        x-model="costo_empaque_caja_mxn"
                                         inputmode="decimal"
                                         pattern="[0-9]*"
                                     >
@@ -1636,78 +1722,6 @@
                     });
                 },
 
-                formatInput(value, tipo = 'moneda') {
-                    if (value === null || value === undefined || value === '') return '';
-                    const num = Number(value);
-                    if (isNaN(num)) return '';
-                    
-                    let minDecimals = 0;
-                    let maxDecimals = 2;
-                    
-                    if (tipo === 'moneda') {
-                        minDecimals = 2;
-                        maxDecimals = 2;
-                    } else if (tipo === 'porcentaje') {
-                        minDecimals = 1;
-                        maxDecimals = 2;
-                    } else if (tipo === 'entero') {
-                        minDecimals = 0;
-                        maxDecimals = 0;
-                    } else if (tipo === 'peso') {
-                        minDecimals = 2;
-                        maxDecimals = 2;
-                    }
-                    
-                    return num.toLocaleString('en-US', {
-                        minimumFractionDigits: minDecimals,
-                        maximumFractionDigits: maxDecimals
-                    });
-                },
-
-                unformatInput(value) {
-                    if (!value) return '';
-                    return String(value).replace(/,/g, '');
-                },
-
-                onInputFocus(event) {
-                    const input = event.target;
-                    input.value = this.unformatInput(input.value);
-                },
-
-                onInputBlur(event, campo, tipo = 'moneda') {
-                    const input = event.target;
-                    const cleanValue = this.unformatInput(input.value);
-                    
-                    if (cleanValue === '' || cleanValue === null) {
-                        this[campo] = '';
-                        input.value = '';
-                        this.calcular();
-                        return;
-                    }
-                    
-                    const numValue = parseFloat(cleanValue) || 0;
-                    
-                    this[campo] = numValue;
-                    input.value = this.formatInput(numValue, tipo);
-                    this.calcular();
-                },
-
-                onKeyDown(event, campo) {
-                    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-                        event.preventDefault();
-                        
-                        const step = 0.1;
-                        const currentValue = this[campo] ?? 0;
-                        const newValue = event.key === 'ArrowUp' 
-                            ? currentValue + step 
-                            : currentValue - step;
-                        
-                        this[campo] = Math.max(0, Math.round(newValue * 100) / 100);
-                        event.target.value = this.formatInput(this[campo], campo === 'comision_venta' ? 'porcentaje' : 'moneda');
-                        this.calcular();
-                    }
-                },
-
                 calcularGastosEmbarqueDisplay() {
                     const costoFleteMXN = this.tipoFleteCalc === 'corto' ? this.costo_flete_corto_mxn : this.costo_flete_largo_mxn;
                     const cajas = this.tipoFleteCalc === 'corto' ? this.cajas_flete_corto : this.cajas_flete_largo;
@@ -1725,18 +1739,37 @@
     </script>
 
     <script>
+        let newServiceWorker = null;
+
+        function mostrarToastActualizacion() {
+            const toast = document.getElementById('updateToast');
+            if (toast) {
+                toast.style.display = 'flex';
+            }
+        }
+
+        function actualizarApp() {
+            const toast = document.getElementById('updateToast');
+            if (toast) {
+                toast.style.display = 'none';
+            }
+            
+            if (newServiceWorker) {
+                newServiceWorker.postMessage({ action: 'skipWaiting' });
+            }
+            
+            window.location.reload();
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
                     .then(registration => {
                         registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    if (confirm('Hay una nueva versión disponible. ¿Deseas actualizar?')) {
-                                        newWorker.postMessage({ action: 'skipWaiting' });
-                                        window.location.reload();
-                                    }
+                            newServiceWorker = registration.installing;
+                            newServiceWorker.addEventListener('statechange', () => {
+                                if (newServiceWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    mostrarToastActualizacion();
                                 }
                             });
                         });

@@ -1,8 +1,8 @@
-const CACHE_NAME = 'cotizador-pina-v1';
+const CACHE_NAME = 'cotizador-pina-v2';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/config.json',
+  '/manifest.json',
   'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js'
 ];
 
