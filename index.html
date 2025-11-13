@@ -309,42 +309,53 @@
         }
 
         .btn-reset,
-        .btn-save {
+        .btn-save,
+        .btn-compartir {
             border: none;
-            padding: 10px 20px;
             border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
             width: 100%;
             color: white;
             min-height: 44px;
             user-select: none;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-reset,
+        .btn-save {
+            padding: 10px 20px;
+            font-size: 13px;
         }
 
         .btn-reset {
             background: #e53e3e;
         }
 
+        .btn-save {
+            background: #48bb78;
+        }
+
         .btn-reset:hover,
-        .btn-save:hover {
+        .btn-save:hover,
+        .btn-compartir:hover {
             transform: translateY(-1px);
         }
 
         .btn-reset:active,
-        .btn-save:active {
+        .btn-save:active,
+        .btn-compartir:active {
             transform: scale(0.98);
         }
 
         .btn-reset:hover {
             background: #c53030;
-        }
-
-        .btn-save {
-            background: #48bb78;
         }
 
         .btn-save:hover {
@@ -614,12 +625,7 @@
         }
 
         .btn-compartir:hover {
-            transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
-        }
-
-        .btn-compartir:active {
-            transform: scale(0.98);
         }
 
         @media (max-width: 1200px) {
@@ -1528,7 +1534,7 @@
                 <!-- Botón Compartir Cotización -->
                 <button class="btn-compartir" @click="generarCotizacionHTML()">
                     <span style="font-size: 20px;">📋</span>
-                    <span>Generar Cotización para Cliente</span>
+                    <span>Generar Cotización</span>
                 </button>
 
             </div>
