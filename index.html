@@ -1544,18 +1544,18 @@
 
     <script>
         const VALORES_PREDETERMINADOS = {
-                tipo_cambio: 18.50,
-                comision_venta: 10.00,
-                peso_caja: 11.40,
-                costo_flete_corto_mxn: 38000.00,
-                costo_flete_largo_mxn: 42000.00,
-                costo_aduana_embarque: 103.00,
-                costo_carton_caja: 1.37,
-                costo_empaque_caja_mxn: 26.00,
-                costo_manejo_caja: 0.22,
-                costo_sobrepeso_embarque: 250.00,
-                cajas_flete_corto: 1650,
-                cajas_flete_largo: 2250,
+            tipo_cambio: 18.50,
+            comision_venta: 10.00,
+            peso_caja: 11.40,
+            costo_flete_corto_mxn: 38000.00,
+            costo_flete_largo_mxn: 42000.00,
+            costo_aduana_embarque: 103.00,
+            costo_carton_caja: 1.37,
+            costo_empaque_caja_mxn: 26.00,
+            costo_manejo_caja: 0.22,
+            costo_sobrepeso_embarque: 250.00,
+            cajas_flete_corto: 1650,
+            cajas_flete_largo: 2250,
             precio_venta: ''
         };
 
@@ -1616,15 +1616,20 @@
                 },
 
                 cargarConfiguracion() {
-                    const datosGuardados = localStorage.getItem('cotizador_config');
-                    
-                    if (datosGuardados) {
-                        const datos = JSON.parse(datosGuardados);
-                        datos.precio_venta = '';
-                        this.aplicarDatos(datos);
-                    } else {
-                        this.aplicarDatos({ ...VALORES_PREDETERMINADOS });
+                    try {
+                        const datosGuardados = localStorage.getItem('cotizador_config');
+                        
+                        if (datosGuardados) {
+                            const datos = JSON.parse(datosGuardados);
+                            datos.precio_venta = '';
+                            this.aplicarDatos(datos);
+                        } else {
+                            this.aplicarDatos({ ...VALORES_PREDETERMINADOS });
                             this.guardarEnLocalStorage();
+                        }
+                    } catch (error) {
+                        console.error('Error cargando configuración:', error);
+                        this.aplicarDatos({ ...VALORES_PREDETERMINADOS });
                     }
                 },
 
@@ -1645,22 +1650,26 @@
                 },
 
                 guardarEnLocalStorage() {
-                    const datos = {
-                        precio_venta: this.precio_venta,
-                        tipo_cambio: this.tipo_cambio,
-                        comision_venta: this.comision_venta,
-                        peso_caja: this.peso_caja,
-                        costo_flete_corto_mxn: this.costo_flete_corto_mxn,
-                        costo_flete_largo_mxn: this.costo_flete_largo_mxn,
-                        costo_aduana_embarque: this.costo_aduana_embarque,
-                        costo_carton_caja: this.costo_carton_caja,
-                        costo_empaque_caja_mxn: this.costo_empaque_caja_mxn,
-                        costo_manejo_caja: this.costo_manejo_caja,
-                        costo_sobrepeso_embarque: this.costo_sobrepeso_embarque,
-                        cajas_flete_corto: this.cajas_flete_corto,
-                        cajas_flete_largo: this.cajas_flete_largo
-                    };
-                    localStorage.setItem('cotizador_config', JSON.stringify(datos));
+                    try {
+                        const datos = {
+                            precio_venta: this.precio_venta,
+                            tipo_cambio: this.tipo_cambio,
+                            comision_venta: this.comision_venta,
+                            peso_caja: this.peso_caja,
+                            costo_flete_corto_mxn: this.costo_flete_corto_mxn,
+                            costo_flete_largo_mxn: this.costo_flete_largo_mxn,
+                            costo_aduana_embarque: this.costo_aduana_embarque,
+                            costo_carton_caja: this.costo_carton_caja,
+                            costo_empaque_caja_mxn: this.costo_empaque_caja_mxn,
+                            costo_manejo_caja: this.costo_manejo_caja,
+                            costo_sobrepeso_embarque: this.costo_sobrepeso_embarque,
+                            cajas_flete_corto: this.cajas_flete_corto,
+                            cajas_flete_largo: this.cajas_flete_largo
+                        };
+                        localStorage.setItem('cotizador_config', JSON.stringify(datos));
+                    } catch (error) {
+                        console.error('Error guardando en localStorage:', error);
+                    }
                 },
 
                 // Validación de valores numéricos seguros
@@ -1726,38 +1735,39 @@
                             return;
                         }
                         
-                    const gastosEmbarqueCorto = this.calcularGastosEmbarque(
-                        this.costo_flete_corto_mxn,
-                        this.cajas_flete_corto
-                    );
-                    
-                    const gastosEmbarqueLargo = this.calcularGastosEmbarque(
-                        this.costo_flete_largo_mxn,
-                        this.cajas_flete_largo
+                        const gastosEmbarqueCorto = this.calcularGastosEmbarque(
+                            this.costo_flete_corto_mxn,
+                            this.cajas_flete_corto
+                        );
+                        
+                        const gastosEmbarqueLargo = this.calcularGastosEmbarque(
+                            this.costo_flete_largo_mxn,
+                            this.cajas_flete_largo
                         ) + this.validarNumero(this.costo_sobrepeso_embarque, '', 0);
 
-                    this.precio_kg_corto = this.calcularPrecioKg(
+                        this.precio_kg_corto = this.calcularPrecioKg(
                             precioVentaNum,
-                        this.comision_venta,
-                        gastosEmbarqueCorto,
-                        this.cajas_flete_corto,
+                            this.comision_venta,
+                            gastosEmbarqueCorto,
+                            this.cajas_flete_corto,
                             tipoCambioNum,
-                        this.peso_caja
-                    );
+                            this.peso_caja
+                        );
 
-                    this.precio_kg_largo = this.calcularPrecioKg(
+                        this.precio_kg_largo = this.calcularPrecioKg(
                             precioVentaNum,
-                        this.comision_venta,
-                        gastosEmbarqueLargo,
-                        this.cajas_flete_largo,
+                            this.comision_venta,
+                            gastosEmbarqueLargo,
+                            this.cajas_flete_largo,
                             tipoCambioNum,
-                        this.peso_caja
-                    );
+                            this.peso_caja
+                        );
                         
                         this.precio_kg_corto = this.validarNumero(this.precio_kg_corto, '', 0);
                         this.precio_kg_largo = this.validarNumero(this.precio_kg_largo, '', 0);
                         
                     } catch (error) {
+                        console.error('Error en cálculo:', error);
                         this.precio_kg_corto = 0;
                         this.precio_kg_largo = 0;
                     }
@@ -1772,20 +1782,23 @@
                             this.configuracionGuardada = false;
                         }, 2000);
                     } catch (error) {
-                        alert('Error al guardar la configuración');
+                        console.error('Error al guardar configuración:', error);
+                        this.configuracionGuardada = false;
                     }
                 },
 
                 resetearValores() {
                     if (confirm('¿Estás seguro de que deseas restaurar los valores predeterminados? Se perderá tu configuración actual.')) {
-                        localStorage.removeItem('cotizador_config');
-                        
-                        this.aplicarDatos({ ...VALORES_PREDETERMINADOS }, true);
+                        try {
+                            localStorage.removeItem('cotizador_config');
+                            
+                            this.aplicarDatos({ ...VALORES_PREDETERMINADOS }, true);
                             this.guardarEnLocalStorage();
                             this.calcular();
-                        this.configuracionGuardada = false;
-                        
-                        alert('Valores restaurados correctamente');
+                            this.configuracionGuardada = false;
+                        } catch (error) {
+                            console.error('Error al resetear valores:', error);
+                        }
                     }
                 },
 
@@ -1811,8 +1824,14 @@
                 },
 
                 generarCotizacionHTML() {
-                    const precioVentaNum = parseFloat(this.precio_venta) || 0;
-                    const tipoCambioNum = parseFloat(this.tipo_cambio) || 0;
+                    try {
+                        const precioVentaNum = parseFloat(this.precio_venta) || 0;
+                        const tipoCambioNum = parseFloat(this.tipo_cambio) || 0;
+                        
+                        if (precioVentaNum === 0 || tipoCambioNum === 0) {
+                            console.warn('No se puede generar cotización sin precio de venta o tipo de cambio');
+                            return;
+                        }
                     const fecha = new Date().toLocaleDateString('es-MX', { 
                         day: '2-digit', 
                         month: 'long', 
@@ -2264,15 +2283,18 @@
 </body>
 </html>`;
 
-                    const blob = new Blob([htmlCotizacion], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `Cotizacion-Pina-${new Date().toISOString().split('T')[0]}.html`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
+                        const blob = new Blob([htmlCotizacion], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `Cotizacion-Pina-${new Date().toISOString().split('T')[0]}.html`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    } catch (error) {
+                        console.error('Error generando cotización:', error);
+                    }
                 }
             }
         }
