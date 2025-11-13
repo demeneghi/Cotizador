@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cotizador-pina-v5';
+const CACHE_NAME = 'cotizador-pina-v6';
 const urlsToCache = [
   './icon-192.png',
   './icon-512.png',
