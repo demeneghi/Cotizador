@@ -1,42 +1,33 @@
-const CACHE_NAME = 'cotizador-pina-v6';
+const CACHE_NAME = 'cotizador-pina-v8';
 const urlsToCache = [
   './icon-192.png',
   './icon-512.png',
-  'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js'
+  './styles.css',
+  './informe.html',
+  'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js',
+  'https://fonts.googleapis.com/css2?family=Victor+Mono:wght@400;500;600;700&display=swap'
 ];
 
 // Instalación del Service Worker
 self.addEventListener('install', event => {
-  console.log('SW: Instalando nueva versión', CACHE_NAME);
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('SW: Cacheando recursos estáticos');
-        return cache.addAll(urlsToCache);
-      })
-      .then(() => {
-        console.log('SW: Instalación completada, esperando skipWaiting');
-      })
+      .then(cache => cache.addAll(urlsToCache))
   );
 });
 
 // Activación del Service Worker
 self.addEventListener('activate', event => {
-  console.log('Service Worker: Activando versión', CACHE_NAME);
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
           if (cache !== CACHE_NAME) {
-            console.log('Service Worker: Eliminando caché antigua:', cache);
             return caches.delete(cache);
           }
         })
       );
-    }).then(() => {
-      console.log('Service Worker: Tomando control de todos los clientes');
-      return self.clients.claim();
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
@@ -45,7 +36,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
   // Lista de archivos que SIEMPRE deben ir a la red primero para detectar actualizaciones
-  const networkFirstFiles = ['index.html', 'manifest.json', 'sw.js', '/', './'];
+  const networkFirstFiles = ['index.html', 'manifest.json', 'sw.js', 'styles.css', 'informe.html', '/', './'];
   const isNetworkFirst = networkFirstFiles.some(file => 
     url.pathname.endsWith(file) || url.pathname === file || url.pathname === '/Cotizador/' || url.pathname === '/Cotizador'
   );
@@ -103,9 +94,7 @@ self.addEventListener('fetch', event => {
 
 // Manejo de mensajes para actualizar el caché
 self.addEventListener('message', event => {
-  console.log('Service Worker: Mensaje recibido:', event.data);
   if (event.data && event.data.action === 'skipWaiting') {
-    console.log('Service Worker: Ejecutando skipWaiting');
     self.skipWaiting();
   }
 });

@@ -26,1088 +26,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Victor+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Estilos -->
+    <link rel="stylesheet" href="styles.css">
+    
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
-        }
-
-        html {
-            -webkit-text-size-adjust: 100%;
-            touch-action: manipulation;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .container {
-            max-width: 1000px;
-            width: 100%;
-            padding: 0 15px;
-            margin: 0 auto;
-        }
-
-        .card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            margin-top: env(safe-area-inset-top, 5px);
-            margin-bottom: env(safe-area-inset-bottom, 5px);
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .section {
-            margin-bottom: 30px;
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #667eea;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 15px;
-        }
-
-        .input-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .input-wrapper {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        .input-wrapper label {
-            font-size: 15px;
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 8px;
-        }
-
-        .input-wrapper .input-with-prefix {
-            display: flex;
-            align-items: stretch;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            min-width: 0;
-            overflow: hidden;
-            min-height: 56px;
-        }
-
-        .input-wrapper .input-with-prefix:focus-within {
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-        }
-
-        .input-wrapper .input-prefix {
-            padding: 0 14px;
-            font-size: 18px;
-            background: #f7fafc;
-            border-right: 2px solid #e2e8f0;
-            flex-shrink: 0;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            height: 100%;
-            font-weight: 600;
-        }
-
-        .input-wrapper input {
-            padding: 14px 15px;
-            border: none;
-            border-radius: 0 6px 6px 0;
-            font-size: 26px;
-            font-weight: 700;
-            transition: all 0.2s;
-            text-align: center;
-            flex: 1;
-            min-width: 0;
-            width: 100%;
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .result-card {
-            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            border: 2px solid #e2e8f0;
-        }
-
-        .result-card.highlight {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-        }
-
-        .result-label {
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-            opacity: 0.8;
-        }
-
-        .result-value {
-            font-size: 42px;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .result-unit {
-            font-size: 15px;
-            opacity: 0.9;
-            margin-top: 8px;
-        }
-
-        .params-section {
-            background: #f7fafc;
-            border-radius: 12px;
-            padding: 16px;
-        }
-
-        .param-group {
-            margin-bottom: 20px;
-        }
-
-        .param-group:last-of-type {
-            margin-bottom: 0;
-        }
-
-        .param-group-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #667eea;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 10px;
-            padding-bottom: 6px;
-            border-bottom: 2px solid #667eea;
-        }
-
-        .params-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .param-item {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding: 10px;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            min-width: 0;
-        }
-
-        .param-label {
-            font-size: 10px;
-            font-weight: 600;
-            color: #4a5568;
-            text-transform: uppercase;
-            letter-spacing: 0.2px;
-            line-height: 1.2;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .param-input-wrapper {
-            width: 100%;
-        }
-
-        .param-input-wrapper .input-with-prefix {
-            display: flex;
-            align-items: stretch;
-            flex: 1;
-            min-width: 0;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            background: white;
-            transition: all 0.2s;
-            overflow: hidden;
-            min-height: 56px;
-        }
-
-        .param-input-wrapper .input-with-prefix:focus-within {
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-        }
-
-        input {
-            -webkit-appearance: none;
-            appearance: none;
-            outline: none;
-        }
-
-        .param-input-wrapper .input-prefix {
-            padding: 0 14px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #2d3748;
-            background: #f7fafc;
-            border-right: 2px solid #e2e8f0;
-            white-space: nowrap;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            min-height: 56px;
-        }
-
-        .param-input-wrapper input {
-            padding: 14px 15px;
-            border: none;
-            border-radius: 0 6px 6px 0;
-            font-size: 16px;
-            font-weight: 600;
-            flex: 1;
-            min-width: 0;
-            text-align: right;
-            transition: all 0.2s;
-        }
-
-        .btn-reset,
-        .btn-save,
-        .btn-compartir {
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            color: white;
-            min-height: 44px;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-reset,
-        .btn-save {
-            padding: 10px 20px;
-            font-size: 13px;
-        }
-
-        .btn-reset {
-            background: #e53e3e;
-        }
-
-        .btn-save {
-            background: #48bb78;
-        }
-
-        .btn-reset:hover,
-        .btn-save:hover,
-        .btn-compartir:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-reset:active,
-        .btn-save:active,
-        .btn-compartir:active {
-            transform: scale(0.98);
-        }
-
-        .btn-reset:hover {
-            background: #c53030;
-        }
-
-        .btn-save:hover {
-            background: #38a169;
-        }
-
-        .btn-save.saved {
-            background: #4299e1;
-        }
-
-        .btn-save.saved:hover {
-            background: #3182ce;
-        }
-
-        .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .accordion-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-            min-height: 50px;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        .accordion-header:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .accordion-header:active {
-            transform: translateY(0);
-        }
-
-        .accordion-icon {
-            font-size: 20px;
-            transition: transform 0.3s;
-        }
-
-        .accordion-icon.open {
-            transform: rotate(180deg);
-        }
-
-        .accordion-content {
-            margin-top: 15px;
-        }
-
-        .formula-section {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 15px;
-        }
-
-        .calc-flow {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .calc-step {
-            background: #f7fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 15px;
-            position: relative;
-        }
-
-        .calc-step.highlight {
-            border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-        }
-
-        .calc-step-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .calc-step-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: #667eea;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .calc-step-badge {
-            background: #667eea;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-
-        .calc-formula {
-            font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace !important;
-            font-size: 13px !important;
-            color: #4a5568;
-            margin-bottom: 10px;
-            padding: 8px 12px;
-            background: white;
-            border-radius: 6px;
-            line-height: 1.7;
-        }
-
-        .calc-value {
-            color: #667eea;
-            font-weight: 700;
-            font-size: 12px !important;
-            font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace !important;
-        }
-
-        .calc-result {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        .calc-result-label {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        .calc-result-value {
-            font-size: 15px !important;
-            font-weight: 700;
-            font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace !important;
-        }
-
-        .calc-arrow {
-            text-align: center;
-            color: #667eea;
-            font-size: 24px;
-            margin: 5px 0;
-        }
-
-        .calc-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .calc-tab {
-            padding: 10px 20px;
-            background: transparent;
-            border: none;
-            border-bottom: 3px solid transparent;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            color: #718096;
-            transition: all 0.2s;
-        }
-
-        .calc-tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .calc-tab:hover {
-            color: #667eea;
-        }
-
-        .toast-update {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            z-index: 9999;
-            min-width: 320px;
-            max-width: 90%;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateX(-50%) translateY(100px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(-50%) translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .toast-update-message {
-            flex: 1;
-            font-size: 14px;
-            font-weight: 500;
-            line-height: 1.5;
-        }
-
-        .toast-update-button {
-            background: white;
-            color: #667eea;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .toast-update-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-        }
-
-        .toast-update-button:active {
-            transform: scale(0.98);
-        }
-
-        .btn-compartir {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            border: none;
-            padding: 12px 32px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            margin-top: 30px;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-compartir:hover {
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-        }
-
-        @media (max-width: 1200px) {
-            .params-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
-                align-items: flex-start;
-                overflow-x: hidden;
-            }
-
-            .container {
-                padding: 0 6px;
-            margin-top: 10px;
-                margin-bottom: 20px;
-                max-width: 100%;
-                overflow-x: hidden;
-            }
-
-            .card {
-                border-radius: 12px;
-                overflow-x: hidden;
-            }
-
-            .header {
-                padding: 20px 15px;
-            }
-
-            .header h1 {
-                font-size: 26px;
-            }
-
-            .header p {
-                font-size: 14px;
-            }
-
-            .content {
-                padding: 20px 12px;
-                overflow-x: hidden;
-            }
-
-            .section {
-                margin-bottom: 20px;
-            width: 100%;
-                max-width: 100%;
-            }
-
-            .section-title {
-                font-size: 13px;
-            }
-
-            .results-grid,
-            .params-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .input-group {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 6px;
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .input-wrapper {
-                min-width: 0;
-                max-width: 100%;
-            }
-
-            .input-wrapper label {
-                font-size: 11px;
-                font-weight: 600;
-                margin-bottom: 4px;
-            }
-
-            .input-wrapper .input-with-prefix {
-                min-height: 50px;
-                border-width: 1px;
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .input-wrapper .input-with-prefix:focus-within {
-                box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.2);
-            }
-
-            .input-wrapper .input-prefix {
-                padding: 0 10px;
-                font-size: 16px;
-                background: #f7fafc;
-                border-right: 2px solid #e2e8f0;
-                display: flex;
-                align-items: center;
-                height: 100%;
-                font-weight: 600;
-                flex-shrink: 0;
-            }
-
-            .input-wrapper input {
-                font-size: 18px;
-                padding: 12px 8px;
-                flex: 1;
-                min-width: 0;
-                font-weight: 700;
-            }
-
-            .results-grid {
-                gap: 15px;
-            }
-
-            .result-card {
-                padding: 25px 20px;
-            }
-
-            .result-label {
-                font-size: 13px;
-                margin-bottom: 10px;
-            }
-
-            .result-value {
-                font-size: 36px;
-            }
-
-            .result-unit {
-                font-size: 13px;
-                margin-top: 6px;
-            }
-
-            .accordion-header {
-                padding: 12px 15px;
-                font-size: 13px;
-                min-height: 50px;
-            }
-
-            .accordion-icon {
-                font-size: 18px;
-            }
-
-            .param-input-wrapper .input-with-prefix {
-                min-height: 50px;
-            }
-
-            .param-input-wrapper .input-prefix {
-                padding: 0 10px;
-                font-size: 16px;
-                background: #f7fafc;
-                border-right: 2px solid #e2e8f0;
-            }
-
-            .param-input-wrapper input {
-                font-size: 16px;
-                padding: 12px 10px;
-            }
-
-            .params-section {
-                padding: 12px;
-            }
-
-            .param-group {
-                margin-bottom: 15px;
-            }
-
-            .param-group-title {
-                font-size: 11px;
-                margin-bottom: 8px;
-                padding-bottom: 5px;
-            }
-
-            .param-item {
-                padding: 12px;
-            }
-
-            .param-label {
-                font-size: 10px;
-            }
-
-            .button-group {
-                grid-template-columns: 1fr;
-                gap: 10px;
-                margin-top: 20px;
-            }
-
-            .btn-save,
-            .btn-reset {
-                padding: 14px 20px;
-                font-size: 15px;
-                font-weight: 600;
-                min-height: 50px;
-            }
-
-            .formula-section {
-                padding: 12px;
-            }
-
-            .calc-step {
-                padding: 12px;
-            }
-
-            .calc-step-title {
-                font-size: 10px;
-            }
-
-            .calc-step-badge {
-                font-size: 9px;
-                padding: 2px 6px;
-            }
-
-            .calc-formula {
-                font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
-                font-size: 10px;
-                padding: 8px 10px;
-            }
-
-            .calc-value {
-                font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
-                font-size: 11px;
-            }
-
-            .calc-result-label {
-                font-size: 11px;
-            }
-
-            .calc-result-value {
-                font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
-                font-size: 16px;
-            }
-
-            .calc-tab {
-                font-size: 12px;
-                padding: 8px 12px;
-            }
-
-            .calc-arrow {
-                font-size: 20px;
-                margin: 3px 0;
-            }
-
-            .btn-compartir {
-                padding: 14px 28px;
-                font-size: 15px;
-                margin-top: 25px;
-            }
-
-            .toast-update {
-                bottom: 15px;
-                left: 10px;
-                right: 10px;
-                transform: none;
-                min-width: auto;
-                padding: 14px 18px;
-                gap: 12px;
-            }
-
-            .toast-update-message {
-                font-size: 13px;
-            }
-
-            .toast-update-button {
-                padding: 8px 16px;
-                font-size: 13px;
-            }
-
-            @keyframes slideUp {
-                from {
-                    transform: translateY(100px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-            }
-        }
-
-        @media (max-width: 430px) {
-            body {
-                padding: 6px;
-            }
-
-            .container {
-                padding: 0 6px;
-            }
-
-            .header {
-                padding: 18px 12px;
-            }
-
-            .header h1 {
-                font-size: 24px;
-            }
-
-            .header p {
-                font-size: 13px;
-            }
-
-            .content {
-                padding: 15px 10px;
-            }
-
-            .section {
-                margin-bottom: 18px;
-            }
-
-            .section-title {
-                font-size: 12px;
-                margin-bottom: 12px;
-            }
-
-            .input-group {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 4px;
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .input-wrapper {
-                min-width: 0;
-                max-width: 100%;
-            }
-
-            .input-wrapper label {
-                font-size: 10px;
-                font-weight: 600;
-                margin-bottom: 3px;
-            }
-
-            .input-wrapper .input-with-prefix {
-                min-height: 46px;
-                border-width: 1px;
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .input-wrapper .input-with-prefix:focus-within {
-                box-shadow: none;
-            }
-
-            .input-wrapper .input-prefix {
-                font-size: 14px;
-                padding: 0 8px;
-                background: #f7fafc;
-                border-right: 2px solid #e2e8f0;
-                display: flex;
-                align-items: center;
-                height: 100%;
-                font-weight: 600;
-                flex-shrink: 0;
-            }
-
-            .input-wrapper input {
-                font-size: 17px;
-                padding: 10px 6px;
-                flex: 1;
-                min-width: 0;
-                font-weight: 700;
-            }
-
-            .result-card {
-                padding: 22px 18px;
-            }
-
-            .result-label {
-                font-size: 12px;
-                margin-bottom: 8px;
-            }
-
-            .result-value {
-                font-size: 32px;
-            }
-
-            .result-unit {
-                font-size: 12px;
-                margin-top: 6px;
-            }
-
-            .accordion-header {
-                padding: 12px;
-                font-size: 12px;
-                min-height: 48px;
-            }
-
-            .param-item {
-                padding: 10px;
-            }
-
-            .param-label {
-                font-size: 9px;
-            }
-
-            .param-input-wrapper .input-with-prefix {
-                min-height: 46px;
-            }
-
-            .param-input-wrapper .input-prefix {
-                padding: 0 8px;
-                font-size: 14px;
-                background: #f7fafc;
-                border-right: 2px solid #e2e8f0;
-            }
-
-            .param-input-wrapper input {
-                font-size: 16px;
-            }
-
-            .params-section,
-            .formula-section {
-                padding: 10px;
-            }
-
-            .calc-step {
-                padding: 10px;
-            }
-
-            .calc-formula {
-                font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
-                font-size: 9px;
-            }
-
-            .calc-value {
-                font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
-                font-size: 10px;
-            }
-
-            .calc-result-label {
-                font-size: 10px;
-            }
-
-            .calc-result-value {
-                font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
-                font-size: 14px;
-            }
-
-            .calc-tab {
-                font-size: 11px;
-                padding: 8px 10px;
-            }
-
-            .btn-save,
-            .btn-reset {
-                font-size: 14px;
-            }
-
-            .toast-update {
-                bottom: 10px;
-                left: 8px;
-                right: 8px;
-                padding: 12px 14px;
-                gap: 10px;
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .toast-update-message {
-                font-size: 12px;
-            }
-
-            .toast-update-button {
-                width: 100%;
-                padding: 10px 16px;
-                font-size: 14px;
-            }
-
-            .btn-compartir {
-                padding: 14px 24px;
-                font-size: 15px;
-                margin-top: 25px;
-            }
-        }
-    </style>
 </head>
 <body>
     <!-- Toast de Actualización -->
@@ -1140,7 +62,7 @@
                                     type="text" 
                                 id="precio_venta" 
                                     x-model="precio_venta"
-                                placeholder="0.00"
+                                placeholder="Ingrese precio de venta"
                                     inputmode="decimal"
                             >
                             </div>
@@ -1153,7 +75,7 @@
                                     type="text" 
                                     id="tipo_cambio" 
                                     x-model="tipo_cambio"
-                                    placeholder="0.00"
+                                    placeholder="Ingrese tipo de cambio"
                                     inputmode="decimal"
                                 >
                             </div>
@@ -1582,18 +504,18 @@
 
     <script>
         const VALORES_PREDETERMINADOS = {
-            tipo_cambio: 18.50,
-            comision_venta: 10.00,
-            peso_caja: 11.40,
-            costo_flete_corto_mxn: 38000.00,
-            costo_flete_largo_mxn: 42000.00,
-            costo_aduana_embarque: 103.00,
-            costo_carton_caja: 1.37,
-            costo_empaque_caja_mxn: 26.00,
-            costo_manejo_caja: 0.22,
-            costo_sobrepeso_embarque: 250.00,
-            cajas_flete_corto: 1650,
-            cajas_flete_largo: 2250,
+                tipo_cambio: 18.50,
+                comision_venta: 10.00,
+                peso_caja: 11.40,
+                costo_flete_corto_mxn: 38000.00,
+                costo_flete_largo_mxn: 42000.00,
+                costo_aduana_embarque: 103.00,
+                costo_carton_caja: 1.37,
+                costo_empaque_caja_mxn: 26.00,
+                costo_manejo_caja: 0.22,
+                costo_sobrepeso_embarque: 250.00,
+                cajas_flete_corto: 1650,
+                cajas_flete_largo: 2250,
             precio_venta: ''
         };
 
@@ -1655,14 +577,14 @@
 
                 cargarConfiguracion() {
                     try {
-                        const datosGuardados = localStorage.getItem('cotizador_config');
-                        
-                        if (datosGuardados) {
-                            const datos = JSON.parse(datosGuardados);
-                            datos.precio_venta = '';
-                            this.aplicarDatos(datos);
-                        } else {
-                            this.aplicarDatos({ ...VALORES_PREDETERMINADOS });
+                    const datosGuardados = localStorage.getItem('cotizador_config');
+                    
+                    if (datosGuardados) {
+                        const datos = JSON.parse(datosGuardados);
+                        datos.precio_venta = '';
+                        this.aplicarDatos(datos);
+                    } else {
+                        this.aplicarDatos({ ...VALORES_PREDETERMINADOS });
                             this.guardarEnLocalStorage();
                         }
                     } catch (error) {
@@ -1689,22 +611,22 @@
 
                 guardarEnLocalStorage() {
                     try {
-                        const datos = {
-                            precio_venta: this.precio_venta,
-                            tipo_cambio: this.tipo_cambio,
-                            comision_venta: this.comision_venta,
-                            peso_caja: this.peso_caja,
-                            costo_flete_corto_mxn: this.costo_flete_corto_mxn,
-                            costo_flete_largo_mxn: this.costo_flete_largo_mxn,
-                            costo_aduana_embarque: this.costo_aduana_embarque,
-                            costo_carton_caja: this.costo_carton_caja,
-                            costo_empaque_caja_mxn: this.costo_empaque_caja_mxn,
-                            costo_manejo_caja: this.costo_manejo_caja,
-                            costo_sobrepeso_embarque: this.costo_sobrepeso_embarque,
-                            cajas_flete_corto: this.cajas_flete_corto,
-                            cajas_flete_largo: this.cajas_flete_largo
-                        };
-                        localStorage.setItem('cotizador_config', JSON.stringify(datos));
+                    const datos = {
+                        precio_venta: this.precio_venta,
+                        tipo_cambio: this.tipo_cambio,
+                        comision_venta: this.comision_venta,
+                        peso_caja: this.peso_caja,
+                        costo_flete_corto_mxn: this.costo_flete_corto_mxn,
+                        costo_flete_largo_mxn: this.costo_flete_largo_mxn,
+                        costo_aduana_embarque: this.costo_aduana_embarque,
+                        costo_carton_caja: this.costo_carton_caja,
+                        costo_empaque_caja_mxn: this.costo_empaque_caja_mxn,
+                        costo_manejo_caja: this.costo_manejo_caja,
+                        costo_sobrepeso_embarque: this.costo_sobrepeso_embarque,
+                        cajas_flete_corto: this.cajas_flete_corto,
+                        cajas_flete_largo: this.cajas_flete_largo
+                    };
+                    localStorage.setItem('cotizador_config', JSON.stringify(datos));
                     } catch (error) {
                         console.error('Error guardando en localStorage:', error);
                     }
@@ -1712,7 +634,9 @@
 
                 // Validación de valores numéricos seguros
                 validarNumero(valor, nombre, minimo = 0, maximo = Infinity) {
-                    const num = Number(valor);
+                    // Remover separadores de miles (comas) antes de convertir
+                    const valorLimpio = typeof valor === 'string' ? valor.replace(/,/g, '') : valor;
+                    const num = Number(valorLimpio);
                     
                     if (isNaN(num) || !isFinite(num)) {
                         return minimo;
@@ -1762,8 +686,8 @@
 
                 calcular() {
                     try {
-                        const precioVentaNum = parseFloat(this.precio_venta);
-                        const tipoCambioNum = parseFloat(this.tipo_cambio);
+                        const precioVentaNum = parseFloat(String(this.precio_venta).replace(/,/g, ''));
+                        const tipoCambioNum = parseFloat(String(this.tipo_cambio).replace(/,/g, ''));
                         
                         if (!precioVentaNum || isNaN(precioVentaNum) || !tipoCambioNum || isNaN(tipoCambioNum) ||
                             tipoCambioNum <= 0 || this.peso_caja <= 0 || 
@@ -1773,33 +697,33 @@
                             return;
                         }
                         
-                        const gastosEmbarqueCorto = this.calcularGastosEmbarque(
-                            this.costo_flete_corto_mxn,
-                            this.cajas_flete_corto
-                        );
-                        
-                        const gastosEmbarqueLargo = this.calcularGastosEmbarque(
-                            this.costo_flete_largo_mxn,
-                            this.cajas_flete_largo
+                    const gastosEmbarqueCorto = this.calcularGastosEmbarque(
+                        this.costo_flete_corto_mxn,
+                        this.cajas_flete_corto
+                    );
+                    
+                    const gastosEmbarqueLargo = this.calcularGastosEmbarque(
+                        this.costo_flete_largo_mxn,
+                        this.cajas_flete_largo
                         ) + this.validarNumero(this.costo_sobrepeso_embarque, '', 0);
 
-                        this.precio_kg_corto = this.calcularPrecioKg(
+                    this.precio_kg_corto = this.calcularPrecioKg(
                             precioVentaNum,
-                            this.comision_venta,
-                            gastosEmbarqueCorto,
-                            this.cajas_flete_corto,
+                        this.comision_venta,
+                        gastosEmbarqueCorto,
+                        this.cajas_flete_corto,
                             tipoCambioNum,
-                            this.peso_caja
-                        );
+                        this.peso_caja
+                    );
 
-                        this.precio_kg_largo = this.calcularPrecioKg(
+                    this.precio_kg_largo = this.calcularPrecioKg(
                             precioVentaNum,
-                            this.comision_venta,
-                            gastosEmbarqueLargo,
-                            this.cajas_flete_largo,
+                        this.comision_venta,
+                        gastosEmbarqueLargo,
+                        this.cajas_flete_largo,
                             tipoCambioNum,
-                            this.peso_caja
-                        );
+                        this.peso_caja
+                    );
                         
                         this.precio_kg_corto = this.validarNumero(this.precio_kg_corto, '', 0);
                         this.precio_kg_largo = this.validarNumero(this.precio_kg_largo, '', 0);
@@ -1828,12 +752,12 @@
                 resetearValores() {
                     if (confirm('¿Estás seguro de que deseas restaurar los valores predeterminados? Se perderá tu configuración actual.')) {
                         try {
-                            localStorage.removeItem('cotizador_config');
-                            
-                            this.aplicarDatos({ ...VALORES_PREDETERMINADOS }, true);
+                        localStorage.removeItem('cotizador_config');
+                        
+                        this.aplicarDatos({ ...VALORES_PREDETERMINADOS }, true);
                             this.guardarEnLocalStorage();
                             this.calcular();
-                            this.configuracionGuardada = false;
+                        this.configuracionGuardada = false;
                         } catch (error) {
                             console.error('Error al resetear valores:', error);
                         }
@@ -1863,13 +787,14 @@
 
                 generarCotizacionHTML() {
                     try {
-                        const precioVentaNum = parseFloat(this.precio_venta) || 0;
-                        const tipoCambioNum = parseFloat(this.tipo_cambio) || 0;
+                        const precioVentaNum = parseFloat(String(this.precio_venta).replace(/,/g, '')) || 0;
+                        const tipoCambioNum = parseFloat(String(this.tipo_cambio).replace(/,/g, '')) || 0;
                         
                         if (precioVentaNum === 0 || tipoCambioNum === 0) {
                             console.warn('No se puede generar cotización sin precio de venta o tipo de cambio');
                             return;
                         }
+                        
                     const fecha = new Date().toLocaleDateString('es-MX', { 
                         day: '2-digit', 
                         month: 'long', 
@@ -1907,429 +832,200 @@
                     const calcCorto = calcularPasosPorFlete('corto');
                     const calcLargo = calcularPasosPorFlete('largo');
 
-                    const htmlCotizacion = `<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cotización de Piña - ${fecha}</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-        }
-        .header h1 {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        .header p {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-        .fecha {
-            font-size: 14px;
-            margin-top: 15px;
-            opacity: 0.85;
-        }
-        .content {
-            padding: 40px;
-        }
-        .section {
-            margin-bottom: 35px;
-        }
-        .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #667eea;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
-        }
-        .datos-principales {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .dato-box {
-            background: #f7fafc;
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 4px solid #667eea;
-        }
-        .dato-label {
-            font-size: 12px;
-            color: #718096;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .dato-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: #2d3748;
-        }
-        .resultados-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-        .resultado-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .resultado-label {
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
-            opacity: 0.9;
-            margin-bottom: 15px;
-        }
-        .resultado-value {
-            font-size: 42px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        .resultado-unit {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        .flujo-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        .flujo-columna h3 {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 16px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .paso {
-            background: #f7fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        .paso-titulo {
-            font-size: 11px;
-            font-weight: 700;
-            color: #667eea;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-        .paso-formula {
-            font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Consolas', monospace;
-            font-size: 14px;
-            color: #4a5568;
-            background: white;
-            padding: 8px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-        }
-        .paso-resultado {
-            background: #667eea;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 14px;
-        }
-        .parametros-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-        .param-box {
-            background: #f7fafc;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-        .param-nombre {
-            font-size: 10px;
-            color: #718096;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-        .param-valor {
-            font-size: 14px;
-            font-weight: 700;
-            color: #2d3748;
-        }
-        .footer {
-            background: #f7fafc;
-            padding: 20px;
-            text-align: center;
-            border-top: 2px solid #e2e8f0;
-            color: #718096;
-            font-size: 12px;
-        }
-        @media print {
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; }
-        }
-        @media (max-width: 768px) {
-            .datos-principales, .resultados-grid, .flujo-grid, .parametros-grid {
-                grid-template-columns: 1fr;
-            }
-            .header h1 { font-size: 28px; }
-            .resultado-value { font-size: 36px; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>COTIZACIÓN DE PIÑA</h1>
-            <p>Amador Russell → Chula Brand</p>
-            <div class="fecha">${fecha} - ${hora}</div>
-        </div>
-
-        <div class="content">
-            <!-- Datos Principales -->
-            <div class="section">
-                <div class="section-title">Datos de Entrada</div>
-                <div class="datos-principales">
-                    <div class="dato-box">
-                        <div class="dato-label">Precio de Venta</div>
-                        <div class="dato-value">$${this.formatNumber(precioVentaNum)} USD</div>
-                    </div>
-                    <div class="dato-box">
-                        <div class="dato-label">Tipo de Cambio</div>
-                        <div class="dato-value">$${this.formatNumber(tipoCambioNum)} MXN</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Resultados -->
-            <div class="section">
-                <div class="section-title">Precios por Kilogramo</div>
-                <div class="resultados-grid">
-                    <div class="resultado-card">
-                        <div class="resultado-label">Flete Corto</div>
-                        <div class="resultado-value">$${this.formatNumber(this.precio_kg_corto)}</div>
-                        <div class="resultado-unit">MXN por kg</div>
-                    </div>
-                    <div class="resultado-card">
-                        <div class="resultado-label">Flete Largo</div>
-                        <div class="resultado-value">$${this.formatNumber(this.precio_kg_largo)}</div>
-                        <div class="resultado-unit">MXN por kg</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Flujo de Cálculos -->
-            <div class="section">
-                <div class="section-title">Flujo de Cálculos Detallado</div>
-                <div class="flujo-grid">
-                    <!-- Flete Corto -->
-                    <div class="flujo-columna">
-                        <h3>FLETE CORTO</h3>
+                        // Preparar datos para el informe
+                        // Calcular detalles para ambos fletes
+                        const detallesCorto = {
+                            fleteUSD: calcCorto.fleteUSD,
+                            empaqueUSD: calcCorto.empaqueUSD,
+                            cartonTotal: this.costo_carton_caja * this.cajas_flete_corto,
+                            empaqueTotal: calcCorto.empaqueUSD * this.cajas_flete_corto,
+                            manejoTotal: this.costo_manejo_caja * this.cajas_flete_corto
+                        };
                         
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 1: Conversión Flete</div>
-                            <div class="paso-formula">${this.formatNumber(this.costo_flete_corto_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcCorto.fleteUSD)} USD</div>
-                        </div>
+                        const detallesLargo = {
+                            fleteUSD: calcLargo.fleteUSD,
+                            empaqueUSD: calcLargo.empaqueUSD,
+                            cartonTotal: this.costo_carton_caja * this.cajas_flete_largo,
+                            empaqueTotal: calcLargo.empaqueUSD * this.cajas_flete_largo,
+                            manejoTotal: this.costo_manejo_caja * this.cajas_flete_largo
+                        };
 
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 2: Conversión Empaque</div>
-                            <div class="paso-formula">${this.formatNumber(this.costo_empaque_caja_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcCorto.empaqueUSD)} USD</div>
-                        </div>
+                        const datosInforme = {
+                            fecha: fecha,
+                            hora: hora,
+                            precioVenta: precioVentaNum,
+                            tipoCambio: tipoCambioNum,
+                            precioKgCorto: this.precio_kg_corto,
+                            precioKgLargo: this.precio_kg_largo,
+                            calcCorto: [
+                                {
+                                    titulo: 'Paso 1: Conversión de Flete a USD',
+                                    badge: 'Conversión',
+                                    formula: `Costo Flete USD = ${this.formatNumber(this.costo_flete_corto_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
+                                    resultado: `$${this.formatNumber(calcCorto.fleteUSD)} USD`,
+                                    label: 'Costo Flete USD:',
+                                    highlight: false
+                                },
+                                {
+                                    titulo: 'Paso 2: Conversión de Empaque a USD',
+                                    badge: 'Conversión',
+                                    formula: `Costo Empaque USD = ${this.formatNumber(this.costo_empaque_caja_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
+                                    resultado: `$${this.formatNumber(calcCorto.empaqueUSD)} USD`,
+                                    label: 'Costo Empaque USD:',
+                                    highlight: false
+                                },
+                                {
+                                    titulo: 'Paso 3: Gastos Totales de Embarque',
+                                    badge: 'Suma',
+                                    formula: `= ${this.formatNumber(calcCorto.fleteUSD)} (Flete USD)<br>+ ${this.formatNumber(this.costo_aduana_embarque)} (Aduana)<br>+ (${this.formatNumber(this.costo_carton_caja)} × ${this.formatNumber(this.cajas_flete_corto)}) = ${this.formatNumber(detallesCorto.cartonTotal)} (Cartón)<br>+ (${this.formatNumber(calcCorto.empaqueUSD)} × ${this.formatNumber(this.cajas_flete_corto)}) = ${this.formatNumber(detallesCorto.empaqueTotal)} (Empaque)<br>+ (${this.formatNumber(this.costo_manejo_caja)} × ${this.formatNumber(this.cajas_flete_corto)}) = ${this.formatNumber(detallesCorto.manejoTotal)} (Manejo)`,
+                                    resultado: `$${this.formatNumber(calcCorto.gastosTotal)} USD`,
+                                    label: 'Gastos Embarque Total:',
+                                    highlight: true
+                                },
+                                {
+                                    titulo: 'Paso 4: Gastos Prorrateados por Caja',
+                                    badge: 'División',
+                                    formula: `Gastos por Caja = ${this.formatNumber(calcCorto.gastosTotal)} USD ÷ ${this.formatNumber(this.cajas_flete_corto)} cajas`,
+                                    resultado: `$${this.formatNumber(calcCorto.gastosPorCaja)} USD`,
+                                    label: 'Gastos por Caja:',
+                                    highlight: false
+                                },
+                                {
+                                    titulo: 'Paso 5: Descuento por Comisión',
+                                    badge: 'Porcentaje',
+                                    formula: `Descuento = ${this.formatNumber(precioVentaNum)} USD × ${this.formatNumber(this.comision_venta)}% ÷ 100`,
+                                    resultado: `$${this.formatNumber(calcCorto.comision)} USD`,
+                                    label: 'Descuento Comisión:',
+                                    highlight: false
+                                },
+                                {
+                                    titulo: 'Paso 6: Precio Neto por Caja (USD)',
+                                    badge: 'Resta',
+                                    formula: `= ${this.formatNumber(precioVentaNum)} (Precio Venta)<br>- ${this.formatNumber(calcCorto.comision)} (Comisión)<br>- ${this.formatNumber(calcCorto.gastosPorCaja)} (Gastos/Caja)`,
+                                    resultado: `$${this.formatNumber(calcCorto.precioNeto)} USD`,
+                                    label: 'Precio Neto por Caja:',
+                                    highlight: true
+                                },
+                                {
+                                    titulo: 'Paso 7: Conversión a Pesos Mexicanos',
+                                    badge: 'Multiplicación',
+                                    formula: `Precio MXN = ${this.formatNumber(calcCorto.precioNeto)} USD × ${this.formatNumber(tipoCambioNum)}`,
+                                    resultado: `$${this.formatNumber(calcCorto.precioMXN)} MXN`,
+                                    label: 'Precio en MXN:',
+                                    highlight: false
+                                },
+                                {
+                                    titulo: 'Paso 8: Precio Final por Kilogramo',
+                                    badge: 'División',
+                                    formula: `Precio/Kg = ${this.formatNumber(calcCorto.precioMXN)} MXN ÷ ${this.formatNumber(this.peso_caja)} kg`,
+                                    resultado: `$${this.formatNumber(calcCorto.precioKg)} MXN/kg`,
+                                    label: 'PRECIO FINAL POR KG:',
+                                    highlight: true,
+                                    final: true
+                                }
+                            ],
+                            calcLargo: [
+                                {
+                                    titulo: 'Paso 1: Conversión de Flete a USD',
+                                    badge: 'Conversión',
+                                    formula: `Costo Flete USD = ${this.formatNumber(this.costo_flete_largo_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
+                                    resultado: `$${this.formatNumber(calcLargo.fleteUSD)} USD`,
+                                    label: 'Costo Flete USD:',
+                                    highlight: false
+                                },
+                                {
+                                    titulo: 'Paso 2: Conversión de Empaque a USD',
+                                    badge: 'Conversión',
+                                    formula: `Costo Empaque USD = ${this.formatNumber(this.costo_empaque_caja_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
+                                    resultado: `$${this.formatNumber(calcLargo.empaqueUSD)} USD`,
+                                    label: 'Costo Empaque USD:',
+                                    highlight: false
+                                },
+                                {
+                                    titulo: 'Paso 3: Gastos Totales de Embarque',
+                                    badge: 'Suma',
+                                    formula: `= ${this.formatNumber(calcLargo.fleteUSD)} (Flete USD)<br>+ ${this.formatNumber(this.costo_aduana_embarque)} (Aduana)<br>+ (${this.formatNumber(this.costo_carton_caja)} × ${this.formatNumber(this.cajas_flete_largo)}) = ${this.formatNumber(detallesLargo.cartonTotal)} (Cartón)<br>+ (${this.formatNumber(calcLargo.empaqueUSD)} × ${this.formatNumber(this.cajas_flete_largo)}) = ${this.formatNumber(detallesLargo.empaqueTotal)} (Empaque)<br>+ (${this.formatNumber(this.costo_manejo_caja)} × ${this.formatNumber(this.cajas_flete_largo)}) = ${this.formatNumber(detallesLargo.manejoTotal)} (Manejo)<br>+ ${this.formatNumber(this.costo_sobrepeso_embarque)} (Sobrepeso)`,
+                                    resultado: `$${this.formatNumber(calcLargo.gastosTotal)} USD`,
+                                    label: 'Gastos Embarque Total:',
+                                    highlight: true
+                                },
+                                {
+                                    titulo: 'Paso 4: Gastos Prorrateados por Caja',
+                                    badge: 'División',
+                                    formula: `Gastos por Caja = ${this.formatNumber(calcLargo.gastosTotal)} USD ÷ ${this.formatNumber(this.cajas_flete_largo)} cajas`,
+                                    resultado: `$${this.formatNumber(calcLargo.gastosPorCaja)} USD`,
+                                    label: 'Gastos por Caja:',
+                                    highlight: false
+                                },
+                                {
+                                    titulo: 'Paso 5: Descuento por Comisión',
+                                    badge: 'Porcentaje',
+                                    formula: `Descuento = ${this.formatNumber(precioVentaNum)} USD × ${this.formatNumber(this.comision_venta)}% ÷ 100`,
+                                    resultado: `$${this.formatNumber(calcLargo.comision)} USD`,
+                                    label: 'Descuento Comisión:',
+                                    highlight: false
+                                },
+                                {
+                                    titulo: 'Paso 6: Precio Neto por Caja (USD)',
+                                    badge: 'Resta',
+                                    formula: `= ${this.formatNumber(precioVentaNum)} (Precio Venta)<br>- ${this.formatNumber(calcLargo.comision)} (Comisión)<br>- ${this.formatNumber(calcLargo.gastosPorCaja)} (Gastos/Caja)`,
+                                    resultado: `$${this.formatNumber(calcLargo.precioNeto)} USD`,
+                                    label: 'Precio Neto por Caja:',
+                                    highlight: true
+                                },
+                                {
+                                    titulo: 'Paso 7: Conversión a Pesos Mexicanos',
+                                    badge: 'Multiplicación',
+                                    formula: `Precio MXN = ${this.formatNumber(calcLargo.precioNeto)} USD × ${this.formatNumber(tipoCambioNum)}`,
+                                    resultado: `$${this.formatNumber(calcLargo.precioMXN)} MXN`,
+                                    label: 'Precio en MXN:',
+                                    highlight: false
+                                },
+                                {
+                                    titulo: 'Paso 8: Precio Final por Kilogramo',
+                                    badge: 'División',
+                                    formula: `Precio/Kg = ${this.formatNumber(calcLargo.precioMXN)} MXN ÷ ${this.formatNumber(this.peso_caja)} kg`,
+                                    resultado: `$${this.formatNumber(calcLargo.precioKg)} MXN/kg`,
+                                    label: 'PRECIO FINAL POR KG:',
+                                    highlight: true,
+                                    final: true
+                                }
+                            ],
+                            parametros: [
+                                { nombre: 'Comisión', valor: `${this.formatNumber(this.comision_venta)}%` },
+                                { nombre: 'Peso por Caja', valor: `${this.formatNumber(this.peso_caja)} kg` },
+                                { nombre: 'Flete Corto', valor: `$${this.formatNumber(this.costo_flete_corto_mxn)} MXN` },
+                                { nombre: 'Flete Largo', valor: `$${this.formatNumber(this.costo_flete_largo_mxn)} MXN` },
+                                { nombre: 'Cajas Flete Corto', valor: this.formatNumber(this.cajas_flete_corto) },
+                                { nombre: 'Cajas Flete Largo', valor: this.formatNumber(this.cajas_flete_largo) },
+                                { nombre: 'Aduana Embarque', valor: `$${this.formatNumber(this.costo_aduana_embarque)} USD` },
+                                { nombre: 'Cartón por Caja', valor: `$${this.formatNumber(this.costo_carton_caja)} USD` },
+                                { nombre: 'Empaque por Caja', valor: `$${this.formatNumber(this.costo_empaque_caja_mxn)} MXN` },
+                                { nombre: 'Manejo por Caja', valor: `$${this.formatNumber(this.costo_manejo_caja)} USD` },
+                                { nombre: 'Sobrepeso', valor: `$${this.formatNumber(this.costo_sobrepeso_embarque)} USD` }
+                            ]
+                        };
 
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 3: Gastos Totales</div>
-                            <div class="paso-formula">Flete + Aduana + Cartón + Empaque + Manejo</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcCorto.gastosTotal)} USD</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 4: Gastos por Caja</div>
-                            <div class="paso-formula">${this.formatNumber(calcCorto.gastosTotal)} ÷ ${this.formatNumber(this.cajas_flete_corto)}</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcCorto.gastosPorCaja)} USD</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 5: Comisión</div>
-                            <div class="paso-formula">${this.formatNumber(precioVentaNum)} × ${this.formatNumber(this.comision_venta)}%</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcCorto.comision)} USD</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 6: Precio Neto</div>
-                            <div class="paso-formula">PV - Comisión - Gastos/Caja</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcCorto.precioNeto)} USD</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 7: Conversión MXN</div>
-                            <div class="paso-formula">${this.formatNumber(calcCorto.precioNeto)} × ${this.formatNumber(tipoCambioNum)}</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcCorto.precioMXN)} MXN</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 8: Precio por Kg</div>
-                            <div class="paso-formula">${this.formatNumber(calcCorto.precioMXN)} ÷ ${this.formatNumber(this.peso_caja)} kg</div>
-                            <div class="paso-resultado" style="background: #48bb78;">$${this.formatNumber(calcCorto.precioKg)} MXN/kg</div>
-                        </div>
-                    </div>
-
-                    <!-- Flete Largo -->
-                    <div class="flujo-columna">
-                        <h3>FLETE LARGO</h3>
-                        
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 1: Conversión Flete</div>
-                            <div class="paso-formula">${this.formatNumber(this.costo_flete_largo_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcLargo.fleteUSD)} USD</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 2: Conversión Empaque</div>
-                            <div class="paso-formula">${this.formatNumber(this.costo_empaque_caja_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcLargo.empaqueUSD)} USD</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 3: Gastos Totales + Sobrepeso</div>
-                            <div class="paso-formula">Gastos Base + $${this.formatNumber(this.costo_sobrepeso_embarque)} USD</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcLargo.gastosTotal)} USD</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 4: Gastos por Caja</div>
-                            <div class="paso-formula">${this.formatNumber(calcLargo.gastosTotal)} ÷ ${this.formatNumber(this.cajas_flete_largo)}</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcLargo.gastosPorCaja)} USD</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 5: Comisión</div>
-                            <div class="paso-formula">${this.formatNumber(precioVentaNum)} × ${this.formatNumber(this.comision_venta)}%</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcLargo.comision)} USD</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 6: Precio Neto</div>
-                            <div class="paso-formula">PV - Comisión - Gastos/Caja</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcLargo.precioNeto)} USD</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 7: Conversión MXN</div>
-                            <div class="paso-formula">${this.formatNumber(calcLargo.precioNeto)} × ${this.formatNumber(tipoCambioNum)}</div>
-                            <div class="paso-resultado">$${this.formatNumber(calcLargo.precioMXN)} MXN</div>
-                        </div>
-
-                        <div class="paso">
-                            <div class="paso-titulo">Paso 8: Precio por Kg</div>
-                            <div class="paso-formula">${this.formatNumber(calcLargo.precioMXN)} ÷ ${this.formatNumber(this.peso_caja)} kg</div>
-                            <div class="paso-resultado" style="background: #48bb78;">$${this.formatNumber(calcLargo.precioKg)} MXN/kg</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Parámetros Utilizados -->
-            <div class="section">
-                <div class="section-title">Parámetros Utilizados</div>
-                <div class="parametros-grid">
-                    <div class="param-box">
-                        <div class="param-nombre">Comisión</div>
-                        <div class="param-valor">${this.formatNumber(this.comision_venta)}%</div>
-                    </div>
-                    <div class="param-box">
-                        <div class="param-nombre">Peso por Caja</div>
-                        <div class="param-valor">${this.formatNumber(this.peso_caja)} kg</div>
-                    </div>
-                    <div class="param-box">
-                        <div class="param-nombre">Flete Corto</div>
-                        <div class="param-valor">$${this.formatNumber(this.costo_flete_corto_mxn)} MXN</div>
-                    </div>
-                    <div class="param-box">
-                        <div class="param-nombre">Flete Largo</div>
-                        <div class="param-valor">$${this.formatNumber(this.costo_flete_largo_mxn)} MXN</div>
-                    </div>
-                    <div class="param-box">
-                        <div class="param-nombre">Cajas Flete Corto</div>
-                        <div class="param-valor">${this.formatNumber(this.cajas_flete_corto)}</div>
-                    </div>
-                    <div class="param-box">
-                        <div class="param-nombre">Cajas Flete Largo</div>
-                        <div class="param-valor">${this.formatNumber(this.cajas_flete_largo)}</div>
-                    </div>
-                    <div class="param-box">
-                        <div class="param-nombre">Aduana Embarque</div>
-                        <div class="param-valor">$${this.formatNumber(this.costo_aduana_embarque)} USD</div>
-                    </div>
-                    <div class="param-box">
-                        <div class="param-nombre">Cartón por Caja</div>
-                        <div class="param-valor">$${this.formatNumber(this.costo_carton_caja)} USD</div>
-                    </div>
-                    <div class="param-box">
-                        <div class="param-nombre">Empaque por Caja</div>
-                        <div class="param-valor">$${this.formatNumber(this.costo_empaque_caja_mxn)} MXN</div>
-                    </div>
-                    <div class="param-box">
-                        <div class="param-nombre">Manejo por Caja</div>
-                        <div class="param-valor">$${this.formatNumber(this.costo_manejo_caja)} USD</div>
-                    </div>
-                    <div class="param-box">
-                        <div class="param-nombre">Sobrepeso</div>
-                        <div class="param-valor">$${this.formatNumber(this.costo_sobrepeso_embarque)} USD</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer">
-            <strong>Cotizador de Piña - Amador Russell → Chula Brand</strong><br>
-            Documento generado automáticamente el ${fecha} a las ${hora}
-        </div>
-    </div>
-</body>
-</html>`;
-
-                        const blob = new Blob([htmlCotizacion], { type: 'text/html' });
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = `Cotizacion-Pina-${new Date().toISOString().split('T')[0]}.html`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        URL.revokeObjectURL(url);
+                        // Guardar en localStorage
+                        try {
+                            const datosJSON = JSON.stringify(datosInforme);
+                            localStorage.setItem('cotizacion_informe', datosJSON);
+                            console.log('Datos guardados en localStorage correctamente');
+                            
+                            // Verificar que se guardó
+                            const verificar = localStorage.getItem('cotizacion_informe');
+                            if (verificar) {
+                                console.log('Verificación exitosa - datos en localStorage');
+                                // Pequeño delay para asegurar que localStorage se escriba
+                                setTimeout(() => {
+                                    window.open('./informe.html', '_blank');
+                                }, 100);
+                            } else {
+                                console.error('Error: No se pudo guardar en localStorage');
+                            }
+                        } catch (storageError) {
+                            console.error('Error guardando en localStorage:', storageError);
+                        }
                     } catch (error) {
                         console.error('Error generando cotización:', error);
                     }
@@ -2347,53 +1043,40 @@
             const toast = document.getElementById('updateToast');
             if (toast) {
                 toast.style.display = 'flex';
-                console.log('✅ TOAST MOSTRADO - Nueva versión disponible');
             } else {
                 console.error('❌ No se encontró el elemento updateToast');
             }
         }
 
         function actualizarApp() {
-            console.log('🔄 Usuario presionó actualizar');
             const toast = document.getElementById('updateToast');
             if (toast) {
                 toast.style.display = 'none';
             }
             
             if (newServiceWorker) {
-                console.log('📤 Enviando mensaje skipWaiting al nuevo SW');
                 newServiceWorker.postMessage({ action: 'skipWaiting' });
             } else {
                 console.error('❌ No hay newServiceWorker disponible');
-                // Intentar forzar actualización de todos modos
                 if (swRegistration) {
                     swRegistration.update().then(() => {
-                        console.log('🔄 Forzando recarga...');
-                        window.location.reload();
+            window.location.reload();
                     });
                 }
             }
         }
 
         if ('serviceWorker' in navigator) {
-            console.log('🔵 Service Worker soportado');
-            
             window.addEventListener('load', () => {
-                console.log('🔵 Página cargada, registrando Service Worker...');
-                
                 navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
                     .then(registration => {
-                        console.log('✅ SW registrado correctamente', registration);
                         swRegistration = registration;
                         
                         // Verificar inmediatamente si hay actualización
-                        registration.update().then(() => {
-                            console.log('🔍 Verificación inicial completada');
-                        });
+                        registration.update();
                         
-                        // Verificar actualizaciones cada 30 segundos (más frecuente para desarrollo)
+                        // Verificar actualizaciones cada 30 segundos
                         updateCheckInterval = setInterval(() => {
-                            console.log('🔍 Verificando actualizaciones automáticamente...');
                             registration.update().catch(err => {
                                 console.error('❌ Error verificando actualización:', err);
                             });
@@ -2401,39 +1084,25 @@
                         
                         // Detectar cuando hay una nueva versión instalándose
                         registration.addEventListener('updatefound', () => {
-                            console.log('🆕 UPDATEFOUND - Nueva versión detectada!');
                             newServiceWorker = registration.installing;
                             
-                            console.log('📦 Nuevo SW en estado:', newServiceWorker.state);
-                            
                             newServiceWorker.addEventListener('statechange', () => {
-                                console.log('🔄 Estado del nuevo SW cambió a:', newServiceWorker.state);
-                                
                                 if (newServiceWorker.state === 'installed') {
                                     if (navigator.serviceWorker.controller) {
-                                        console.log('🎉 HAY ACTUALIZACIÓN - Mostrando toast');
-                                        mostrarToastActualizacion();
-                                    } else {
-                                        console.log('🆕 Primera instalación del SW');
+                                    mostrarToastActualizacion();
                                     }
-                                }
-                                
-                                if (newServiceWorker.state === 'activated') {
-                                    console.log('✅ Nuevo SW activado');
                                 }
                             });
                         });
 
                         // Revisar si ya hay un SW esperando
                         if (registration.waiting) {
-                            console.log('⚠️ Ya hay un SW esperando para activarse');
                             newServiceWorker = registration.waiting;
                             mostrarToastActualizacion();
                         }
 
                         // Revisar si hay uno instalándose
                         if (registration.installing) {
-                            console.log('⚠️ Ya hay un SW instalándose');
                             newServiceWorker = registration.installing;
                         }
                     })
@@ -2446,10 +1115,8 @@
             let refreshing = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (!refreshing) {
-                    console.log('🔄 CONTROLLERCHANGE - Nuevo SW tomó control, recargando...');
                     refreshing = true;
                     
-                    // Limpiar el intervalo antes de recargar
                     if (updateCheckInterval) {
                         clearInterval(updateCheckInterval);
                     }
@@ -2461,7 +1128,6 @@
             // Detectar cuando volvemos de background (app resume)
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden && swRegistration) {
-                    console.log('👁️ App visible de nuevo, verificando actualizaciones...');
                     swRegistration.update();
                 }
             });
@@ -2473,6 +1139,58 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
+        });
+
+        // Formateo automático de números con separadores de miles
+        document.addEventListener('DOMContentLoaded', () => {
+            // Función para formatear números con separadores de miles
+            function formatearConSeparadores(valor) {
+                // Remover caracteres no numéricos excepto punto y coma
+                let limpio = valor.replace(/[^\d.,]/g, '');
+                
+                // Reemplazar coma por punto para decimal
+                limpio = limpio.replace(',', '.');
+                
+                // Si no hay valor, retornar vacío
+                if (!limpio) return '';
+                
+                // Separar parte entera y decimal
+                const partes = limpio.split('.');
+                let parteEntera = partes[0];
+                const parteDecimal = partes[1];
+                
+                // Agregar separadores de miles
+                parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                
+                // Reconstruir el número
+                return parteDecimal !== undefined ? `${parteEntera}.${parteDecimal}` : parteEntera;
+            }
+
+            // Aplicar formateo a todos los inputs de parámetros
+            setTimeout(() => {
+                const paramInputs = document.querySelectorAll('.param-input-wrapper input');
+                
+                paramInputs.forEach(input => {
+                    input.addEventListener('input', function(e) {
+                        const cursorPos = this.selectionStart;
+                        const valorAnterior = this.value;
+                        const valorFormateado = formatearConSeparadores(valorAnterior);
+                        
+                        if (valorFormateado !== valorAnterior) {
+                            this.value = valorFormateado;
+                            
+                            // Ajustar posición del cursor
+                            const diff = valorFormateado.length - valorAnterior.length;
+                            this.setSelectionRange(cursorPos + diff, cursorPos + diff);
+                        }
+                    });
+                    
+                    // Formatear valor inicial si existe
+                    if (input.value) {
+                        input.value = formatearConSeparadores(input.value);
+                    }
+                });
+            }, 500);
         });
     </script>
 </body>

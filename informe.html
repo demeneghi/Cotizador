@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Cotización - Piña</title>
+    
+    <!-- Victor Mono Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Victor+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div id="informe-content"></div>
+    </div>
+
+    <script>
+        function formatNumber(num) {
+            if (isNaN(num) || !isFinite(num)) return '0.00';
+            return num.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function cargarInforme() {
+            const datos = localStorage.getItem('cotizacion_informe');
+            
+            if (!datos) {
+                document.getElementById('informe-content').innerHTML = `
+                    <div class="no-data">
+                        <h2>No hay datos de cotización</h2>
+                        <p>Por favor, genera un informe desde el cotizador.</p>
+                        <a href="index.html">Ir al Cotizador</a>
+                    </div>
+                `;
+                return;
+            }
+
+            const informe = JSON.parse(datos);
+            
+            document.getElementById('informe-content').innerHTML = `
+                <div class="header">
+                    <h1>COTIZACIÓN DE PIÑA</h1>
+                    <p>Amador Russell → Chula Brand</p>
+                    <div class="fecha">${informe.fecha} - ${informe.hora}</div>
+                </div>
+
+                <div class="content">
+                    <div class="section">
+                        <div class="section-title">Datos de Entrada</div>
+                        <div class="datos-principales">
+                            <div class="dato-box">
+                                <div class="dato-label">Precio de Venta</div>
+                                <div class="dato-value">$${formatNumber(informe.precioVenta)} USD</div>
+                            </div>
+                            <div class="dato-box">
+                                <div class="dato-label">Tipo de Cambio</div>
+                                <div class="dato-value">$${formatNumber(informe.tipoCambio)} MXN</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">Precios por Kilogramo</div>
+                        <div class="resultados-grid">
+                            <div class="resultado-card">
+                                <div class="resultado-label">Flete Corto</div>
+                                <div class="resultado-value">$${formatNumber(informe.precioKgCorto)}</div>
+                                <div class="resultado-unit">MXN por kg</div>
+                            </div>
+                            <div class="resultado-card">
+                                <div class="resultado-label">Flete Largo</div>
+                                <div class="resultado-value">$${formatNumber(informe.precioKgLargo)}</div>
+                                <div class="resultado-unit">MXN por kg</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">Flujo de Cálculos Detallado</div>
+                        <div class="flujo-grid">
+                            <!-- Flete Corto -->
+                            <div class="flujo-columna">
+                                <h3>FLETE CORTO</h3>
+                                ${informe.calcCorto.map((paso, i) => `
+                                    <div class="calc-step ${paso.highlight ? 'highlight' : ''}">
+                                        <div class="calc-step-header">
+                                            <div class="calc-step-title">${paso.titulo}</div>
+                                            <div class="calc-step-badge">${paso.badge}</div>
+                                        </div>
+                                        <div class="calc-formula">${paso.formula}</div>
+                                        <div class="calc-result" style="${paso.final ? 'background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);' : ''}">
+                                            <span class="calc-result-label">${paso.label}</span>
+                                            <span class="calc-result-value">${paso.resultado}</span>
+                                        </div>
+                                    </div>
+                                    ${i < informe.calcCorto.length - 1 ? '<div class="calc-arrow">↓</div>' : ''}
+                                `).join('')}
+                            </div>
+
+                            <!-- Flete Largo -->
+                            <div class="flujo-columna">
+                                <h3>FLETE LARGO</h3>
+                                ${informe.calcLargo.map((paso, i) => `
+                                    <div class="calc-step ${paso.highlight ? 'highlight' : ''}">
+                                        <div class="calc-step-header">
+                                            <div class="calc-step-title">${paso.titulo}</div>
+                                            <div class="calc-step-badge">${paso.badge}</div>
+                                        </div>
+                                        <div class="calc-formula">${paso.formula}</div>
+                                        <div class="calc-result" style="${paso.final ? 'background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);' : ''}">
+                                            <span class="calc-result-label">${paso.label}</span>
+                                            <span class="calc-result-value">${paso.resultado}</span>
+                                        </div>
+                                    </div>
+                                    ${i < informe.calcLargo.length - 1 ? '<div class="calc-arrow">↓</div>' : ''}
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">Parámetros Utilizados</div>
+                        <div class="parametros-grid">
+                            ${informe.parametros.map(p => `
+                                <div class="param-box">
+                                    <div class="param-nombre">${p.nombre}</div>
+                                    <div class="param-valor">${p.valor}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer">
+                    <strong>Cotizador de Piña - Amador Russell → Chula Brand</strong><br>
+                    Documento generado automáticamente el ${informe.fecha} a las ${informe.hora}
+                </div>
+            `;
+        }
+
+        // Cargar informe al abrir la página
+        window.addEventListener('load', cargarInforme);
+    </script>
+</body>
+</html>
+
