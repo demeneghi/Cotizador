@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cotizador-pina-v3';
+const CACHE_NAME = 'cotizador-pina-v4';
 const urlsToCache = [
   './',
   './index.html',
@@ -10,31 +10,38 @@ const urlsToCache = [
 
 // Instalación del Service Worker
 self.addEventListener('install', event => {
-  console.log('Service Worker: Instalando...');
+  console.log('Service Worker: Instalando versión', CACHE_NAME);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Service Worker: Archivos en caché');
         return cache.addAll(urlsToCache);
       })
-      .then(() => self.skipWaiting())
+      .then(() => {
+        console.log('Service Worker: Instalación completada, esperando para activarse');
+        // NO llamar skipWaiting aquí automáticamente
+        // Esperar a que el usuario haga click en "Actualizar"
+      })
   );
 });
 
 // Activación del Service Worker
 self.addEventListener('activate', event => {
-  console.log('Service Worker: Activando...');
+  console.log('Service Worker: Activando versión', CACHE_NAME);
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
           if (cache !== CACHE_NAME) {
-            console.log('Service Worker: Eliminando caché antigua');
+            console.log('Service Worker: Eliminando caché antigua:', cache);
             return caches.delete(cache);
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => {
+      console.log('Service Worker: Tomando control de todos los clientes');
+      return self.clients.claim();
+    })
   );
 });
 
@@ -75,7 +82,9 @@ self.addEventListener('fetch', event => {
 
 // Manejo de mensajes para actualizar el caché
 self.addEventListener('message', event => {
-  if (event.data.action === 'skipWaiting') {
+  console.log('Service Worker: Mensaje recibido:', event.data);
+  if (event.data && event.data.action === 'skipWaiting') {
+    console.log('Service Worker: Ejecutando skipWaiting');
     self.skipWaiting();
   }
 });

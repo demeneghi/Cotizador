@@ -2279,15 +2279,18 @@
 
     <script>
         let newServiceWorker = null;
+        let swRegistration = null;
 
         function mostrarToastActualizacion() {
             const toast = document.getElementById('updateToast');
             if (toast) {
                 toast.style.display = 'flex';
+                console.log('Toast de actualización mostrado');
             }
         }
 
         function actualizarApp() {
+            console.log('Iniciando actualización de la app...');
             const toast = document.getElementById('updateToast');
             if (toast) {
                 toast.style.display = 'none';
@@ -2296,28 +2299,52 @@
             if (newServiceWorker) {
                 newServiceWorker.postMessage({ action: 'skipWaiting' });
             }
-            
-            window.location.reload();
         }
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(registration => {
+                        console.log('Service Worker registrado correctamente');
+                        swRegistration = registration;
+                        
+                        // Verificar actualizaciones cada 60 segundos
+                        setInterval(() => {
+                            console.log('Verificando actualizaciones...');
+                            registration.update();
+                        }, 60000);
+                        
+                        // Detectar cuando hay una nueva versión instalándose
                         registration.addEventListener('updatefound', () => {
+                            console.log('Nueva versión encontrada!');
                             newServiceWorker = registration.installing;
+                            
                             newServiceWorker.addEventListener('statechange', () => {
-                                if (newServiceWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    mostrarToastActualizacion();
+                                console.log('Estado del nuevo SW:', newServiceWorker.state);
+                                
+                                if (newServiceWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        // Hay un SW antiguo activo, mostrar toast
+                                        console.log('Hay una actualización disponible');
+                                        mostrarToastActualizacion();
+                                    } else {
+                                        // Primera instalación
+                                        console.log('Primera instalación del Service Worker');
+                                    }
                                 }
                             });
                         });
+                    })
+                    .catch(err => {
+                        console.error('Error al registrar Service Worker:', err);
                     });
             });
 
+            // Recargar cuando el nuevo SW tome control
             let refreshing = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (!refreshing) {
+                    console.log('Nuevo Service Worker activado, recargando...');
                     refreshing = true;
                     window.location.reload();
                 }
