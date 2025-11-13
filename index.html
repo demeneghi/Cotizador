@@ -22,6 +22,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -135,21 +136,22 @@
 
         .input-wrapper .input-prefix {
             padding: 0 14px;
-            font-size: 16px;
+            font-size: 18px;
             border-right: 2px solid #e2e8f0;
             flex-shrink: 0;
             white-space: nowrap;
             display: flex;
             align-items: center;
             height: 100%;
+            font-weight: 600;
         }
 
         .input-wrapper input {
             padding: 14px 15px;
             border: none;
             border-radius: 0 6px 6px 0;
-            font-size: 22px;
-            font-weight: 600;
+            font-size: 26px;
+            font-weight: 700;
             transition: all 0.2s;
             text-align: center;
             flex: 1;
@@ -259,7 +261,7 @@
 
         .input-with-prefix {
             display: flex;
-            align-items: center;
+            align-items: stretch;
             flex: 1;
             min-width: 0;
             border: 2px solid #e2e8f0;
@@ -282,7 +284,7 @@
         }
 
         .input-prefix {
-            padding: 8px 10px;
+            padding: 0 10px;
             font-size: 11px;
             font-weight: 600;
             color: #667eea;
@@ -290,6 +292,9 @@
             border-right: 1px solid #e2e8f0;
             white-space: nowrap;
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            height: 100%;
         }
 
         .param-input-wrapper input {
@@ -457,26 +462,28 @@
         }
 
         .calc-formula {
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
             color: #4a5568;
             margin-bottom: 10px;
             padding: 8px 12px;
             background: white;
             border-radius: 6px;
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
         .calc-value {
             color: #667eea;
             font-weight: 700;
+            font-size: 14px;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
         }
 
         .calc-result {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 15px;
+            padding: 12px 16px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 8px;
@@ -484,13 +491,14 @@
         }
 
         .calc-result-label {
-            font-size: 12px;
+            font-size: 13px;
             opacity: 0.9;
         }
 
         .calc-result-value {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
         }
 
         .calc-arrow {
@@ -587,6 +595,34 @@
             transform: scale(0.98);
         }
 
+        .btn-generar-pdf {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-generar-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-generar-pdf:active {
+            transform: scale(0.98);
+        }
+
         @media (max-width: 1200px) {
             .params-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -675,18 +711,20 @@
             }
 
             .input-wrapper .input-prefix {
-                padding: 0 6px;
-                font-size: 12px;
+                padding: 0 8px;
+                font-size: 14px;
                 display: flex;
                 align-items: center;
                 height: 100%;
+                font-weight: 600;
             }
 
             .input-wrapper input {
-                font-size: 16px;
-                padding: 12px 6px;
+                font-size: 18px;
+                padding: 12px 8px;
                 flex: 1;
                 min-width: 0;
+                font-weight: 700;
             }
 
             .results-grid {
@@ -784,8 +822,12 @@
             }
 
             .calc-formula {
-                font-size: 11px;
-                padding: 6px 10px;
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .calc-value {
+                font-size: 13px;
             }
 
             .calc-result-label {
@@ -793,7 +835,7 @@
             }
 
             .calc-result-value {
-                font-size: 15px;
+                font-size: 17px;
             }
 
             .calc-tab {
@@ -804,6 +846,12 @@
             .calc-arrow {
                 font-size: 20px;
                 margin: 3px 0;
+            }
+
+            .btn-generar-pdf {
+                padding: 14px 28px;
+                font-size: 15px;
+                margin-top: 25px;
             }
 
             .toast-update {
@@ -901,18 +949,20 @@
             }
 
             .input-wrapper .input-prefix {
-                font-size: 11px;
-                padding: 0 5px;
+                font-size: 13px;
+                padding: 0 6px;
                 display: flex;
                 align-items: center;
                 height: 100%;
+                font-weight: 600;
             }
 
             .input-wrapper input {
-                font-size: 15px;
-                padding: 10px 5px;
+                font-size: 17px;
+                padding: 10px 6px;
                 flex: 1;
                 min-width: 0;
+                font-weight: 700;
             }
 
             .result-card {
@@ -961,7 +1011,11 @@
             }
 
             .calc-formula {
-                font-size: 10px;
+                font-size: 11px;
+            }
+
+            .calc-value {
+                font-size: 12px;
             }
 
             .calc-result-label {
@@ -969,7 +1023,7 @@
             }
 
             .calc-result-value {
-                font-size: 14px;
+                font-size: 15px;
             }
 
             .calc-tab {
@@ -1000,6 +1054,12 @@
                 width: 100%;
                 padding: 10px 16px;
                 font-size: 14px;
+            }
+
+            .btn-generar-pdf {
+                padding: 14px 24px;
+                font-size: 15px;
+                margin-top: 20px;
             }
         }
     </style>
@@ -1044,9 +1104,9 @@
                             <label for="tipo_cambio">Tipo Cambio</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">MXN $</span>
-                                <input 
+                            <input 
                                     type="text" 
-                                    id="tipo_cambio" 
+                                id="tipo_cambio" 
                                     x-model="tipo_cambio"
                                     placeholder="0.00"
                                     inputmode="decimal"
@@ -1268,7 +1328,7 @@
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">%</span>
-                                    <input 
+                                <input 
                                         type="text" 
                                         x-model="comision_venta"
                                         inputmode="decimal"
@@ -1283,7 +1343,7 @@
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">kg</span>
-                                    <input 
+                                <input 
                                         type="text" 
                                         x-model="peso_caja"
                                         inputmode="decimal"
@@ -1462,9 +1522,16 @@
                                 Restaurar Valores
                             </button>
                         </div>
-                        </div>
                     </div>
                 </div>
+                </div>
+
+                <!-- Botón para Generar PDF -->
+                <button class="btn-generar-pdf" @click="generarPDF()">
+                    <span>📄</span>
+                    <span>Generar Cotización PDF</span>
+                </button>
+
             </div>
         </div>
     </div>
@@ -1735,6 +1802,257 @@
                     }
                     
                     return gastosBase;
+                },
+
+                generarPDF() {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    
+                    const precioVentaNum = parseFloat(this.precio_venta) || 0;
+                    const tipoCambioNum = parseFloat(this.tipo_cambio) || 0;
+                    
+                    let y = 20;
+                    const margenIzq = 15;
+                    const margenDer = 195;
+                    const anchoLinea = margenDer - margenIzq;
+                    
+                    // Header con degradado (simulado con rectángulo)
+                    doc.setFillColor(102, 126, 234);
+                    doc.rect(0, 0, 210, 40, 'F');
+                    
+                    // Título
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(24);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('COTIZACIÓN DE PIÑA', 105, 18, { align: 'center' });
+                    
+                    doc.setFontSize(12);
+                    doc.setFont(undefined, 'normal');
+                    doc.text('Amador Russell → Chula Brand', 105, 28, { align: 'center' });
+                    doc.text(new Date().toLocaleDateString('es-MX', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    }), 105, 35, { align: 'center' });
+                    
+                    y = 50;
+                    doc.setTextColor(0, 0, 0);
+                    
+                    // Datos Principales
+                    doc.setFillColor(102, 126, 234);
+                    doc.rect(margenIzq, y, anchoLinea, 8, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(11);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('DATOS PRINCIPALES', margenIzq + 2, y + 5.5);
+                    
+                    y += 12;
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(`Precio de Venta: $${this.formatNumber(precioVentaNum)} USD`, margenIzq, y);
+                    y += 6;
+                    doc.text(`Tipo de Cambio: $${this.formatNumber(tipoCambioNum)} MXN`, margenIzq, y);
+                    
+                    // Resultados
+                    y += 12;
+                    doc.setFillColor(72, 187, 120);
+                    doc.rect(margenIzq, y, anchoLinea, 8, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(11);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('PRECIOS POR KILOGRAMO', margenIzq + 2, y + 5.5);
+                    
+                    y += 15;
+                    doc.setFillColor(230, 240, 255);
+                    doc.rect(margenIzq, y, (anchoLinea / 2) - 2, 20, 'F');
+                    doc.setTextColor(102, 126, 234);
+                    doc.setFontSize(9);
+                    doc.text('FLETE CORTO', margenIzq + (anchoLinea / 4), y + 5, { align: 'center' });
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text(`$${this.formatNumber(this.precio_kg_corto)}`, margenIzq + (anchoLinea / 4), y + 13, { align: 'center' });
+                    doc.setFontSize(8);
+                    doc.setFont(undefined, 'normal');
+                    doc.text('MXN por kg', margenIzq + (anchoLinea / 4), y + 18, { align: 'center' });
+                    
+                    doc.setFillColor(230, 240, 255);
+                    doc.rect(margenIzq + (anchoLinea / 2) + 2, y, (anchoLinea / 2) - 2, 20, 'F');
+                    doc.setTextColor(102, 126, 234);
+                    doc.setFontSize(9);
+                    doc.text('FLETE LARGO', margenIzq + (anchoLinea * 3 / 4) + 2, y + 5, { align: 'center' });
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text(`$${this.formatNumber(this.precio_kg_largo)}`, margenIzq + (anchoLinea * 3 / 4) + 2, y + 13, { align: 'center' });
+                    doc.setFontSize(8);
+                    doc.setFont(undefined, 'normal');
+                    doc.text('MXN por kg', margenIzq + (anchoLinea * 3 / 4) + 2, y + 18, { align: 'center' });
+                    
+                    // Nueva página para flujo de cálculos
+                    doc.addPage();
+                    y = 20;
+                    
+                    // Título de flujo de cálculos
+                    doc.setFillColor(102, 126, 234);
+                    doc.rect(0, 0, 210, 25, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(18);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('FLUJO DE CÁLCULOS', 105, 15, { align: 'center' });
+                    
+                    y = 35;
+                    
+                    // Función helper para agregar pasos
+                    const agregarPaso = (numero, titulo, formula, resultado) => {
+                        if (y > 250) {
+                            doc.addPage();
+                            y = 20;
+                        }
+                        
+                        doc.setFillColor(247, 250, 252);
+                        doc.rect(margenIzq, y, anchoLinea, 28, 'F');
+                        doc.setDrawColor(102, 126, 234);
+                        doc.setLineWidth(0.5);
+                        doc.rect(margenIzq, y, anchoLinea, 28);
+                        
+                        doc.setTextColor(102, 126, 234);
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(`PASO ${numero}: ${titulo}`, margenIzq + 2, y + 5);
+                        
+                        doc.setTextColor(0, 0, 0);
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'normal');
+                        const lineasFormula = doc.splitTextToSize(formula, anchoLinea - 4);
+                        doc.text(lineasFormula, margenIzq + 2, y + 11);
+                        
+                        doc.setFillColor(102, 126, 234);
+                        doc.rect(margenIzq, y + 20, anchoLinea, 8, 'F');
+                        doc.setTextColor(255, 255, 255);
+                        doc.setFontSize(10);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(`= ${resultado}`, margenIzq + 2, y + 25);
+                        
+                        y += 33;
+                    };
+                    
+                    // Generar flujo para ambos tipos de flete
+                    ['corto', 'largo'].forEach((tipo, index) => {
+                        if (index > 0) {
+                            doc.addPage();
+                            y = 20;
+                            doc.setFillColor(118, 75, 162);
+                            doc.rect(0, 0, 210, 15, 'F');
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFontSize(14);
+                            doc.setFont(undefined, 'bold');
+                            doc.text(`CÁLCULOS FLETE ${tipo.toUpperCase()}`, 105, 10, { align: 'center' });
+                            y = 25;
+                        } else {
+                            doc.setFillColor(118, 75, 162);
+                            doc.rect(margenIzq, y, anchoLinea, 8, 'F');
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFontSize(11);
+                            doc.setFont(undefined, 'bold');
+                            doc.text(`FLETE ${tipo.toUpperCase()}`, margenIzq + 2, y + 5.5);
+                            y += 12;
+                        }
+                        
+                        const costoFleteMXN = tipo === 'corto' ? this.costo_flete_corto_mxn : this.costo_flete_largo_mxn;
+                        const cajas = tipo === 'corto' ? this.cajas_flete_corto : this.cajas_flete_largo;
+                        
+                        agregarPaso(1, 'Conversión de Flete a USD',
+                            `${this.formatNumber(costoFleteMXN)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
+                            `$${this.formatNumber(costoFleteMXN / tipoCambioNum)} USD`);
+                        
+                        agregarPaso(2, 'Conversión de Empaque a USD',
+                            `${this.formatNumber(this.costo_empaque_caja_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
+                            `$${this.formatNumber(this.costo_empaque_caja_mxn / tipoCambioNum)} USD`);
+                        
+                        const gastosEmbarque = this.calcularGastosEmbarque(costoFleteMXN, cajas);
+                        const gastosTotal = tipo === 'largo' ? gastosEmbarque + this.costo_sobrepeso_embarque : gastosEmbarque;
+                        
+                        let formulaGastos = `Flete: $${this.formatNumber(costoFleteMXN / tipoCambioNum)} + Aduana: $${this.formatNumber(this.costo_aduana_embarque)} + Cartón: $${this.formatNumber(this.costo_carton_caja * cajas)} + Empaque: $${this.formatNumber((this.costo_empaque_caja_mxn / tipoCambioNum) * cajas)} + Manejo: $${this.formatNumber(this.costo_manejo_caja * cajas)}`;
+                        if (tipo === 'largo') {
+                            formulaGastos += ` + Sobrepeso: $${this.formatNumber(this.costo_sobrepeso_embarque)}`;
+                        }
+                        
+                        agregarPaso(3, 'Gastos Totales de Embarque', formulaGastos,
+                            `$${this.formatNumber(gastosTotal)} USD`);
+                        
+                        agregarPaso(4, 'Gastos por Caja',
+                            `$${this.formatNumber(gastosTotal)} ÷ ${this.formatNumber(cajas)} cajas`,
+                            `$${this.formatNumber(gastosTotal / cajas)} USD por caja`);
+                        
+                        agregarPaso(5, 'Descuento por Comisión',
+                            `$${this.formatNumber(precioVentaNum)} × ${this.formatNumber(this.comision_venta)}% ÷ 100`,
+                            `$${this.formatNumber(precioVentaNum * this.comision_venta / 100)} USD`);
+                        
+                        const precioNeto = precioVentaNum - (precioVentaNum * this.comision_venta / 100) - (gastosTotal / cajas);
+                        agregarPaso(6, 'Precio Neto por Caja',
+                            `$${this.formatNumber(precioVentaNum)} - $${this.formatNumber(precioVentaNum * this.comision_venta / 100)} - $${this.formatNumber(gastosTotal / cajas)}`,
+                            `$${this.formatNumber(precioNeto)} USD`);
+                        
+                        agregarPaso(7, 'Conversión a MXN',
+                            `$${this.formatNumber(precioNeto)} USD × ${this.formatNumber(tipoCambioNum)}`,
+                            `$${this.formatNumber(precioNeto * tipoCambioNum)} MXN`);
+                        
+                        const precioKg = tipo === 'corto' ? this.precio_kg_corto : this.precio_kg_largo;
+                        agregarPaso(8, 'Precio por Kilogramo',
+                            `$${this.formatNumber(precioNeto * tipoCambioNum)} MXN ÷ ${this.formatNumber(this.peso_caja)} kg`,
+                            `$${this.formatNumber(precioKg)} MXN/kg`);
+                    });
+                    
+                    // Página final con parámetros
+                    doc.addPage();
+                    y = 20;
+                    
+                    doc.setFillColor(102, 126, 234);
+                    doc.rect(0, 0, 210, 15, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('PARÁMETROS UTILIZADOS', 105, 10, { align: 'center' });
+                    
+                    y = 25;
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFontSize(10);
+                    
+                    const parametros = [
+                        ['Comisión de Venta', `${this.formatNumber(this.comision_venta)}%`],
+                        ['Peso por Caja', `${this.formatNumber(this.peso_caja)} kg`],
+                        ['Costo Flete Corto', `$${this.formatNumber(this.costo_flete_corto_mxn)} MXN`],
+                        ['Costo Flete Largo', `$${this.formatNumber(this.costo_flete_largo_mxn)} MXN`],
+                        ['Cajas Flete Corto', `${this.formatNumber(this.cajas_flete_corto)} unidades`],
+                        ['Cajas Flete Largo', `${this.formatNumber(this.cajas_flete_largo)} unidades`],
+                        ['Costo Aduana', `$${this.formatNumber(this.costo_aduana_embarque)} USD`],
+                        ['Costo Cartón/Caja', `$${this.formatNumber(this.costo_carton_caja)} USD`],
+                        ['Costo Empaque/Caja', `$${this.formatNumber(this.costo_empaque_caja_mxn)} MXN`],
+                        ['Costo Manejo/Caja', `$${this.formatNumber(this.costo_manejo_caja)} USD`],
+                        ['Costo Sobrepeso', `$${this.formatNumber(this.costo_sobrepeso_embarque)} USD`]
+                    ];
+                    
+                    parametros.forEach(([param, valor]) => {
+                        doc.setFont(undefined, 'bold');
+                        doc.text(param + ':', margenIzq, y);
+                        doc.setFont(undefined, 'normal');
+                        doc.text(valor, margenDer, y, { align: 'right' });
+                        y += 6;
+                    });
+                    
+                    // Footer
+                    const totalPaginas = doc.internal.getNumberOfPages();
+                    for (let i = 1; i <= totalPaginas; i++) {
+                        doc.setPage(i);
+                        doc.setFontSize(8);
+                        doc.setTextColor(128, 128, 128);
+                        doc.text(`Cotizador de Piña - Amador Russell → Chula Brand`, 105, 290, { align: 'center' });
+                        doc.text(`Página ${i} de ${totalPaginas}`, 105, 295, { align: 'center' });
+                    }
+                    
+                    // Guardar PDF
+                    const fecha = new Date().toISOString().split('T')[0];
+                    doc.save(`Cotizacion-Pina-${fecha}.pdf`);
                 }
             }
         }
