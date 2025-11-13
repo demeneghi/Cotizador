@@ -108,6 +108,7 @@
         .input-wrapper {
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
 
         .input-wrapper label {
@@ -118,19 +119,25 @@
         }
 
         .input-wrapper .input-with-prefix {
+            display: flex;
+            align-items: center;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .input-wrapper .input-with-prefix:focus-within {
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
         }
 
         .input-wrapper .input-prefix {
             padding: 12px 14px;
             font-size: 16px;
             border-right: 2px solid #e2e8f0;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
         .input-wrapper input {
@@ -141,6 +148,9 @@
             font-weight: 600;
             transition: all 0.2s;
             text-align: center;
+            flex: 1;
+            min-width: 0;
+            width: 100%;
         }
 
         .results-grid {
@@ -522,18 +532,22 @@
 
         @media (max-width: 768px) {
             body {
-                padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+                padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
                 align-items: flex-start;
+                overflow-x: hidden;
             }
 
             .container {
-                padding: 0 5px;
+                padding: 0 6px;
                 margin-top: 10px;
                 margin-bottom: 20px;
+                max-width: 100%;
+                overflow-x: hidden;
             }
 
             .card {
                 border-radius: 12px;
+                overflow-x: hidden;
             }
 
             .header {
@@ -549,11 +563,14 @@
             }
 
             .content {
-                padding: 20px 15px;
+                padding: 20px 12px;
+                overflow-x: hidden;
             }
 
             .section {
                 margin-bottom: 20px;
+                width: 100%;
+                max-width: 100%;
             }
 
             .section-title {
@@ -566,27 +583,43 @@
             }
 
             .input-group {
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 6px;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .input-wrapper {
+                min-width: 0;
+                max-width: 100%;
             }
 
             .input-wrapper label {
-                font-size: 10px;
-                margin-bottom: 4px;
-            }
-
-            .input-wrapper .input-prefix {
-                padding: 10px 6px;
-                font-size: 12px;
-            }
-
-            .input-wrapper input {
-                font-size: 16px;
-                padding: 10px 6px;
+                font-size: 9px;
+                margin-bottom: 3px;
             }
 
             .input-wrapper .input-with-prefix {
-                min-height: 46px;
+                min-height: 44px;
+                border-width: 1px;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .input-wrapper .input-with-prefix:focus-within {
+                box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.2);
+            }
+
+            .input-wrapper .input-prefix {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .input-wrapper input {
+                font-size: 15px;
+                padding: 8px 4px;
+                flex: 1;
+                min-width: 0;
             }
 
             .results-grid {
@@ -709,11 +742,11 @@
 
         @media (max-width: 430px) {
             body {
-                padding: 8px;
+                padding: 6px;
             }
 
             .container {
-                padding: 0;
+                padding: 0 6px;
             }
 
             .header {
@@ -729,7 +762,7 @@
             }
 
             .content {
-                padding: 15px 12px;
+                padding: 15px 10px;
             }
 
             .section {
@@ -742,26 +775,43 @@
             }
 
             .input-group {
-                gap: 6px;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 4px;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .input-wrapper {
+                min-width: 0;
+                max-width: 100%;
             }
 
             .input-wrapper label {
-                font-size: 9px;
-                margin-bottom: 3px;
-            }
-
-            .input-wrapper .input-prefix {
-                font-size: 11px;
-                padding: 8px 4px;
-            }
-
-            .input-wrapper input {
-                font-size: 15px;
-                padding: 8px 4px;
+                font-size: 8px;
+                margin-bottom: 2px;
             }
 
             .input-wrapper .input-with-prefix {
-                min-height: 44px;
+                min-height: 42px;
+                border-width: 1px;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .input-wrapper .input-with-prefix:focus-within {
+                box-shadow: none;
+            }
+
+            .input-wrapper .input-prefix {
+                font-size: 10px;
+                padding: 6px 3px;
+            }
+
+            .input-wrapper input {
+                font-size: 14px;
+                padding: 6px 3px;
+                flex: 1;
+                min-width: 0;
             }
 
             .result-card {
@@ -850,22 +900,22 @@
                             <label for="precio_venta">Precio Venta</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">USD $</span>
-                                <input 
+                            <input 
                                     type="text" 
-                                    id="precio_venta" 
+                                id="precio_venta" 
                                     x-model.lazy="precio_venta"
-                                    placeholder="0.00"
+                                placeholder="0.00"
                                     inputmode="decimal"
-                                >
+                            >
                             </div>
                         </div>
                         <div class="input-wrapper">
                             <label for="tipo_cambio">Tipo Cambio</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">MXN $</span>
-                                <input 
+                            <input 
                                     type="text" 
-                                    id="tipo_cambio" 
+                                id="tipo_cambio" 
                                     x-model.lazy="tipo_cambio"
                                     placeholder="0.00"
                                     inputmode="decimal"
@@ -1323,18 +1373,18 @@
 
     <script>
         const VALORES_PREDETERMINADOS = {
-            tipo_cambio: 18.50,
-            comision_venta: 10.00,
-            peso_caja: 11.40,
-            costo_flete_corto_mxn: 38000.00,
-            costo_flete_largo_mxn: 42000.00,
-            costo_aduana_embarque: 103.00,
-            costo_carton_caja: 1.37,
-            costo_empaque_caja_mxn: 26.00,
-            costo_manejo_caja: 0.22,
-            costo_sobrepeso_embarque: 250.00,
-            cajas_flete_corto: 1650,
-            cajas_flete_largo: 2250,
+                tipo_cambio: 18.50,
+                comision_venta: 10.00,
+                peso_caja: 11.40,
+                costo_flete_corto_mxn: 38000.00,
+                costo_flete_largo_mxn: 42000.00,
+                costo_aduana_embarque: 103.00,
+                costo_carton_caja: 1.37,
+                costo_empaque_caja_mxn: 26.00,
+                costo_manejo_caja: 0.22,
+                costo_sobrepeso_embarque: 250.00,
+                cajas_flete_corto: 1650,
+                cajas_flete_largo: 2250,
             precio_venta: ''
         };
 
@@ -1403,7 +1453,7 @@
                         this.aplicarDatos(datos);
                     } else {
                         this.aplicarDatos({ ...VALORES_PREDETERMINADOS });
-                        this.guardarEnLocalStorage();
+                            this.guardarEnLocalStorage();
                     }
                 },
 
@@ -1515,23 +1565,23 @@
                         this.cajas_flete_largo
                         ) + this.validarNumero(this.costo_sobrepeso_embarque, '', 0);
 
-                        this.precio_kg_corto = this.calcularPrecioKg(
+                    this.precio_kg_corto = this.calcularPrecioKg(
                             precioVentaNum,
-                            this.comision_venta,
-                            gastosEmbarqueCorto,
-                            this.cajas_flete_corto,
+                        this.comision_venta,
+                        gastosEmbarqueCorto,
+                        this.cajas_flete_corto,
                             tipoCambioNum,
-                            this.peso_caja
-                        );
-                        
-                        this.precio_kg_largo = this.calcularPrecioKg(
+                        this.peso_caja
+                    );
+
+                    this.precio_kg_largo = this.calcularPrecioKg(
                             precioVentaNum,
-                            this.comision_venta,
-                            gastosEmbarqueLargo,
-                            this.cajas_flete_largo,
+                        this.comision_venta,
+                        gastosEmbarqueLargo,
+                        this.cajas_flete_largo,
                             tipoCambioNum,
-                            this.peso_caja
-                        );
+                        this.peso_caja
+                    );
                         
                         this.precio_kg_corto = this.validarNumero(this.precio_kg_corto, '', 0);
                         this.precio_kg_largo = this.validarNumero(this.precio_kg_largo, '', 0);
