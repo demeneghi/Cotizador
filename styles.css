@@ -152,23 +152,27 @@ input {
 }
 
 input::placeholder {
-    opacity: 0.3;
+    opacity: 0.4;
     color: #a0aec0;
+    font-size: 0.8em;
 }
 
 input::-webkit-input-placeholder {
-    opacity: 0.3;
+    opacity: 0.4;
     color: #a0aec0;
+    font-size: 0.8em;
 }
 
 input::-moz-placeholder {
-    opacity: 0.3;
+    opacity: 0.4;
     color: #a0aec0;
+    font-size: 0.8em;
 }
 
 input:-ms-input-placeholder {
-    opacity: 0.3;
+    opacity: 0.4;
     color: #a0aec0;
+    font-size: 0.8em;
 }
 
 /* Results */
