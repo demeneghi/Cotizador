@@ -1,8 +1,10 @@
-const CACHE_NAME = 'cotizador-pina-v2';
+const CACHE_NAME = 'cotizador-pina-v3';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
   'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js'
 ];
 
@@ -66,7 +68,7 @@ self.addEventListener('fetch', event => {
       })
       .catch(() => {
         // Si falla la red, intentar devolver una página offline personalizada
-        return caches.match('/index.html');
+        return caches.match('./index.html');
       })
   );
 });
