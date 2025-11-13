@@ -22,7 +22,6 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -595,34 +594,6 @@
             transform: scale(0.98);
         }
 
-        .btn-generar-pdf {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            margin-top: 30px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-generar-pdf:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-generar-pdf:active {
-            transform: scale(0.98);
-        }
-
         @media (max-width: 1200px) {
             .params-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -848,12 +819,6 @@
                 margin: 3px 0;
             }
 
-            .btn-generar-pdf {
-                padding: 14px 28px;
-                font-size: 15px;
-                margin-top: 25px;
-            }
-
             .toast-update {
                 bottom: 15px;
                 left: 10px;
@@ -1055,12 +1020,6 @@
                 padding: 10px 16px;
                 font-size: 14px;
             }
-
-            .btn-generar-pdf {
-                padding: 14px 24px;
-                font-size: 15px;
-                margin-top: 20px;
-            }
         }
     </style>
 </head>
@@ -1104,9 +1063,9 @@
                             <label for="tipo_cambio">Tipo Cambio</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">MXN $</span>
-                            <input 
+                                <input 
                                     type="text" 
-                                id="tipo_cambio" 
+                                    id="tipo_cambio" 
                                     x-model="tipo_cambio"
                                     placeholder="0.00"
                                     inputmode="decimal"
@@ -1328,7 +1287,7 @@
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">%</span>
-                                <input 
+                                    <input 
                                         type="text" 
                                         x-model="comision_venta"
                                         inputmode="decimal"
@@ -1343,7 +1302,7 @@
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">kg</span>
-                                <input 
+                                    <input 
                                         type="text" 
                                         x-model="peso_caja"
                                         inputmode="decimal"
@@ -1522,16 +1481,9 @@
                                 Restaurar Valores
                             </button>
                         </div>
+                        </div>
                     </div>
                 </div>
-                </div>
-
-                <!-- Botón para Generar PDF -->
-                <button class="btn-generar-pdf" @click="generarPDF()">
-                    <span>📄</span>
-                    <span>Generar Cotización PDF</span>
-                </button>
-
             </div>
         </div>
     </div>
@@ -1802,176 +1754,6 @@
                     }
                     
                     return gastosBase;
-                },
-
-                generarPDF() {
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF();
-                    
-                    const precioVentaNum = parseFloat(this.precio_venta) || 0;
-                    const tipoCambioNum = parseFloat(this.tipo_cambio) || 0;
-                    
-                    let y = 8;
-                    const margen = 10;
-                    const anchoTotal = 190;
-                    const anchoCol = (anchoTotal - 4) / 2;
-                    
-                    // Header compacto
-                    doc.setFillColor(102, 126, 234);
-                    doc.rect(0, 0, 210, 20, 'F');
-                    
-                    doc.setTextColor(255, 255, 255);
-                    doc.setFontSize(16);
-                    doc.setFont(undefined, 'bold');
-                    doc.text('COTIZACIÓN DE PIÑA', 105, 10, { align: 'center' });
-                    doc.setFontSize(8);
-                    doc.setFont(undefined, 'normal');
-                    doc.text('Amador Russell → Chula Brand | ' + new Date().toLocaleDateString('es-MX'), 105, 16, { align: 'center' });
-                    
-                    // Datos Principales y Resultados en una fila
-                    doc.setFontSize(7);
-                    doc.setFont(undefined, 'bold');
-                    doc.setTextColor(102, 126, 234);
-                    doc.text('DATOS:', margen, y);
-                    doc.setFont(undefined, 'normal');
-                    doc.setTextColor(0, 0, 0);
-                    doc.text(`PV: $${this.formatNumber(precioVentaNum)} USD | TC: $${this.formatNumber(tipoCambioNum)} MXN`, margen + 15, y);
-                    
-                    // Resultados destacados
-                    y += 8;
-                    doc.setFillColor(72, 187, 120);
-                    doc.roundedRect(margen, y, anchoCol, 14, 2, 2, 'F');
-                    doc.setTextColor(255, 255, 255);
-                    doc.setFontSize(7);
-                    doc.text('FLETE CORTO', margen + anchoCol/2, y + 4, { align: 'center' });
-                    doc.setFontSize(11);
-                    doc.setFont(undefined, 'bold');
-                    doc.text(`$${this.formatNumber(this.precio_kg_corto)} MXN/kg`, margen + anchoCol/2, y + 10, { align: 'center' });
-                    
-                    doc.setFillColor(102, 126, 234);
-                    doc.roundedRect(margen + anchoCol + 4, y, anchoCol, 14, 2, 2, 'F');
-                    doc.setTextColor(255, 255, 255);
-                    doc.setFontSize(7);
-                    doc.setFont(undefined, 'normal');
-                    doc.text('FLETE LARGO', margen + anchoCol + 4 + anchoCol/2, y + 4, { align: 'center' });
-                    doc.setFontSize(11);
-                    doc.setFont(undefined, 'bold');
-                    doc.text(`$${this.formatNumber(this.precio_kg_largo)} MXN/kg`, margen + anchoCol + 4 + anchoCol/2, y + 10, { align: 'center' });
-                    
-                    // Flujo de cálculos en 2 columnas
-                    y += 20;
-                    doc.setFillColor(102, 126, 234);
-                    doc.rect(margen, y, anchoTotal, 6, 'F');
-                    doc.setTextColor(255, 255, 255);
-                    doc.setFontSize(9);
-                    doc.setFont(undefined, 'bold');
-                    doc.text('FLUJO DE CÁLCULOS DETALLADOS', 105, y + 4, { align: 'center' });
-                    
-                    y += 10;
-                    const yInicial = y;
-                    
-                    // Columna FLETE CORTO
-                    let yCorto = yInicial;
-                    doc.setTextColor(118, 75, 162);
-                    doc.setFontSize(8);
-                    doc.setFont(undefined, 'bold');
-                    doc.text('FLETE CORTO', margen + anchoCol/2, yCorto, { align: 'center' });
-                    yCorto += 6;
-                    
-                    const generarPasosCompactos = (xPos, yPos, tipo) => {
-                        let yActual = yPos;
-                        const anchoTarjeta = anchoCol;
-                        
-                        const costoFleteMXN = tipo === 'corto' ? this.costo_flete_corto_mxn : this.costo_flete_largo_mxn;
-                        const cajas = tipo === 'corto' ? this.cajas_flete_corto : this.cajas_flete_largo;
-                        const gastosEmbarque = this.calcularGastosEmbarque(costoFleteMXN, cajas);
-                        const gastosTotal = tipo === 'largo' ? gastosEmbarque + this.costo_sobrepeso_embarque : gastosEmbarque;
-                        const precioNeto = precioVentaNum - (precioVentaNum * this.comision_venta / 100) - (gastosTotal / cajas);
-                        const precioKg = tipo === 'corto' ? this.precio_kg_corto : this.precio_kg_largo;
-                        
-                        const pasos = [
-                            ['1. Flete USD', `$${this.formatNumber(costoFleteMXN / tipoCambioNum)}`],
-                            ['2. Empaque USD', `$${this.formatNumber(this.costo_empaque_caja_mxn / tipoCambioNum)}`],
-                            ['3. Gastos Total', `$${this.formatNumber(gastosTotal)}`],
-                            ['4. Gastos/Caja', `$${this.formatNumber(gastosTotal / cajas)}`],
-                            ['5. Comisión', `$${this.formatNumber(precioVentaNum * this.comision_venta / 100)}`],
-                            ['6. Precio Neto', `$${this.formatNumber(precioNeto)}`],
-                            ['7. Precio MXN', `$${this.formatNumber(precioNeto * tipoCambioNum)}`],
-                            ['8. Precio/Kg', `$${this.formatNumber(precioKg)}`]
-                        ];
-                        
-                        doc.setFontSize(6);
-                        pasos.forEach(([paso, valor]) => {
-                            doc.setFillColor(247, 250, 252);
-                            doc.rect(xPos, yActual, anchoTarjeta, 5, 'F');
-                            doc.setDrawColor(230, 230, 230);
-                            doc.setLineWidth(0.1);
-                            doc.rect(xPos, yActual, anchoTarjeta, 5);
-                            
-                            doc.setTextColor(102, 126, 234);
-                            doc.setFont(undefined, 'bold');
-                            doc.text(paso, xPos + 1, yActual + 3.5);
-                            doc.setTextColor(0, 0, 0);
-                            doc.setFont(undefined, 'normal');
-                            doc.text(valor, xPos + anchoTarjeta - 1, yActual + 3.5, { align: 'right' });
-                            yActual += 5;
-                        });
-                        
-                        return yActual;
-                    };
-                    
-                    // Generar ambas columnas
-                    const yFinalCorto = generarPasosCompactos(margen, yCorto, 'corto');
-                    
-                    // Columna FLETE LARGO
-                    let yLargo = yInicial;
-                    doc.setTextColor(118, 75, 162);
-                    doc.setFontSize(8);
-                    doc.setFont(undefined, 'bold');
-                    doc.text('FLETE LARGO', margen + anchoCol + 4 + anchoCol/2, yLargo, { align: 'center' });
-                    yLargo += 6;
-                    
-                    const yFinalLargo = generarPasosCompactos(margen + anchoCol + 4, yLargo, 'largo');
-                    
-                    // Parámetros compactos al final
-                    y = Math.max(yFinalCorto, yFinalLargo) + 6;
-                    
-                    doc.setFillColor(102, 126, 234);
-                    doc.rect(margen, y, anchoTotal, 5, 'F');
-                    doc.setTextColor(255, 255, 255);
-                    doc.setFontSize(8);
-                    doc.setFont(undefined, 'bold');
-                    doc.text('PARÁMETROS', 105, y + 3.5, { align: 'center' });
-                    
-                    y += 7;
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFontSize(6);
-                    
-                    const params = [
-                        [`Comisión: ${this.formatNumber(this.comision_venta)}%`, `Peso/Caja: ${this.formatNumber(this.peso_caja)}kg`, `Aduana: $${this.formatNumber(this.costo_aduana_embarque)}`],
-                        [`Flete Corto: $${this.formatNumber(this.costo_flete_corto_mxn)}`, `Flete Largo: $${this.formatNumber(this.costo_flete_largo_mxn)}`, `Cajas C: ${this.formatNumber(this.cajas_flete_corto)}`],
-                        [`Cajas L: ${this.formatNumber(this.cajas_flete_largo)}`, `Cartón: $${this.formatNumber(this.costo_carton_caja)}`, `Empaque: $${this.formatNumber(this.costo_empaque_caja_mxn)}`],
-                        [`Manejo: $${this.formatNumber(this.costo_manejo_caja)}`, `Sobrepeso: $${this.formatNumber(this.costo_sobrepeso_embarque)}`, ``]
-                    ];
-                    
-                    params.forEach(fila => {
-                        const anchoParam = anchoTotal / 3;
-                        fila.forEach((texto, i) => {
-                            if (texto) {
-                                doc.text(texto, margen + (i * anchoParam), y);
-                            }
-                        });
-                        y += 4;
-                    });
-                    
-                    // Footer compacto
-                    doc.setFontSize(6);
-                    doc.setTextColor(128, 128, 128);
-                    doc.text('Cotizador de Piña - Amador Russell → Chula Brand', 105, 292, { align: 'center' });
-                    
-                    // Guardar PDF
-                    const fecha = new Date().toISOString().split('T')[0];
-                    doc.save(`Cotizacion-Pina-${fecha}.pdf`);
                 }
             }
         }
