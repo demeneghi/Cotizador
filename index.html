@@ -2282,63 +2282,104 @@
     <script>
         let newServiceWorker = null;
         let swRegistration = null;
+        let updateCheckInterval = null;
 
         function mostrarToastActualizacion() {
             const toast = document.getElementById('updateToast');
             if (toast) {
                 toast.style.display = 'flex';
-                console.log('Toast de actualización mostrado');
+                console.log('✅ TOAST MOSTRADO - Nueva versión disponible');
+            } else {
+                console.error('❌ No se encontró el elemento updateToast');
             }
         }
 
         function actualizarApp() {
-            console.log('Iniciando actualización de la app...');
+            console.log('🔄 Usuario presionó actualizar');
             const toast = document.getElementById('updateToast');
             if (toast) {
                 toast.style.display = 'none';
             }
             
             if (newServiceWorker) {
+                console.log('📤 Enviando mensaje skipWaiting al nuevo SW');
                 newServiceWorker.postMessage({ action: 'skipWaiting' });
+            } else {
+                console.error('❌ No hay newServiceWorker disponible');
+                // Intentar forzar actualización de todos modos
+                if (swRegistration) {
+                    swRegistration.update().then(() => {
+                        console.log('🔄 Forzando recarga...');
+                        window.location.reload();
+                    });
+                }
             }
         }
 
         if ('serviceWorker' in navigator) {
+            console.log('🔵 Service Worker soportado');
+            
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
+                console.log('🔵 Página cargada, registrando Service Worker...');
+                
+                navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
                     .then(registration => {
-                        console.log('Service Worker registrado correctamente');
+                        console.log('✅ SW registrado correctamente', registration);
                         swRegistration = registration;
                         
-                        // Verificar actualizaciones cada 60 segundos
-                        setInterval(() => {
-                            console.log('Verificando actualizaciones...');
-                            registration.update();
-                        }, 60000);
+                        // Verificar inmediatamente si hay actualización
+                        registration.update().then(() => {
+                            console.log('🔍 Verificación inicial completada');
+                        });
+                        
+                        // Verificar actualizaciones cada 30 segundos (más frecuente para desarrollo)
+                        updateCheckInterval = setInterval(() => {
+                            console.log('🔍 Verificando actualizaciones automáticamente...');
+                            registration.update().catch(err => {
+                                console.error('❌ Error verificando actualización:', err);
+                            });
+                        }, 30000);
                         
                         // Detectar cuando hay una nueva versión instalándose
                         registration.addEventListener('updatefound', () => {
-                            console.log('Nueva versión encontrada!');
+                            console.log('🆕 UPDATEFOUND - Nueva versión detectada!');
                             newServiceWorker = registration.installing;
                             
+                            console.log('📦 Nuevo SW en estado:', newServiceWorker.state);
+                            
                             newServiceWorker.addEventListener('statechange', () => {
-                                console.log('Estado del nuevo SW:', newServiceWorker.state);
+                                console.log('🔄 Estado del nuevo SW cambió a:', newServiceWorker.state);
                                 
                                 if (newServiceWorker.state === 'installed') {
                                     if (navigator.serviceWorker.controller) {
-                                        // Hay un SW antiguo activo, mostrar toast
-                                        console.log('Hay una actualización disponible');
+                                        console.log('🎉 HAY ACTUALIZACIÓN - Mostrando toast');
                                         mostrarToastActualizacion();
                                     } else {
-                                        // Primera instalación
-                                        console.log('Primera instalación del Service Worker');
+                                        console.log('🆕 Primera instalación del SW');
                                     }
+                                }
+                                
+                                if (newServiceWorker.state === 'activated') {
+                                    console.log('✅ Nuevo SW activado');
                                 }
                             });
                         });
+
+                        // Revisar si ya hay un SW esperando
+                        if (registration.waiting) {
+                            console.log('⚠️ Ya hay un SW esperando para activarse');
+                            newServiceWorker = registration.waiting;
+                            mostrarToastActualizacion();
+                        }
+
+                        // Revisar si hay uno instalándose
+                        if (registration.installing) {
+                            console.log('⚠️ Ya hay un SW instalándose');
+                            newServiceWorker = registration.installing;
+                        }
                     })
                     .catch(err => {
-                        console.error('Error al registrar Service Worker:', err);
+                        console.error('❌ Error registrando Service Worker:', err);
                     });
             });
 
@@ -2346,11 +2387,27 @@
             let refreshing = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (!refreshing) {
-                    console.log('Nuevo Service Worker activado, recargando...');
+                    console.log('🔄 CONTROLLERCHANGE - Nuevo SW tomó control, recargando...');
                     refreshing = true;
+                    
+                    // Limpiar el intervalo antes de recargar
+                    if (updateCheckInterval) {
+                        clearInterval(updateCheckInterval);
+                    }
+                    
                     window.location.reload();
                 }
             });
+
+            // Detectar cuando volvemos de background (app resume)
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && swRegistration) {
+                    console.log('👁️ App visible de nuevo, verificando actualizaciones...');
+                    swRegistration.update();
+                }
+            });
+        } else {
+            console.error('❌ Service Worker NO soportado en este navegador');
         }
 
         let deferredPrompt;

@@ -1,8 +1,5 @@
-const CACHE_NAME = 'cotizador-pina-v4';
+const CACHE_NAME = 'cotizador-pina-v5';
 const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json',
   './icon-192.png',
   './icon-512.png',
   'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js'
@@ -10,17 +7,15 @@ const urlsToCache = [
 
 // Instalación del Service Worker
 self.addEventListener('install', event => {
-  console.log('Service Worker: Instalando versión', CACHE_NAME);
+  console.log('SW: Instalando nueva versión', CACHE_NAME);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Service Worker: Archivos en caché');
+        console.log('SW: Cacheando recursos estáticos');
         return cache.addAll(urlsToCache);
       })
       .then(() => {
-        console.log('Service Worker: Instalación completada, esperando para activarse');
-        // NO llamar skipWaiting aquí automáticamente
-        // Esperar a que el usuario haga click en "Actualizar"
+        console.log('SW: Instalación completada, esperando skipWaiting');
       })
   );
 });
@@ -45,39 +40,65 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Estrategia: Cache First, falling back to Network
+// Estrategia híbrida: Network First para archivos críticos, Cache First para recursos estáticos
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Si está en caché, devolver el recurso en caché
-        if (response) {
-          return response;
-        }
+  const url = new URL(event.request.url);
+  
+  // Lista de archivos que SIEMPRE deben ir a la red primero para detectar actualizaciones
+  const networkFirstFiles = ['index.html', 'manifest.json', 'sw.js', '/', './'];
+  const isNetworkFirst = networkFirstFiles.some(file => 
+    url.pathname.endsWith(file) || url.pathname === file || url.pathname === '/Cotizador/' || url.pathname === '/Cotizador'
+  );
 
-        // Si no está en caché, hacer fetch
-        return fetch(event.request).then(response => {
-          // Verificar si recibimos una respuesta válida
-          if (!response || response.status !== 200 || response.type !== 'basic') {
+  if (isNetworkFirst) {
+    // NETWORK FIRST: Intenta red primero, caché como respaldo
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          // Si la respuesta es válida, actualizar caché
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Si falla la red, usar caché
+          return caches.match(event.request).then(cachedResponse => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // Si no hay caché, devolver index.html como fallback
+            return caches.match('./index.html');
+          });
+        })
+    );
+  } else {
+    // CACHE FIRST: Para recursos estáticos (imágenes, fuentes, JS externos)
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => {
+          if (response) {
             return response;
           }
+          
+          return fetch(event.request).then(response => {
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
 
-          // Clonar la respuesta
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME)
-            .then(cache => {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
               cache.put(event.request, responseToCache);
             });
 
-          return response;
-        });
-      })
-      .catch(() => {
-        // Si falla la red, intentar devolver una página offline personalizada
-        return caches.match('./index.html');
-      })
-  );
+            return response;
+          });
+        })
+    );
+  }
 });
 
 // Manejo de mensajes para actualizar el caché
