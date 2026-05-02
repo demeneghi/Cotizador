@@ -292,7 +292,7 @@ components:
     padding: 80px
 ---
 
-## Overview
+# Overview
 
 Clay.com is the most playful B2B SaaS interface in the GTM-data category. The base atmosphere is **cream-tinted white canvas** (`{colors.canvas}` — #fffaf0) holding dark-navy ink type and **3D-rendered claymation illustrations** (mountains, mascot characters, peach/ochre/lavender landscapes) as the dominant brand voltage. Where most data-platform brands play it cool with grids and gradients, Clay leans hard into hand-crafted-looking 3D illustrations and saturated single-color feature cards.
 
@@ -359,7 +359,7 @@ The system runs **Plain Black** (a custom rounded display face) for headlines an
 ### Hierarchy
 
 | Token | Size | Weight | Line Height | Letter Spacing | Use |
-|---|---|---|---|---|---|
+| ----- | ---- | ------ | ----------- | -------------- | --- |
 | `{typography.display-xl}` | 72px | 500 | 1.0 | -2.5px | Homepage h1 ("Go to market with unique data") — Plain Black |
 | `{typography.display-lg}` | 56px | 500 | 1.05 | -2px | Section heads — Plain Black |
 | `{typography.display-md}` | 40px | 500 | 1.1 | -1px | Sub-section heads, product names |
@@ -407,7 +407,7 @@ Clay uses generous whitespace around big rounded display headlines and saturated
 ## Elevation & Depth
 
 | Level | Treatment | Use |
-|---|---|---|
+| ----- | --------- | --- |
 | Flat | No shadow, no border | Body sections, top nav, hero |
 | Soft hairline | 1px `{colors.hairline}` border | Inputs, small content cards |
 | Saturated card | Brand pink/teal/lavender/peach/ochre fill — no shadow | Feature cards |
@@ -426,7 +426,7 @@ The system uses no heavy shadows. Depth comes from the saturated color contrast 
 ### Border Radius Scale
 
 | Token | Value | Use |
-|---|---|---|
+| ----- | ----- | --- |
 | `{rounded.xs}` | 6px | Small badges, dropdown items |
 | `{rounded.sm}` | 8px | Small buttons, hairline-border accent |
 | `{rounded.md}` | 12px | Standard CTA buttons, text inputs |
@@ -518,7 +518,7 @@ The system uses no heavy shadows. Depth comes from the saturated color contrast 
 ### Breakpoints
 
 | Name | Width | Key Changes |
-|---|---|---|
+| ---- | ----- | ----------- |
 | Mobile | < 768px | Hamburger nav; hero h1 72→36px; hero-illustration-card stacks below; feature grids 1-up; pricing 1-up |
 | Tablet | 768–1024px | Top nav tightens; feature cards 2-up; pricing 2-up |
 | Desktop | 1024–1440px | Full top-nav; 3-up feature cards; 3-up pricing tiers |
