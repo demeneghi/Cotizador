@@ -906,9 +906,14 @@ input:-ms-input-placeholder {
         font-size: 13px;
     }
 
-    .results-grid,
     .params-grid {
         grid-template-columns: 1fr;
+    }
+
+    /* Precio/kg: mantener dos columnas en móvil (params siguen en una columna) */
+    .results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
     }
 
     .input-group {
@@ -963,25 +968,21 @@ input:-ms-input-placeholder {
         font-weight: 700;
     }
 
-    .results-grid {
-        gap: 15px;
-    }
-
     .result-card {
-        padding: 25px 20px;
+        padding: 20px 12px;
     }
 
     .result-label {
-        font-size: 13px;
-        margin-bottom: 10px;
+        font-size: 12px;
+        margin-bottom: 8px;
     }
 
     .result-value {
-        font-size: 36px;
+        font-size: 32px;
     }
 
     .result-unit {
-        font-size: 13px;
+        font-size: 12px;
         margin-top: 6px;
     }
 
@@ -1235,6 +1236,31 @@ input:-ms-input-placeholder {
     .result-unit {
         font-size: 12px;
         margin-top: 6px;
+    }
+
+    /* Precio/kg: seguir en 2 columnas; compactar para ~320px de ancho */
+    .results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .results-grid .result-card {
+        padding: 14px 8px;
+    }
+
+    .results-grid .result-label {
+        font-size: 11px;
+        margin-bottom: 6px;
+    }
+
+    .results-grid .result-value {
+        font-size: 24px;
+        line-height: 1.15;
+    }
+
+    .results-grid .result-unit {
+        font-size: 11px;
+        margin-top: 4px;
     }
 
     .accordion-header {
