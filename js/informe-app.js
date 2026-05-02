@@ -124,7 +124,7 @@
         var h1 = document.createElement('h1');
         setText(h1, 'COTIZACIÓN DE PIÑA');
         var sub = document.createElement('p');
-        setText(sub, 'Cotización por caja y kilogramo');
+        setText(sub, 'Sunrise · ARU · CBP');
         header.appendChild(h1);
         header.appendChild(sub);
         if (informe.estado) {
