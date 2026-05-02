@@ -1,201 +1,92 @@
-# Cotizador de Piña - PWA
+# Cotizador de Piña (PWA)
 
-Aplicación web progresiva (PWA) de Amador Russell que permite calcular precios de piña por kilogramo considerando diferentes tipos de flete y costos asociados.
+Aplicación web progresiva para calcular precios de piña por kilogramo (flete corto y largo), con **persistencia por estado** (Veracruz y Colima) y generación de informe.
 
-## Características
-
-- **PWA Instalable**: Funciona como aplicación nativa en dispositivos móviles
-- **Modo Offline**: Service Worker para uso sin conexión
-- **Cálculos en Tiempo Real**: Actualización instantánea de resultados
-- **Persistencia de Datos**: LocalStorage para guardar configuraciones
-- **Responsive Design**: Optimizado para iPhone y dispositivos móviles
-- **Teclado Numérico**: Interfaz optimizada para entrada de datos móvil
-
-## Tecnologías
-
-- **HTML5** - Estructura y semántica
-- **CSS3** - Estilos y diseño responsive
-- **Alpine.js** - Reactividad y manejo de estado
-- **Service Worker** - Funcionalidad PWA y cache offline
-- **LocalStorage** - Persistencia de configuración del usuario
-
-## Estructura del Proyecto
+## Estructura del repositorio
 
 ```
-Cotizador-WEB/
-├── index.html          # Aplicación principal (incluye configuración)
-├── manifest.json       # Configuración PWA
-├── sw.js              # Service Worker
-├── server.py          # Servidor Python para desarrollo local
-├── icon-192.png       # Icono PWA 192x192
-├── icon-512.png       # Icono PWA 512x512
-└── requirements.txt   # Dependencias Python
+├── index.html              # Shell HTML (CSP, carga de scripts)
+├── informe.html            # Vista de informe
+├── manifest.json           # PWA
+├── sw.js                   # Service Worker (caché versionada)
+├── styles.css              # Estilos (tokens en :root)
+├── Dockerfile              # Nginx estático opcional (docker build)
+├── config/app.json         # Configuración: estados, almacenamiento, defaults, rutas de scripts
+├── js/
+│   ├── app-config.js       # Espejo de config (file:// sin fetch); debe coincidir con config/app.json
+│   ├── theme-meta.js       # Aplica theme.colorPrimary a meta theme-color
+│   ├── format-number.js    # Formato numérico compartido (cotizador, informe, tests)
+│   ├── informe-validate.js# Validación estricta del JSON de informe
+│   ├── calc-core.js        # Núcleo numérico (compartido con tests)
+│   ├── cotizador-main.js   # Lógica Alpine del cotizador
+│   ├── sw-register.js      # Registro del SW y utilidades de UI
+│   ├── informe-app.js      # Carga y render del informe (DOM seguro)
+│   └── vendor/
+│       ├── alpine.min.js   # Alpine 3.14.3 (vendoreado)
+│       └── html2canvas.min.js
+├── tests/                  # Tests Node
+├── SHA256SUMS              # Integridad: iconos + JS listados
+└── .github/workflows/ci.yml
 ```
 
-## Uso Local
+## Requisitos
 
-### Con Python
+- Navegador moderno (Chrome, Safari, Firefox, Edge).
+- **Node.js 20+** para ejecutar tests y CI local (alineado con `engines` y GitHub Actions).
+
+## Uso local
+
+Sirve la carpeta con cualquier servidor estático (necesario para CSP, SW y rutas relativas):
 
 ```bash
-python server.py
+npx serve .
+# o
+python3 -m http.server 8000
 ```
 
-Luego abre `http://localhost:8000` en tu navegador.
+Abre `http://localhost:8000` (o el puerto indicado). Abrir `index.html` como `file://` sigue siendo limitado para el Service Worker; se recomienda HTTP local.
 
-### Con otros servidores
-
-Puedes usar cualquier servidor web estático como:
+### Docker (opcional)
 
 ```bash
-# Node.js
-npx serve
-
-# Python 3
-python -m http.server 8000
+docker build -t cotizador-pina .
+docker run --rm -p 8080:80 cotizador-pina
 ```
 
-## Instalación como PWA
+## Persistencia
 
-### En iPhone/iPad:
-1. Abre la app en Safari
-2. Toca el botón "Compartir"
-3. Selecciona "Agregar a pantalla de inicio"
-4. La app se instalará como aplicación nativa
+- Configuración multi-estado: clave `cotizador_data_v2` (definida en `config/app.json`); incluye **precio de venta y parámetros** por estado (Veracruz / Colima).
+- Informe reciente: clave `cotizacion_informe` (misma fuente de configuración).
+- Migración automática desde la clave legada `cotizador_config` hacia el estado por defecto (`estadoDefault`) en la primera carga; el resto de estados queda con valores predeterminados.
+- En la pantalla principal: **Exportar respaldo** / **Importar respaldo** (JSON de `cotizador_data_v2`) para copia de seguridad entre navegadores o equipos.
 
-### En Android:
-1. Abre la app en Chrome
-2. Toca el menú (⋮)
-3. Selecciona "Instalar aplicación"
-4. La app se instalará automáticamente
+## Tests y verificación
 
-## Funcionalidades
-
-### Datos Principales
-- **Precio de Venta (USD)**: Precio de venta por caja
-- **Tipo de Cambio (MXN)**: Conversión USD a pesos mexicanos
-
-### Resultados
-- **Precio/Kg Flete Corto**: Precio por kilogramo para flete corto
-- **Precio/Kg Flete Largo**: Precio por kilogramo para flete largo
-
-### Parámetros Configurables
-
-**Parámetros Básicos:**
-- Comisión de Venta (%)
-- Peso por Caja (kg)
-
-**Transporte y Logística:**
-- Costo Flete Corto (MXN)
-- Costo Flete Largo (MXN)
-- Número de Cajas por tipo de flete
-
-**Costos de Embarque (USD):**
-- Costo Aduana
-- Costo Manejo por Caja
-- Costo Sobrepeso (solo flete largo)
-
-**Costos de Empaque:**
-- Costo Cartón por Caja (USD)
-- Costo Empaque por Caja (MXN)
-
-### Flujo de Cálculos
-
-La aplicación incluye una sección interactiva que muestra paso a paso cómo se calculan los precios:
-
-1. Conversión de costos MXN a USD
-2. Cálculo de gastos totales de embarque
-3. Prorrateo de gastos por caja
-4. Aplicación de comisión de venta
-5. Cálculo de precio neto
-6. Conversión a MXN
-7. División por peso para obtener precio por kilogramo
-
-## Fórmulas
-
-### Gastos de Embarque
-```
-Gastos = (Flete MXN ÷ Tipo Cambio) 
-       + Aduana 
-       + (Cartón × Cajas) 
-       + (Empaque MXN ÷ Tipo Cambio × Cajas) 
-       + (Manejo × Cajas)
-       + Sobrepeso (solo flete largo)
+```bash
+npm run verify
 ```
 
-### Precio por Kilogramo
-```
-Precio Neto = Precio Venta - (Precio Venta × Comisión% ÷ 100) - (Gastos ÷ Cajas)
-Precio/Kg = (Precio Neto × Tipo Cambio) ÷ Peso Caja
-```
+Equivale a `npm audit` más tests (núcleo numérico, paridad `app.json` / `app-config.js`, formato, validación de informe).
 
-## Gestión de Configuración
+Comprobación de integridad (macOS):
 
-- **Guardado Automático**: Los cambios se guardan automáticamente en localStorage
-- **Guardado Manual**: Botón "Guardar Configuración" para confirmar cambios
-- **Restaurar Valores**: Botón para volver a la configuración predeterminada
-
-## Compatibilidad
-
-- **iOS Safari**: 12.2+
-- **Chrome/Edge**: 80+
-- **Firefox**: 75+
-- **Samsung Internet**: 10+
-
-## Optimizaciones para Móvil
-
-- Teclado numérico automático en dispositivos móviles
-- Áreas táctiles mínimas de 44px (Apple HIG)
-- Soporte para notch de iPhone (safe areas)
-- Scroll suave nativo de iOS
-- Sin zoom automático en inputs
-- Feedback táctil en botones
-
-## Desarrollo
-
-### Modificar Valores Predeterminados
-
-Los valores predeterminados están definidos en la constante `VALORES_PREDETERMINADOS` al inicio del script en `index.html`:
-
-```javascript
-const VALORES_PREDETERMINADOS = {
-    tipo_cambio: 18.50,
-    comision_venta: 10.00,
-    peso_caja: 11.40,
-    costo_flete_corto_mxn: 38000.00,
-    // ... más valores
-};
+```bash
+shasum -a 256 -c SHA256SUMS
 ```
 
-Para modificarlos, edita esta constante en el archivo `index.html`.
+En Linux CI se usa `sha256sum -c SHA256SUMS` (iconos y los JS listados en `SHA256SUMS`).
 
-### Personalizar Estilos
+## Seguridad
 
-Los estilos CSS están embebidos en `index.html`. El tema usa:
-- Color primario: `#667eea` (morado)
-- Color secundario: `#764ba2` (morado oscuro)
-- Color success: `#48bb78` (verde)
-- Color danger: `#e53e3e` (rojo)
+- **CSP** en `index.html` e `informe.html`: en el cotizador, `script-src` incluye `'unsafe-eval'` porque **Alpine.js 3** evalúa las expresiones de plantilla (`x-data`, `@click`, `x-model`, etc.) con `new Function`; sin `'unsafe-eval'` el navegador bloquea Alpine y la interfaz no funciona. **`informe.html`** no usa Alpine y mantiene `script-src 'self'` sin eval. **Alpine** también puede aplicar estilos en runtime (`x-show`, etc.), por eso `style-src` incluye `'unsafe-inline'`. Los estilos propios van en `styles.css`.
+- **Sin CDN en runtime**: Alpine y html2canvas se sirven desde `js/vendor/`; la integridad de esos archivos se comprueba con `SHA256SUMS` en CI.
+- El informe se pinta con **DOM API y `textContent`**; la descarga HTML reconstruye el DOM desde JSON validado, no desde HTML arbitrario en almacenamiento.
+- **localStorage / sessionStorage** guardan datos en claro en el dispositivo; no almacenes secretos. Mitigación: CSP estricta en scripts y origen único (`'self'`).
 
 ## Despliegue
 
-### Vercel
-```bash
-vercel --prod
-```
-
-### GitHub Pages
-```bash
-git push origin main
-```
-
-### Netlify
-Arrastra la carpeta del proyecto a Netlify Drop
+Sube los archivos a tu hosting estático (GitHub Pages, Netlify, S3, etc.). Los comandos de publicación remota (`git push`, etc.) los ejecuta el operador según la política del equipo.
 
 ## Licencia
 
-Uso interno - Amador Russell
-
-## Contacto
-
-Para soporte o modificaciones, contacta a Amador Russell.
-
+Uso interno.
