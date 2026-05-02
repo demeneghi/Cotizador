@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cotizador-pina-v18';
+const CACHE_NAME = 'cotizador-pina-v19';
 
 const urlsToCache = [
   './index.html',
@@ -34,6 +34,8 @@ function isNetworkFirstRequest(url) {
   ]);
   if (networkFirstNames.has(name)) return true;
   if (pathname === '/' || pathname === '') return true;
+  /* Iconos: cache-first dejaba touch icon viejo en iOS; red primero y bust en HTML (?v=) */
+  if (/^icon-.*\.png$/i.test(name)) return true;
   return false;
 }
 
