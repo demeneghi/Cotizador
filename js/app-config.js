@@ -1,0 +1,69 @@
+/* Configuración embebida (espejo de config/app.json) para soporte file:// sin fetch. */
+window.__APP_CONFIG__ = {
+    "schemaVersion": 1,
+    "storage": {
+        "cotizadorDataV2": "cotizador_data_v2",
+        "legacyCotizadorConfig": "cotizador_config",
+        "cotizacionInforme": "cotizacion_informe"
+    },
+    "estadoDefault": "veracruz",
+    "estadosDisponibles": [
+        { "key": "veracruz", "nombre": "Veracruz" },
+        { "key": "colima", "nombre": "Colima" }
+    ],
+    "camposPersistibles": [
+        "precio_venta",
+        "tipo_cambio",
+        "comision_venta",
+        "peso_caja",
+        "costo_flete_corto_mxn",
+        "costo_flete_largo_mxn",
+        "costo_aduana_embarque",
+        "costo_carton_caja",
+        "costo_empaque_caja_mxn",
+        "costo_manejo_caja",
+        "costo_sobrepeso_embarque",
+        "cajas_flete_corto",
+        "cajas_flete_largo"
+    ],
+    "valoresPredeterminados": {
+        "tipo_cambio": 18.5,
+        "comision_venta": 10,
+        "peso_caja": 11.4,
+        "costo_flete_corto_mxn": 38000,
+        "costo_flete_largo_mxn": 42000,
+        "costo_aduana_embarque": 103,
+        "costo_carton_caja": 1.25,
+        "costo_empaque_caja_mxn": 26,
+        "costo_manejo_caja": 0.22,
+        "costo_sobrepeso_embarque": 250,
+        "cajas_flete_corto": 1650,
+        "cajas_flete_largo": 2250,
+        "precio_venta": ""
+    },
+    "informe": {
+        "maxHashUrlChars": 48000,
+        "informeJsonSchemaVersion": 2
+    },
+    "theme": {
+        "colorPrimary": "#0f62fe",
+        "colorSecondary": "#161616",
+        "colorSuccess": "#24a148",
+        "colorDanger": "#da1e28"
+    },
+    "cdn": {
+        "alpine": {
+            "src": "./js/vendor/alpine.min.js",
+            "integrity": null,
+            "crossorigin": "anonymous",
+            "note": "Vendoreado en repo; sin CDN en runtime."
+        },
+        "html2canvas": {
+            "src": "./js/vendor/html2canvas.min.js",
+            "integrity": null,
+            "crossorigin": "anonymous",
+            "note": "Vendoreado en repo; sin CDN en runtime."
+        }
+    },
+    "debug": false
+};
