@@ -1,35 +1,78 @@
 /* ==========================================
-   COTIZADOR DE PIÑA — IBM Carbon / marketing (DESIGN.md)
-   Plex Sans, IBM Blue #0f62fe, esquinas 0px, superficies planas.
+   COTIZADOR DE PIÑA — Clay.com (DESIGN.md, getdesign clay)
+   Lienzo crema, CTAs negros, Inter (h1 display-md + 700), tarjetas marca y radios md/lg/xl.
    ========================================== */
 
 :root {
-    --ibm-canvas: #ffffff;
-    --ibm-surface-1: #f4f4f4;
-    --ibm-surface-2: #e0e0e0;
-    --ibm-ink: #161616;
-    --ibm-ink-muted: #525252;
-    --ibm-ink-subtle: #8c8c8c;
-    --ibm-primary: #0f62fe;
-    --ibm-primary-hover: #0050e6;
-    --ibm-primary-pressed: #002d9c;
-    --ibm-on-primary: #ffffff;
-    --ibm-hairline: #e0e0e0;
-    --ibm-success: #24a148;
-    --ibm-success-dark: #198038;
-    --ibm-error: #da1e28;
-    --ibm-inverse: #161616;
-    --ibm-inverse-surface-1: #262626;
-    --ibm-inverse-muted: #c6c6c6;
-    --ibm-error-hover: #a2191f;
-    --color-primary: var(--ibm-primary);
-    --color-secondary: var(--ibm-ink);
-    --color-success: var(--ibm-success);
-    --color-danger: var(--ibm-error);
-    --tap-highlight: rgba(15, 98, 254, 0.12);
-    --font-sans: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
-    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
-    --body-tracking: 0.16px;
+    /* Tokens de color Clay (front matter DESIGN.md) */
+    --clay-canvas: #fffaf0;
+    --clay-surface-soft: #faf5e8;
+    --clay-surface-card: #f5f0e0;
+    --clay-surface-strong: #ebe6d6;
+    --clay-surface-dark: #0a1a1a;
+    --clay-surface-dark-elevated: #1a2a2a;
+    --clay-ink: #0a0a0a;
+    --clay-body: #3a3a3a;
+    --clay-body-strong: #1a1a1a;
+    --clay-muted: #6a6a6a;
+    --clay-muted-soft: #9a9a9a;
+    --clay-hairline: #e5e5e5;
+    --clay-hairline-soft: #f0f0f0;
+    --clay-primary: #0a0a0a;
+    --clay-primary-active: #1f1f1f;
+    --clay-primary-disabled: #e5e5e5;
+    --clay-on-primary: #ffffff;
+    --clay-on-dark: #ffffff;
+    --clay-on-dark-soft: #a0a0a0;
+    --clay-brand-pink: #ff4d8b;
+    --clay-brand-teal: #1a3a3a;
+    --clay-brand-lavender: #b8a4ed;
+    --clay-brand-peach: #ffb084;
+    --clay-brand-ochre: #e8b94a;
+    --clay-brand-mint: #a4d4c5;
+    --clay-brand-coral: #ff6b5a;
+    --clay-success: #22c55e;
+    --clay-success-hover: #16a34a;
+    --clay-warning: #f59e0b;
+    --clay-error: #ef4444;
+    --clay-error-hover: #dc2626;
+
+    /* Nombres heredados del layout (mapeo a Clay) */
+    --clay-surface-1: var(--clay-surface-soft);
+    --clay-surface-2: var(--clay-surface-strong);
+    --clay-ink-muted: var(--clay-muted);
+    --clay-ink-subtle: var(--clay-muted-soft);
+    --clay-primary-hover: var(--clay-primary-active);
+    --clay-primary-pressed: var(--clay-surface-dark);
+    --clay-success-dark: var(--clay-success-hover);
+    --clay-inverse: var(--clay-surface-soft);
+    --clay-inverse-muted: var(--clay-body);
+    --clay-inverse-surface-1: var(--clay-primary-active);
+
+    --color-primary: var(--clay-primary);
+    --color-secondary: var(--clay-body);
+    --color-success: var(--clay-success);
+    --color-danger: var(--clay-error);
+
+    --radius-xs: 6px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-pill: 9999px;
+
+    --tap-highlight: rgba(10, 10, 10, 0.08);
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --body-tracking: 0;
+    /* Plain Black sustituto: Inter 500 + -0.05em (DESIGN.md) */
+    --display-tracking: -0.05em;
+    /* H1: token display-md + peso 700 en Inter (máxima presencia sin variable black en webfonts) */
+    --type-h1-size: 40px;
+    --type-h1-weight: 700;
+    --type-h1-lh: 1.1;
+    --type-h1-tracking: -0.025em;
 }
 
 .is-hidden {
@@ -40,11 +83,11 @@
     display: none;
     margin-bottom: 16px;
     padding: 12px 16px;
-    border-radius: 0;
-    background: var(--ibm-surface-1);
-    color: var(--ibm-ink);
-    border: 1px solid var(--ibm-hairline);
-    border-bottom: 2px solid var(--ibm-error);
+    border-radius: var(--radius-md);
+    background: var(--clay-surface-1);
+    color: var(--clay-ink);
+    border: 1px solid var(--clay-hairline);
+    border-bottom: 2px solid var(--clay-error);
     font-size: 14px;
     font-weight: 600;
     letter-spacing: var(--body-tracking);
@@ -71,10 +114,10 @@ body {
     font-family: var(--font-sans);
     font-size: 16px;
     font-weight: 400;
-    line-height: 1.5;
+    line-height: 1.55;
     letter-spacing: var(--body-tracking);
-    color: var(--ibm-ink);
-    background: var(--ibm-surface-1);
+    color: var(--clay-ink);
+    background: var(--clay-canvas);
     min-height: 100vh;
     padding: 24px 16px 48px;
     display: flex;
@@ -95,9 +138,9 @@ body {
 }
 
 .card {
-    background: var(--ibm-canvas);
-    border-radius: 0;
-    border: 1px solid var(--ibm-hairline);
+    background: var(--clay-canvas);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--clay-hairline);
     box-shadow: none;
     overflow: hidden;
     margin-top: env(safe-area-inset-top, 5px);
@@ -107,65 +150,70 @@ body {
 
 /* Header */
 .header {
-    background: var(--ibm-canvas);
-    color: var(--ibm-ink);
+    background: var(--clay-canvas);
+    color: var(--clay-ink);
     padding: 32px 24px 24px;
     text-align: left;
-    border-bottom: 1px solid var(--ibm-hairline);
+    border-bottom: 1px solid var(--clay-hairline);
+}
+
+/* Mismo grosor en todos los breakpoints (no depende de reglas por media) */
+.header h1,
+body.informe .header h1,
+.no-data h2 {
+    font-weight: var(--type-h1-weight);
 }
 
 .header h1 {
-    font-size: 32px;
-    font-weight: 300;
-    line-height: 1.25;
-    letter-spacing: 0;
+    font-family: var(--font-display);
+    font-size: var(--type-h1-size);
+    line-height: var(--type-h1-lh);
+    letter-spacing: var(--type-h1-tracking);
     margin-bottom: 8px;
-    color: var(--ibm-ink);
+    color: var(--clay-ink);
 }
 
 .header p {
     font-size: 14px;
     font-weight: 400;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-body);
     letter-spacing: var(--body-tracking);
 }
 
 .estado-tabs {
     display: flex;
     justify-content: flex-start;
-    gap: 0;
+    gap: 8px;
     margin-top: 24px;
     flex-wrap: wrap;
-    border-bottom: 1px solid var(--ibm-hairline);
+    border-bottom: none;
 }
 
 .estado-tab {
-    padding: 16px 20px;
+    padding: 8px 16px;
     border: none;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
+    margin-bottom: 0;
     background: transparent;
-    color: var(--ibm-ink-muted);
-    border-radius: 0;
+    color: var(--clay-muted);
+    border-radius: var(--radius-pill);
     cursor: pointer;
-    font-weight: 400;
+    font-weight: 500;
     font-size: 14px;
     font-family: inherit;
     letter-spacing: var(--body-tracking);
-    transition: color 0.15s, border-color 0.15s, background 0.15s;
-    min-height: 48px;
+    transition: color 0.15s, background 0.15s;
+    min-height: 44px;
 }
 
 .estado-tab:hover {
-    color: var(--ibm-ink);
-    background: var(--ibm-surface-1);
+    color: var(--clay-ink);
+    background: var(--clay-surface-soft);
 }
 
 .estado-tab.active {
-    background: transparent;
-    color: var(--ibm-ink);
+    background: var(--clay-surface-card);
+    color: var(--clay-ink);
     font-weight: 600;
-    border-bottom-color: var(--ibm-primary);
 }
 
 /* Content */
@@ -180,12 +228,12 @@ body {
 .section-title {
     font-size: 14px;
     font-weight: 600;
-    color: var(--ibm-ink);
+    color: var(--clay-ink);
     text-transform: none;
     letter-spacing: var(--body-tracking);
     margin-bottom: 16px;
     padding-bottom: 8px;
-    border-bottom: 1px solid var(--ibm-hairline);
+    border-bottom: 1px solid var(--clay-hairline);
 }
 
 /* Inputs */
@@ -205,7 +253,7 @@ body {
 .input-wrapper label {
     font-size: 14px;
     font-weight: 600;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-ink-muted);
     margin-bottom: 8px;
     letter-spacing: var(--body-tracking);
 }
@@ -213,40 +261,40 @@ body {
 .input-wrapper .input-with-prefix {
     display: flex;
     align-items: stretch;
-    border: 1px solid var(--ibm-hairline);
-    border-bottom: 1px solid var(--ibm-hairline);
-    border-radius: 0;
+    border: 1px solid var(--clay-hairline);
+    border-bottom: 1px solid var(--clay-hairline);
+    border-radius: var(--radius-md);
     min-width: 0;
     overflow: hidden;
     min-height: 48px;
-    background: var(--ibm-surface-1);
+    background: var(--clay-canvas);
 }
 
 .input-wrapper .input-with-prefix:focus-within {
-    outline: 2px solid var(--ibm-primary);
+    outline: 2px solid var(--clay-primary);
     outline-offset: -2px;
-    border-bottom: 2px solid var(--ibm-primary);
+    border-bottom: 2px solid var(--clay-primary);
     box-shadow: none;
 }
 
 .input-wrapper .input-prefix {
     padding: 0 16px;
     font-size: 14px;
-    background: var(--ibm-surface-2);
-    border-right: 1px solid var(--ibm-hairline);
+    background: var(--clay-surface-card);
+    border-right: 1px solid var(--clay-hairline);
     flex-shrink: 0;
     white-space: nowrap;
     display: flex;
     align-items: center;
     height: 100%;
     font-weight: 600;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-ink-muted);
 }
 
 .input-wrapper input {
     padding: 11px 16px;
     border: none;
-    border-radius: 0;
+    border-radius: var(--radius-md);
     font-size: 20px;
     font-weight: 400;
     font-family: var(--font-sans);
@@ -255,8 +303,8 @@ body {
     flex: 1;
     min-width: 0;
     width: 100%;
-    background: var(--ibm-surface-1);
-    color: var(--ibm-ink);
+    background: var(--clay-canvas);
+    color: var(--clay-ink);
     letter-spacing: var(--body-tracking);
 }
 
@@ -268,29 +316,29 @@ input {
 
 input::placeholder {
     opacity: 0.4;
-    color: var(--ibm-ink-subtle);
+    color: var(--clay-ink-subtle);
     font-size: 0.8em;
 }
 
 input::-webkit-input-placeholder {
     opacity: 0.4;
-    color: var(--ibm-ink-subtle);
+    color: var(--clay-ink-subtle);
     font-size: 0.8em;
 }
 
 input::-moz-placeholder {
     opacity: 0.4;
-    color: var(--ibm-ink-subtle);
+    color: var(--clay-ink-subtle);
     font-size: 0.8em;
 }
 
 input:-ms-input-placeholder {
     opacity: 0.4;
-    color: var(--ibm-ink-subtle);
+    color: var(--clay-ink-subtle);
     font-size: 0.8em;
 }
 
-/* Results */
+/* Results — tarjetas marca pink / teal (feature-card Clay) */
 .results-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -299,50 +347,76 @@ input:-ms-input-placeholder {
 }
 
 .result-card {
-    background: var(--ibm-canvas);
-    border-radius: 0;
-    padding: 24px;
+    background: var(--clay-surface-card);
+    border-radius: var(--radius-xl);
+    padding: 32px;
     text-align: center;
-    border: 1px solid var(--ibm-hairline);
+    border: 1px solid var(--clay-hairline);
 }
 
-.result-card.highlight {
-    background: var(--ibm-canvas);
-    color: var(--ibm-ink);
-    border: 1px solid var(--ibm-primary);
-    border-top: 3px solid var(--ibm-primary);
+.results-grid .result-card:nth-child(1) {
+    background: var(--clay-brand-pink);
+    color: var(--clay-on-primary);
+    border: none;
+    border-radius: var(--radius-xl);
+}
+
+.results-grid .result-card:nth-child(1) .result-label,
+.results-grid .result-card:nth-child(1) .result-unit {
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.results-grid .result-card:nth-child(1) .result-value {
+    color: var(--clay-on-primary);
+}
+
+.results-grid .result-card:nth-child(2) {
+    background: var(--clay-brand-teal);
+    color: var(--clay-on-dark);
+    border: none;
+    border-radius: var(--radius-xl);
+}
+
+.results-grid .result-card:nth-child(2) .result-label,
+.results-grid .result-card:nth-child(2) .result-unit {
+    color: var(--clay-on-dark-soft);
+}
+
+.results-grid .result-card:nth-child(2) .result-value {
+    color: var(--clay-on-dark);
 }
 
 .result-label {
-    font-size: 12px;
-    font-weight: 400;
+    font-size: 13px;
+    font-weight: 500;
     text-transform: none;
-    letter-spacing: 0.32px;
+    letter-spacing: 0;
     margin-bottom: 12px;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-muted);
 }
 
 .result-value {
     font-size: 42px;
-    font-weight: 300;
-    line-height: 1.2;
-    letter-spacing: 0;
-    color: var(--ibm-primary);
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: var(--display-tracking);
+    color: var(--clay-primary);
 }
 
 .result-unit {
     font-size: 14px;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-muted);
     margin-top: 8px;
     letter-spacing: var(--body-tracking);
 }
 
 /* Parameters */
 .params-section {
-    background: var(--ibm-surface-1);
-    border-radius: 0;
+    background: var(--clay-surface-soft);
+    border-radius: var(--radius-lg);
     padding: 16px;
-    border: 1px solid var(--ibm-hairline);
+    border: 1px solid var(--clay-hairline);
 }
 
 .param-group {
@@ -356,12 +430,12 @@ input:-ms-input-placeholder {
 .param-group-title {
     font-size: 14px;
     font-weight: 600;
-    color: var(--ibm-ink);
+    color: var(--clay-ink);
     text-transform: none;
     letter-spacing: var(--body-tracking);
     margin-bottom: 10px;
     padding-bottom: 8px;
-    border-bottom: 2px solid var(--ibm-primary);
+    border-bottom: 2px solid var(--clay-brand-coral);
 }
 
 .params-grid {
@@ -375,16 +449,16 @@ input:-ms-input-placeholder {
     flex-direction: column;
     gap: 6px;
     padding: 12px;
-    background: var(--ibm-canvas);
-    border-radius: 0;
-    border: 1px solid var(--ibm-hairline);
+    background: var(--clay-canvas);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--clay-hairline);
     min-width: 0;
 }
 
 .param-label {
     font-size: 12px;
     font-weight: 400;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-ink-muted);
     text-transform: none;
     letter-spacing: 0.32px;
     line-height: 1.2;
@@ -402,18 +476,18 @@ input:-ms-input-placeholder {
     align-items: stretch;
     flex: 1;
     min-width: 0;
-    border: 1px solid var(--ibm-hairline);
-    border-radius: 0;
-    background: var(--ibm-surface-1);
+    border: 1px solid var(--clay-hairline);
+    border-radius: var(--radius-md);
+    background: var(--clay-canvas);
     transition: border-color 0.15s, outline 0.15s;
     overflow: hidden;
     min-height: 48px;
 }
 
 .param-input-wrapper .input-with-prefix:focus-within {
-    outline: 2px solid var(--ibm-primary);
+    outline: 2px solid var(--clay-primary);
     outline-offset: -2px;
-    border-bottom: 2px solid var(--ibm-primary);
+    border-bottom: 2px solid var(--clay-primary);
     box-shadow: none;
 }
 
@@ -421,9 +495,9 @@ input:-ms-input-placeholder {
     padding: 0 14px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--ibm-ink-muted);
-    background: var(--ibm-surface-2);
-    border-right: 1px solid var(--ibm-hairline);
+    color: var(--clay-ink-muted);
+    background: var(--clay-surface-card);
+    border-right: 1px solid var(--clay-hairline);
     white-space: nowrap;
     flex-shrink: 0;
     display: flex;
@@ -436,7 +510,7 @@ input:-ms-input-placeholder {
 .param-input-wrapper input {
     padding: 11px 16px;
     border: none;
-    border-radius: 0;
+    border-radius: var(--radius-md);
     font-size: 16px;
     font-weight: 400;
     font-family: var(--font-sans);
@@ -444,18 +518,18 @@ input:-ms-input-placeholder {
     min-width: 0;
     text-align: right;
     transition: background 0.15s;
-    background: var(--ibm-surface-1);
-    color: var(--ibm-ink);
+    background: var(--clay-canvas);
+    color: var(--clay-ink);
     letter-spacing: var(--body-tracking);
 }
 
-/* Buttons — Carbon: primario azul, secundario carbón, peligro rojo, respaldos terciario / neutro */
+/* Buttons — Clay: primario negro, secundario crema+borde, peligro, respaldos outline */
 .btn-reset,
 .btn-save,
 .btn-compartir,
 .btn-export-backup,
 .btn-import-backup {
-    border-radius: 0;
+    border-radius: var(--radius-md);
     font-weight: 400;
     font-size: 14px;
     letter-spacing: var(--body-tracking);
@@ -474,7 +548,6 @@ input:-ms-input-placeholder {
 }
 
 .btn-reset,
-.btn-save,
 .btn-compartir {
     border: none;
 }
@@ -491,21 +564,22 @@ input:-ms-input-placeholder {
 }
 
 .btn-reset {
-    background: var(--ibm-error);
-    color: var(--ibm-on-primary);
+    background: var(--clay-error);
+    color: var(--clay-on-primary);
 }
 
 .btn-save {
-    background: var(--ibm-ink);
-    color: var(--ibm-on-primary);
+    background: var(--clay-canvas);
+    color: var(--clay-ink);
+    border: 1px solid var(--clay-hairline);
 }
 
 .btn-reset:hover {
-    background: var(--ibm-error-hover);
+    background: var(--clay-error-hover);
 }
 
 .btn-save:hover {
-    background: var(--ibm-inverse-surface-1);
+    background: var(--clay-surface-soft);
 }
 
 .btn-reset:active,
@@ -515,48 +589,50 @@ input:-ms-input-placeholder {
 }
 
 .btn-save.saved {
-    background: var(--ibm-success);
-    color: var(--ibm-on-primary);
+    background: var(--clay-success);
+    color: var(--clay-on-primary);
+    border-color: var(--clay-success);
 }
 
 .btn-save.saved:hover {
-    background: var(--ibm-success-dark);
+    background: var(--clay-success-dark);
 }
 
-/* Respaldo: exportar (terciario IBM), importar (neutro con borde carbón) */
+/* Respaldo: exportar (outline ink), importar (outline ink) */
 .btn-export-backup {
-    background: var(--ibm-canvas);
-    color: var(--ibm-primary);
-    border: 1px solid var(--ibm-primary);
+    background: var(--clay-canvas);
+    color: var(--clay-primary);
+    border: 1px solid var(--clay-primary);
+    border-radius: var(--radius-md);
 }
 
 .btn-export-backup:hover {
-    background: rgba(15, 98, 254, 0.08);
-    color: var(--ibm-primary-hover);
-    border-color: var(--ibm-primary-hover);
+    background: rgba(10, 10, 10, 0.06);
+    color: var(--clay-primary-hover);
+    border-color: var(--clay-primary-hover);
 }
 
 .btn-export-backup:active {
-    background: rgba(15, 98, 254, 0.14);
-    border-color: var(--ibm-primary-pressed);
-    color: var(--ibm-primary-pressed);
+    background: rgba(10, 10, 10, 0.1);
+    border-color: var(--clay-primary-pressed);
+    color: var(--clay-primary-pressed);
 }
 
 .btn-import-backup {
-    background: var(--ibm-canvas);
-    color: var(--ibm-ink);
-    border: 1px solid var(--ibm-ink);
+    background: var(--clay-canvas);
+    color: var(--clay-ink);
+    border: 1px solid var(--clay-ink);
 }
 
 .btn-import-backup:hover {
-    background: var(--ibm-surface-1);
-    border-color: var(--ibm-inverse-surface-1);
-    color: var(--ibm-ink);
+    background: var(--clay-surface-1);
+    border-color: var(--clay-inverse-surface-1);
+    color: var(--clay-ink);
 }
 
 .btn-import-backup:active {
-    background: var(--ibm-surface-2);
-    border-color: var(--ibm-ink);
+    background: var(--clay-surface-2);
+    border-color: var(--clay-ink);
 }
 
 .button-group {
@@ -567,13 +643,13 @@ input:-ms-input-placeholder {
 }
 
 .btn-compartir {
-    background: var(--ibm-primary);
-    color: var(--ibm-on-primary);
+    background: var(--clay-primary);
+    color: var(--clay-on-primary);
     border: none;
-    padding: 12px 16px;
-    border-radius: 0;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 600;
     cursor: pointer;
     transition: background 0.15s;
     width: 100%;
@@ -586,21 +662,21 @@ input:-ms-input-placeholder {
 }
 
 .btn-compartir:hover {
-    background: var(--ibm-primary-hover);
+    background: var(--clay-primary-hover);
     box-shadow: none;
 }
 
 .btn-compartir:active {
-    background: var(--ibm-primary-pressed);
+    background: var(--clay-primary-pressed);
 }
 
 /* Accordion */
 .accordion-header {
-    background: var(--ibm-surface-1);
-    color: var(--ibm-ink);
+    background: var(--clay-surface-1);
+    color: var(--clay-ink);
     padding: 14px 16px;
-    border-radius: 0;
-    border: 1px solid var(--ibm-hairline);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--clay-hairline);
     cursor: pointer;
     display: flex;
     justify-content: space-between;
@@ -617,12 +693,12 @@ input:-ms-input-placeholder {
 }
 
 .accordion-header:hover {
-    background: var(--ibm-surface-2);
+    background: var(--clay-surface-2);
     box-shadow: none;
 }
 
 .accordion-header:active {
-    background: var(--ibm-surface-1);
+    background: var(--clay-surface-1);
 }
 
 .accordion-icon {
@@ -640,10 +716,11 @@ input:-ms-input-placeholder {
 
 /* Formula Section */
 .formula-section {
-    background: var(--ibm-canvas);
-    border-radius: 0;
-    border: 1px solid var(--ibm-hairline);
-    padding: 20px;
+    background: var(--clay-canvas);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--clay-hairline);
+    border-top: 3px solid var(--clay-brand-mint);
+    padding: 24px;
     margin-top: 12px;
 }
 
@@ -654,16 +731,16 @@ input:-ms-input-placeholder {
 }
 
 .calc-step {
-    background: var(--ibm-canvas);
-    border: 1px solid var(--ibm-hairline);
-    border-radius: 0;
+    background: var(--clay-canvas);
+    border: 1px solid var(--clay-hairline);
+    border-radius: var(--radius-md);
     padding: 16px;
     position: relative;
 }
 
 .calc-step.highlight {
-    background: var(--ibm-surface-1);
-    border: 1px solid var(--ibm-hairline);
+    background: var(--clay-surface-1);
+    border: 1px solid var(--clay-hairline);
 }
 
 .calc-step-header {
@@ -672,22 +749,22 @@ input:-ms-input-placeholder {
     align-items: center;
     margin-bottom: 12px;
     padding-bottom: 8px;
-    border-bottom: 1px solid var(--ibm-hairline);
+    border-bottom: 1px solid var(--clay-hairline);
 }
 
 .calc-step-title {
     font-size: 11px;
     font-weight: 600;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-ink-muted);
     text-transform: uppercase;
     letter-spacing: 0.32px;
 }
 
 .calc-step-badge {
-    background: var(--ibm-primary);
-    color: var(--ibm-on-primary);
-    padding: 4px 8px;
-    border-radius: 0;
+    background: var(--clay-brand-lavender);
+    color: var(--clay-ink);
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
     font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.32px;
@@ -696,16 +773,16 @@ input:-ms-input-placeholder {
 .calc-formula {
     font-family: var(--font-mono) !important;
     font-size: 13px !important;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-ink-muted);
     margin-bottom: 10px;
     padding: 8px 12px;
-    background: var(--ibm-canvas);
-    border-radius: 0;
+    background: var(--clay-canvas);
+    border-radius: var(--radius-md);
     line-height: 1.7;
 }
 
 .calc-value {
-    color: var(--ibm-primary);
+    color: var(--clay-brand-coral);
     font-weight: 600;
     font-size: 12px !important;
     font-family: var(--font-mono) !important;
@@ -716,32 +793,33 @@ input:-ms-input-placeholder {
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    background: var(--ibm-ink);
-    color: var(--ibm-on-primary);
-    border-radius: 0;
+    background: var(--clay-brand-teal);
+    color: var(--clay-on-dark);
+    border-radius: var(--radius-md);
     font-weight: 400;
     letter-spacing: var(--body-tracking);
 }
 
 .calc-result-label {
     font-size: 13px;
-    opacity: 0.9;
+    color: var(--clay-on-dark-soft);
 }
 
 .calc-result-value {
     font-size: 15px !important;
-    font-weight: 700;
+    font-weight: 600;
     font-family: var(--font-mono) !important;
+    color: var(--clay-on-dark);
 }
 
 .calc-result--final {
-    background: var(--ibm-success);
-    color: var(--ibm-on-primary);
+    background: var(--clay-success);
+    color: var(--clay-on-primary);
 }
 
 .calc-arrow {
     text-align: center;
-    color: var(--ibm-primary);
+    color: var(--clay-brand-coral);
     font-size: 24px;
     margin: 5px 0;
 }
@@ -750,7 +828,7 @@ input:-ms-input-placeholder {
     display: flex;
     gap: 0;
     margin-bottom: 16px;
-    border-bottom: 1px solid var(--ibm-hairline);
+    border-bottom: 1px solid var(--clay-hairline);
 }
 
 .calc-tab {
@@ -762,20 +840,20 @@ input:-ms-input-placeholder {
     cursor: pointer;
     font-weight: 400;
     font-size: 14px;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-ink-muted);
     letter-spacing: var(--body-tracking);
     transition: color 0.15s, border-color 0.15s;
 }
 
 .calc-tab.active {
-    color: var(--ibm-ink);
+    color: var(--clay-ink);
     font-weight: 600;
-    border-bottom-color: var(--ibm-primary);
+    border-bottom-color: var(--clay-primary);
 }
 
 .calc-tab:hover {
-    color: var(--ibm-ink);
-    background: var(--ibm-surface-1);
+    color: var(--clay-ink);
+    background: var(--clay-surface-1);
 }
 
 /* Toast Update */
@@ -784,11 +862,11 @@ input:-ms-input-placeholder {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--ibm-inverse);
-    color: var(--ibm-on-primary);
+    background: var(--clay-inverse);
+    color: var(--clay-ink);
     padding: 16px 24px;
-    border-radius: 0;
-    border: 1px solid var(--ibm-inverse);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--clay-hairline);
     box-shadow: none;
     display: none;
     align-items: center;
@@ -824,13 +902,13 @@ input:-ms-input-placeholder {
 }
 
 .toast-update-button {
-    background: var(--ibm-primary);
-    color: var(--ibm-on-primary);
+    background: var(--clay-primary);
+    color: var(--clay-on-primary);
     border: none;
-    padding: 12px 16px;
-    border-radius: 0;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 600;
     cursor: pointer;
     transition: background 0.15s;
     white-space: nowrap;
@@ -839,12 +917,12 @@ input:-ms-input-placeholder {
 }
 
 .toast-update-button:hover {
-    background: var(--ibm-primary-hover);
+    background: var(--clay-primary-hover);
     box-shadow: none;
 }
 
 .toast-update-button:active {
-    background: var(--ibm-primary-pressed);
+    background: var(--clay-primary-pressed);
 }
 
 /* ==========================================
@@ -853,6 +931,32 @@ input:-ms-input-placeholder {
 @media (max-width: 1200px) {
     .params-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ==========================================
+   MEDIA QUERIES - ESCRITORIO (más margen, columna más estrecha)
+   ========================================== */
+@media (min-width: 769px) {
+    body:not(.informe) {
+        padding: 24px 48px 48px;
+    }
+
+    .container {
+        max-width: 880px;
+        padding: 0 24px;
+    }
+
+    .card {
+        max-width: 100%;
+    }
+
+    body.informe {
+        padding: 24px 48px 48px;
+    }
+
+    body.informe .container {
+        max-width: 800px;
     }
 }
 
@@ -875,7 +979,7 @@ input:-ms-input-placeholder {
     }
 
     .card {
-        border-radius: 0;
+        border-radius: var(--radius-lg);
         overflow-x: hidden;
     }
 
@@ -884,7 +988,9 @@ input:-ms-input-placeholder {
     }
 
     .header h1 {
-        font-size: 26px;
+        font-size: 28px;
+        line-height: 1.12;
+        letter-spacing: var(--type-h1-tracking);
     }
 
     .header p {
@@ -907,10 +1013,18 @@ input:-ms-input-placeholder {
     }
 
     .params-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
     }
 
-    /* Precio/kg: mantener dos columnas en móvil (params siguen en una columna) */
+    .params-grid .param-label {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        line-height: 1.25;
+    }
+
+    /* Precio/kg: dos columnas en móvil; parámetros de configuración también en dos */
     .results-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
@@ -942,17 +1056,17 @@ input:-ms-input-placeholder {
     }
 
     .input-wrapper .input-with-prefix:focus-within {
-        outline: 2px solid var(--ibm-primary);
+        outline: 2px solid var(--clay-primary);
         outline-offset: -2px;
-        border-bottom: 2px solid var(--ibm-primary);
+        border-bottom: 2px solid var(--clay-primary);
         box-shadow: none;
     }
 
     .input-wrapper .input-prefix {
         padding: 0 10px;
         font-size: 16px;
-        background: var(--ibm-surface-1);
-        border-right: 1px solid var(--ibm-hairline);
+        background: var(--clay-surface-1);
+        border-right: 1px solid var(--clay-hairline);
         display: flex;
         align-items: center;
         height: 100%;
@@ -1003,8 +1117,8 @@ input:-ms-input-placeholder {
     .param-input-wrapper .input-prefix {
         padding: 0 10px;
         font-size: 16px;
-        background: var(--ibm-surface-1);
-        border-right: 1px solid var(--ibm-hairline);
+        background: var(--clay-surface-1);
+        border-right: 1px solid var(--clay-hairline);
     }
 
     .param-input-wrapper input {
@@ -1151,7 +1265,9 @@ input:-ms-input-placeholder {
     }
 
     .header h1 {
-        font-size: 30px;
+        font-size: 32px;
+        line-height: var(--type-h1-lh);
+        letter-spacing: var(--type-h1-tracking);
     }
 
     .header p {
@@ -1203,8 +1319,8 @@ input:-ms-input-placeholder {
     .input-wrapper .input-prefix {
         font-size: 14px;
         padding: 0 8px;
-        background: var(--ibm-surface-1);
-        border-right: 1px solid var(--ibm-hairline);
+        background: var(--clay-surface-1);
+        border-right: 1px solid var(--clay-hairline);
         display: flex;
         align-items: center;
         height: 100%;
@@ -1284,8 +1400,8 @@ input:-ms-input-placeholder {
     .param-input-wrapper .input-prefix {
         padding: 0 8px;
         font-size: 14px;
-        background: var(--ibm-surface-1);
-        border-right: 1px solid var(--ibm-hairline);
+        background: var(--clay-surface-1);
+        border-right: 1px solid var(--clay-hairline);
     }
 
     .param-input-wrapper input {
@@ -1363,9 +1479,9 @@ input:-ms-input-placeholder {
    ESTILOS ESPECÍFICOS PARA INFORME
    ========================================== */
 
-/* Informe — misma línea visual IBM */
+/* Informe — misma línea visual Clay (crema, sin pie oscuro) */
 body.informe {
-    background: var(--ibm-surface-1);
+    background: var(--clay-canvas);
     padding: 0;
     font-family: var(--font-sans);
     letter-spacing: var(--body-tracking);
@@ -1374,34 +1490,36 @@ body.informe {
 body.informe .container {
     max-width: 900px;
     margin: 32px auto;
-    background: var(--ibm-canvas);
+    background: var(--clay-canvas);
     box-shadow: none;
-    border: 1px solid var(--ibm-hairline);
-    border-radius: 0;
+    border: 1px solid var(--clay-hairline);
+    border-radius: var(--radius-lg);
 }
 
 body.informe .header {
-    background: var(--ibm-canvas);
-    color: var(--ibm-ink);
+    background: var(--clay-canvas);
+    color: var(--clay-ink);
     padding: 40px;
-    border-bottom: 2px solid var(--ibm-primary);
+    border-bottom: 3px solid var(--clay-brand-ochre);
 }
 
 body.informe .header h1 {
-    color: var(--ibm-ink);
-    font-size: 28px;
-    font-weight: 300;
+    color: var(--clay-ink);
+    font-family: var(--font-display);
+    font-size: var(--type-h1-size);
+    letter-spacing: var(--type-h1-tracking);
+    line-height: var(--type-h1-lh);
     margin-bottom: 8px;
 }
 
 body.informe .header p {
-    color: var(--ibm-ink-muted);
+    color: var(--clay-ink-muted);
     opacity: 1;
     font-size: 14px;
 }
 
 body.informe .estado-informe {
-    color: var(--ibm-ink-muted);
+    color: var(--clay-ink-muted);
     font-size: 15px;
     font-weight: 600;
     margin-top: 10px;
@@ -1412,7 +1530,7 @@ body.informe .estado-informe {
     font-size: 13px;
     margin-top: 12px;
     opacity: 1;
-    color: var(--ibm-ink-subtle);
+    color: var(--clay-ink-subtle);
 }
 
 .informe-actions {
@@ -1420,8 +1538,8 @@ body.informe .estado-informe {
     gap: 8px;
     justify-content: flex-end;
     padding: 20px 40px;
-    background: var(--ibm-canvas);
-    border-bottom: 1px solid var(--ibm-hairline);
+    background: var(--clay-canvas);
+    border-bottom: 1px solid var(--clay-hairline);
 }
 
 .informe-actions.informe-actions--hidden {
@@ -1433,16 +1551,16 @@ body.informe .calc-formula {
 }
 
 body.informe .calc-result.calc-result--final {
-    background: var(--ibm-success);
-    color: var(--ibm-on-primary);
+    background: var(--clay-success);
+    color: var(--clay-on-primary);
 }
 
 .btn-share {
-    padding: 12px 16px;
+    padding: 12px 20px;
     border: none;
-    border-radius: 0;
+    border-radius: var(--radius-md);
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 600;
     letter-spacing: var(--body-tracking);
     cursor: pointer;
     transition: background 0.15s;
@@ -1473,21 +1591,21 @@ body.informe .calc-result.calc-result--final {
 }
 
 .btn-print {
-    background: var(--ibm-ink);
-    color: var(--ibm-on-primary);
+    background: var(--clay-ink);
+    color: var(--clay-on-primary);
 }
 
 .btn-print:hover {
-    background: var(--ibm-primary-hover);
+    background: var(--clay-primary-hover);
 }
 
 .btn-download {
-    background: var(--ibm-primary);
-    color: var(--ibm-on-primary);
+    background: var(--clay-primary);
+    color: var(--clay-on-primary);
 }
 
 .btn-download:hover {
-    background: var(--ibm-primary-hover);
+    background: var(--clay-primary-hover);
 }
 
 .btn-image {
@@ -1508,16 +1626,16 @@ body.informe .calc-result.calc-result--final {
 }
 
 .dato-box {
-    background: var(--ibm-surface-1);
+    background: var(--clay-surface-card);
     padding: 20px;
-    border-radius: 0;
-    border: 1px solid var(--ibm-hairline);
-    border-top: 3px solid var(--ibm-primary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--clay-hairline);
+    border-top: 3px solid var(--clay-brand-peach);
 }
 
 .dato-label {
     font-size: 11px;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-ink-muted);
     font-weight: 600;
     text-transform: uppercase;
     margin-bottom: 8px;
@@ -1526,8 +1644,10 @@ body.informe .calc-result.calc-result--final {
 
 .dato-value {
     font-size: 26px;
-    font-weight: 300;
-    color: var(--ibm-ink);
+    font-weight: 500;
+    font-family: var(--font-display);
+    letter-spacing: var(--display-tracking);
+    color: var(--clay-ink);
 }
 
 .flujo-grid {
@@ -1537,24 +1657,24 @@ body.informe .calc-result.calc-result--final {
 }
 
 .flujo-columna h3 {
-    background: var(--ibm-surface-1);
-    color: var(--ibm-ink);
+    background: var(--clay-surface-soft);
+    color: var(--clay-ink);
     padding: 12px 16px;
-    border-radius: 0;
+    border-radius: var(--radius-lg);
     font-size: 15px;
     text-align: center;
     margin-bottom: 20px;
-    border: 1px solid var(--ibm-hairline);
-    border-bottom: 2px solid var(--ibm-primary);
+    border: 1px solid var(--clay-hairline);
+    border-bottom: 3px solid var(--clay-brand-teal);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.32px;
+    letter-spacing: 1.5px;
 }
 
 .paso {
-    background: var(--ibm-canvas);
-    border: 1px solid var(--ibm-hairline);
-    border-radius: 0;
+    background: var(--clay-canvas);
+    border: 1px solid var(--clay-hairline);
+    border-radius: var(--radius-md);
     padding: 15px;
     margin-bottom: 15px;
 }
@@ -1562,7 +1682,7 @@ body.informe .calc-result.calc-result--final {
 .paso-titulo {
     font-size: 11px;
     font-weight: 600;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-ink-muted);
     text-transform: uppercase;
     margin-bottom: 10px;
     letter-spacing: 0.32px;
@@ -1571,18 +1691,18 @@ body.informe .calc-result.calc-result--final {
 .paso-formula {
     font-family: var(--font-mono);
     font-size: 14px;
-    color: var(--ibm-ink-muted);
-    background: var(--ibm-canvas);
+    color: var(--clay-ink-muted);
+    background: var(--clay-canvas);
     padding: 8px;
-    border-radius: 0;
+    border-radius: var(--radius-md);
     margin-bottom: 8px;
 }
 
 .paso-resultado {
-    background: var(--ibm-ink);
-    color: var(--ibm-on-primary);
+    background: var(--clay-ink);
+    color: var(--clay-on-primary);
     padding: 10px 16px;
-    border-radius: 0;
+    border-radius: var(--radius-md);
     text-align: center;
     font-weight: 400;
     font-size: 14px;
@@ -1598,15 +1718,15 @@ body.informe .calc-result.calc-result--final {
 }
 
 .param-box {
-    background: var(--ibm-surface-1);
+    background: var(--clay-surface-1);
     padding: 12px;
-    border-radius: 0;
-    border: 1px solid var(--ibm-hairline);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--clay-hairline);
 }
 
 .param-nombre {
     font-size: 10px;
-    color: var(--ibm-ink-muted);
+    color: var(--clay-ink-muted);
     font-weight: 600;
     text-transform: uppercase;
     margin-bottom: 6px;
@@ -1616,16 +1736,16 @@ body.informe .calc-result.calc-result--final {
 .param-valor {
     font-size: 14px;
     font-weight: 600;
-    color: var(--ibm-ink);
+    color: var(--clay-ink);
 }
 
 body.informe .footer {
-    background: var(--ibm-inverse);
-    padding: 32px;
+    background: var(--clay-surface-soft);
+    padding: 48px 32px;
     text-align: center;
-    border-top: 1px solid var(--ibm-inverse);
-    color: var(--ibm-inverse-muted);
-    font-size: 12px;
+    border-top: 1px solid var(--clay-hairline);
+    color: var(--clay-body);
+    font-size: 14px;
 }
 
 .no-data {
@@ -1634,25 +1754,28 @@ body.informe .footer {
 }
 
 .no-data h2 {
-    color: var(--ibm-ink);
-    font-weight: 300;
+    color: var(--clay-ink);
+    font-family: var(--font-display);
+    font-size: var(--type-h1-size);
+    line-height: var(--type-h1-lh);
+    letter-spacing: var(--type-h1-tracking);
     margin-bottom: 20px;
 }
 
 .no-data a {
     display: inline-block;
-    background: var(--ibm-primary);
-    color: var(--ibm-on-primary);
-    padding: 12px 16px;
-    border-radius: 0;
+    background: var(--clay-primary);
+    color: var(--clay-on-primary);
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
     text-decoration: none;
-    font-weight: 400;
+    font-weight: 600;
     margin-top: 20px;
     letter-spacing: var(--body-tracking);
 }
 
 .no-data a:hover {
-    background: var(--ibm-primary-hover);
+    background: var(--clay-primary-hover);
     box-shadow: none;
 }
 
@@ -1681,12 +1804,14 @@ body.informe .footer {
     }
     
     body.informe .header {
-        border-bottom: 2px solid var(--ibm-primary);
+        border-bottom: 2px solid var(--clay-primary);
         padding: 20px;
     }
 
     body.informe .header h1 {
-        font-size: 22px;
+        font-size: 24px;
+        line-height: 1.12;
+        letter-spacing: var(--type-h1-tracking);
         margin-bottom: 4px;
     }
 
@@ -1841,7 +1966,9 @@ body.informe .footer {
     }
 
     body.informe .header h1 {
-        font-size: 24px;
+        font-size: 28px;
+        line-height: var(--type-h1-lh);
+        letter-spacing: var(--type-h1-tracking);
     }
 
     .informe-actions {
