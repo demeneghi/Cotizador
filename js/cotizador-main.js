@@ -137,11 +137,8 @@
             precio_kg_largo: 0,
 
             mostrarParametros: false,
-            mostrarFormulas: false,
 
             configuracionGuardada: false,
-
-            tipoFleteCalc: 'corto',
 
             init: function () {
                 this.cargarConfiguracion();
@@ -434,68 +431,6 @@
                 return Fmt.formatNumber(num);
             },
 
-            _formulaTipoCambio: function () {
-                return Calc.validarNumero(String(this.tipo_cambio).replace(/,/g, ''), 0.01);
-            },
-
-            _formulaCajasActivas: function () {
-                var c = this.tipoFleteCalc === 'corto' ? this.cajas_flete_corto : this.cajas_flete_largo;
-                return Calc.validarNumero(c, 1);
-            },
-
-            _formulaFleteMxnActivo: function () {
-                var m = this.tipoFleteCalc === 'corto' ? this.costo_flete_corto_mxn : this.costo_flete_largo_mxn;
-                return Calc.validarNumero(m, 0);
-            },
-
-            formulaFleteUsd: function () {
-                return this._formulaFleteMxnActivo() / this._formulaTipoCambio();
-            },
-
-            formulaEmpaqueUsd: function () {
-                return Calc.validarNumero(this.costo_empaque_caja_mxn, 0) / this._formulaTipoCambio();
-            },
-
-            formulaCartonTotal: function () {
-                return Calc.validarNumero(this.costo_carton_caja, 0) * this._formulaCajasActivas();
-            },
-
-            formulaEmpaqueLineTotal: function () {
-                return this.formulaEmpaqueUsd() * this._formulaCajasActivas();
-            },
-
-            formulaManejoTotal: function () {
-                return Calc.validarNumero(this.costo_manejo_caja, 0) * this._formulaCajasActivas();
-            },
-
-            formulaGastosPorCaja: function () {
-                return this.calcularGastosEmbarqueDisplay() / this._formulaCajasActivas();
-            },
-
-            _formulaPrecioVentaNum: function () {
-                var raw = String(this.precio_venta).replace(/,/g, '').trim();
-                if (raw === '') return 0;
-                var n = parseFloat(raw);
-                if (isNaN(n) || !isFinite(n) || n < 0) return 0;
-                return n;
-            },
-
-            formulaComisionMonto: function () {
-                return this._formulaPrecioVentaNum() * Calc.validarNumero(this.comision_venta, 0, 100) / 100;
-            },
-
-            formulaPrecioNeto: function () {
-                return this._formulaPrecioVentaNum() - this.formulaComisionMonto() - this.formulaGastosPorCaja();
-            },
-
-            formulaPrecioMxn: function () {
-                return this.formulaPrecioNeto() * this._formulaTipoCambio();
-            },
-
-            formulaPrecioKgPaso: function () {
-                return this.formulaPrecioMxn() / Calc.validarNumero(this.peso_caja, 0.01);
-            },
-
             exportarRespaldo: function () {
                 try {
                     var raw = localStorage.getItem(STORAGE_KEY);
@@ -555,16 +490,6 @@
                     if (input) input.value = '';
                 };
                 reader.readAsText(file, 'UTF-8');
-            },
-
-            calcularGastosEmbarqueDisplay: function () {
-                var costoFleteMXN = this.tipoFleteCalc === 'corto' ? this.costo_flete_corto_mxn : this.costo_flete_largo_mxn;
-                var cajas = this.tipoFleteCalc === 'corto' ? this.cajas_flete_corto : this.cajas_flete_largo;
-                var gastosBase = this.calcularGastosEmbarque(costoFleteMXN, cajas);
-                if (this.tipoFleteCalc === 'largo') {
-                    return gastosBase + this.validarNumero(this.costo_sobrepeso_embarque, 0, Infinity);
-                }
-                return gastosBase;
             },
 
             generarCotizacionHTML: function () {
