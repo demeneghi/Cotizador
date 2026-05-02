@@ -2,12 +2,17 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, viewport-fit=cover">
+    <!-- script-src incluye 'unsafe-eval' porque Alpine 3 evalúa expresiones (x-data, @click, x-model) vía new Function; sin esto la UI no arranca. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
     <title>Cotizador de Piña</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     
     <!-- PWA Meta Tags -->
-    <meta name="description" content="Cotizador de Piña - Amador Russell">
-    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Cotizador de Piña — herramienta de cotización">
+    <meta name="theme-color" content="#0f62fe">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -21,23 +26,24 @@
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <link rel="apple-touch-icon" href="icon-192.png">
     
-    <!-- Victor Mono Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Victor+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <!-- Estilos -->
     <link rel="stylesheet" href="styles.css">
-    
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script src="js/app-config.js"></script>
+    <script src="js/theme-meta.js"></script>
+    <script src="js/calc-core.js"></script>
+    <script src="js/format-number.js"></script>
+    <script src="js/cotizador-main.js"></script>
+    <script defer src="js/vendor/alpine.min.js"></script>
+    <script defer src="js/sw-register.js"></script>
 </head>
 <body>
     <!-- Toast de Actualización -->
-    <div id="updateToast" class="toast-update" style="display: none;">
+    <div id="updateToast" class="toast-update">
         <div class="toast-update-message">
             Nueva versión disponible
         </div>
-        <button class="toast-update-button" onclick="actualizarApp()">
+        <button type="button" class="toast-update-button" id="toastUpdateButton">
             Actualizar Ahora
         </button>
     </div>
@@ -46,10 +52,24 @@
         <div class="card">
             <div class="header">
                 <h1>Cotizador de Piña</h1>
-                <p>Amador Russell → Chula Brand</p>
+                <p>Cotización por caja y kilogramo</p>
+                <div class="estado-tabs" role="tablist" aria-label="Estado de cotización">
+                    <template x-for="estado in estadosDisponibles" :key="estado.key">
+                        <button
+                            type="button"
+                            role="tab"
+                            class="estado-tab"
+                            :class="{ 'active': estadoActivo === estado.key }"
+                            :aria-selected="estadoActivo === estado.key"
+                            @click="cambiarEstado(estado.key)"
+                            x-text="estado.nombre">
+                        </button>
+                    </template>
+                </div>
             </div>
 
             <div class="content">
+                <div id="cotizador-error" class="cotizador-error" role="alert" aria-live="polite"></div>
                 <!-- Sección Principal: Precio y Tipo de Cambio -->
                 <div class="section">
                     <div class="section-title">Datos Principales</div>
@@ -102,25 +122,39 @@
 
                 <!-- Flujo de Cálculos -->
                 <div class="section">
-                    <div class="accordion-header" @click="mostrarFormulas = !mostrarFormulas">
+                    <div
+                        class="accordion-header"
+                        role="button"
+                        tabindex="0"
+                        :aria-expanded="mostrarFormulas ? 'true' : 'false'"
+                        @click="mostrarFormulas = !mostrarFormulas"
+                        @keydown.enter.prevent="mostrarFormulas = !mostrarFormulas"
+                        @keydown.space.prevent="mostrarFormulas = !mostrarFormulas"
+                    >
                         <span>Flujo de Cálculos</span>
                         <span class="accordion-icon" :class="{ 'open': mostrarFormulas }">▼</span>
                     </div>
-                    <div class="accordion-content" x-show="mostrarFormulas" x-transition>
+                    <div class="accordion-content" :class="{ 'is-hidden': !mostrarFormulas }">
                         <div class="formula-section">
                             
                             <!-- Pestañas para seleccionar tipo de flete -->
-                            <div class="calc-tabs">
-                                <button 
-                                    class="calc-tab" 
+                            <div class="calc-tabs" role="tablist" aria-label="Tipo de flete en fórmulas">
+                                <button
+                                    type="button"
+                                    role="tab"
+                                    class="calc-tab"
                                     :class="{ 'active': tipoFleteCalc === 'corto' }"
+                                    :aria-selected="tipoFleteCalc === 'corto'"
                                     @click="tipoFleteCalc = 'corto'"
                                 >
                                     Flete Corto
                                 </button>
-                                <button 
-                                    class="calc-tab" 
+                                <button
+                                    type="button"
+                                    role="tab"
+                                    class="calc-tab"
                                     :class="{ 'active': tipoFleteCalc === 'largo' }"
+                                    :aria-selected="tipoFleteCalc === 'largo'"
                                     @click="tipoFleteCalc = 'largo'"
                                 >
                                     Flete Largo
@@ -136,11 +170,11 @@
                                     <div class="calc-step-badge">Conversión</div>
                                 </div>
                                 <div class="calc-formula">
-                                    Costo Flete USD = <span class="calc-value" x-text="formatNumber(tipoFleteCalc === 'corto' ? costo_flete_corto_mxn : costo_flete_largo_mxn)"></span> MXN ÷ <span class="calc-value" x-text="formatNumber(tipo_cambio)"></span>
+                                    Costo Flete USD = <span class="calc-value" x-text="formatNumber(_formulaFleteMxnActivo())"></span> MXN ÷ <span class="calc-value" x-text="formatNumber(_formulaTipoCambio())"></span>
                                 </div>
                                 <div class="calc-result">
                                     <span class="calc-result-label">Costo Flete USD:</span>
-                                    <span class="calc-result-value">$<span x-text="formatNumber((tipoFleteCalc === 'corto' ? costo_flete_corto_mxn : costo_flete_largo_mxn) / tipo_cambio)"></span></span>
+                                    <span class="calc-result-value">$<span x-text="formatNumber(formulaFleteUsd())"></span></span>
                                 </div>
                             </div>
 
@@ -153,11 +187,11 @@
                                     <div class="calc-step-badge">Conversión</div>
                                 </div>
                                 <div class="calc-formula">
-                                    Costo Empaque USD = <span class="calc-value" x-text="formatNumber(costo_empaque_caja_mxn)"></span> MXN ÷ <span class="calc-value" x-text="formatNumber(tipo_cambio)"></span>
+                                    Costo Empaque USD = <span class="calc-value" x-text="formatNumber(costo_empaque_caja_mxn)"></span> MXN ÷ <span class="calc-value" x-text="formatNumber(_formulaTipoCambio())"></span>
                                 </div>
                                 <div class="calc-result">
                                     <span class="calc-result-label">Costo Empaque USD:</span>
-                                    <span class="calc-result-value">$<span x-text="formatNumber(costo_empaque_caja_mxn / tipo_cambio)"></span></span>
+                                    <span class="calc-result-value">$<span x-text="formatNumber(formulaEmpaqueUsd())"></span></span>
                                 </div>
                             </div>
 
@@ -170,12 +204,12 @@
                                     <div class="calc-step-badge">Suma</div>
                                 </div>
                                 <div class="calc-formula">
-                                    = <span class="calc-value" x-text="formatNumber((tipoFleteCalc === 'corto' ? costo_flete_corto_mxn : costo_flete_largo_mxn) / tipo_cambio)"></span> (Flete USD)<br>
+                                    = <span class="calc-value" x-text="formatNumber(formulaFleteUsd())"></span> (Flete USD)<br>
                                     + <span class="calc-value" x-text="formatNumber(costo_aduana_embarque)"></span> (Aduana)<br>
-                                    + (<span class="calc-value" x-text="formatNumber(costo_carton_caja)"></span> × <span class="calc-value" x-text="formatNumber(tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo)"></span>) = <span class="calc-value" x-text="formatNumber(costo_carton_caja * (tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo))"></span> (Cartón)<br>
-                                    + (<span class="calc-value" x-text="formatNumber(costo_empaque_caja_mxn / tipo_cambio)"></span> × <span class="calc-value" x-text="formatNumber(tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo)"></span>) = <span class="calc-value" x-text="formatNumber((costo_empaque_caja_mxn / tipo_cambio) * (tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo))"></span> (Empaque)<br>
-                                    + (<span class="calc-value" x-text="formatNumber(costo_manejo_caja)"></span> × <span class="calc-value" x-text="formatNumber(tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo)"></span>) = <span class="calc-value" x-text="formatNumber(costo_manejo_caja * (tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo))"></span> (Manejo)
-                                    <span x-show="tipoFleteCalc === 'largo'"><br>+ <span class="calc-value" x-text="formatNumber(costo_sobrepeso_embarque)"></span> (Sobrepeso)</span>
+                                    + (<span class="calc-value" x-text="formatNumber(costo_carton_caja)"></span> × <span class="calc-value" x-text="formatNumber(_formulaCajasActivas())"></span>) = <span class="calc-value" x-text="formatNumber(formulaCartonTotal())"></span> (Cartón)<br>
+                                    + (<span class="calc-value" x-text="formatNumber(formulaEmpaqueUsd())"></span> × <span class="calc-value" x-text="formatNumber(_formulaCajasActivas())"></span>) = <span class="calc-value" x-text="formatNumber(formulaEmpaqueLineTotal())"></span> (Empaque)<br>
+                                    + (<span class="calc-value" x-text="formatNumber(costo_manejo_caja)"></span> × <span class="calc-value" x-text="formatNumber(_formulaCajasActivas())"></span>) = <span class="calc-value" x-text="formatNumber(formulaManejoTotal())"></span> (Manejo)
+                                    <span :class="{ 'is-hidden': tipoFleteCalc !== 'largo' }"><br>+ <span class="calc-value" x-text="formatNumber(costo_sobrepeso_embarque)"></span> (Sobrepeso)</span>
                                 </div>
                                 <div class="calc-result">
                                     <span class="calc-result-label">Gastos Embarque Total:</span>
@@ -192,11 +226,11 @@
                                     <div class="calc-step-badge">División</div>
                                 </div>
                                 <div class="calc-formula">
-                                    Gastos por Caja = <span class="calc-value" x-text="formatNumber(calcularGastosEmbarqueDisplay())"></span> USD ÷ <span class="calc-value" x-text="formatNumber(tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo)"></span> cajas
+                                    Gastos por Caja = <span class="calc-value" x-text="formatNumber(calcularGastosEmbarqueDisplay())"></span> USD ÷ <span class="calc-value" x-text="formatNumber(_formulaCajasActivas())"></span> cajas
                                 </div>
                                 <div class="calc-result">
                                     <span class="calc-result-label">Gastos por Caja:</span>
-                                    <span class="calc-result-value">$<span x-text="formatNumber(calcularGastosEmbarqueDisplay() / (tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo))"></span></span>
+                                    <span class="calc-result-value">$<span x-text="formatNumber(formulaGastosPorCaja())"></span></span>
                                 </div>
                             </div>
 
@@ -209,11 +243,11 @@
                                     <div class="calc-step-badge">Porcentaje</div>
                                 </div>
                                 <div class="calc-formula">
-                                    Descuento = <span class="calc-value" x-text="formatNumber(precio_venta)"></span> USD × <span class="calc-value" x-text="formatNumber(comision_venta)"></span>% ÷ 100
+                                    Descuento = <span class="calc-value" x-text="formatNumber(_formulaPrecioVentaNum())"></span> USD × <span class="calc-value" x-text="formatNumber(comision_venta)"></span>% ÷ 100
                                 </div>
                                 <div class="calc-result">
                                     <span class="calc-result-label">Descuento Comisión:</span>
-                                    <span class="calc-result-value">$<span x-text="formatNumber(precio_venta * comision_venta / 100)"></span></span>
+                                    <span class="calc-result-value">$<span x-text="formatNumber(formulaComisionMonto())"></span></span>
                                 </div>
                             </div>
 
@@ -226,13 +260,13 @@
                                     <div class="calc-step-badge">Resta</div>
                                 </div>
                                 <div class="calc-formula">
-                                    = <span class="calc-value" x-text="formatNumber(precio_venta)"></span> (Precio Venta)<br>
-                                    - <span class="calc-value" x-text="formatNumber(precio_venta * comision_venta / 100)"></span> (Comisión)<br>
-                                    - <span class="calc-value" x-text="formatNumber(calcularGastosEmbarqueDisplay() / (tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo))"></span> (Gastos/Caja)
+                                    = <span class="calc-value" x-text="formatNumber(_formulaPrecioVentaNum())"></span> (Precio Venta)<br>
+                                    - <span class="calc-value" x-text="formatNumber(formulaComisionMonto())"></span> (Comisión)<br>
+                                    - <span class="calc-value" x-text="formatNumber(formulaGastosPorCaja())"></span> (Gastos/Caja)
                                 </div>
                                 <div class="calc-result">
                                     <span class="calc-result-label">Precio Neto por Caja:</span>
-                                    <span class="calc-result-value">$<span x-text="formatNumber(precio_venta - (precio_venta * comision_venta / 100) - (calcularGastosEmbarqueDisplay() / (tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo)))"></span></span>
+                                    <span class="calc-result-value">$<span x-text="formatNumber(formulaPrecioNeto())"></span></span>
                                 </div>
                             </div>
 
@@ -245,11 +279,11 @@
                                     <div class="calc-step-badge">Multiplicación</div>
                                 </div>
                                 <div class="calc-formula">
-                                    Precio MXN = <span class="calc-value" x-text="formatNumber(precio_venta - (precio_venta * comision_venta / 100) - (calcularGastosEmbarqueDisplay() / (tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo)))"></span> USD × <span class="calc-value" x-text="formatNumber(tipo_cambio)"></span>
+                                    Precio MXN = <span class="calc-value" x-text="formatNumber(formulaPrecioNeto())"></span> USD × <span class="calc-value" x-text="formatNumber(_formulaTipoCambio())"></span>
                                 </div>
                                 <div class="calc-result">
                                     <span class="calc-result-label">Precio en MXN:</span>
-                                    <span class="calc-result-value">$<span x-text="formatNumber((precio_venta - (precio_venta * comision_venta / 100) - (calcularGastosEmbarqueDisplay() / (tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo))) * tipo_cambio)"></span></span>
+                                    <span class="calc-result-value">$<span x-text="formatNumber(formulaPrecioMxn())"></span></span>
                                 </div>
                             </div>
 
@@ -262,9 +296,9 @@
                                     <div class="calc-step-badge">División</div>
                                 </div>
                                 <div class="calc-formula">
-                                    Precio/Kg = <span class="calc-value" x-text="formatNumber((precio_venta - (precio_venta * comision_venta / 100) - (calcularGastosEmbarqueDisplay() / (tipoFleteCalc === 'corto' ? cajas_flete_corto : cajas_flete_largo))) * tipo_cambio)"></span> MXN ÷ <span class="calc-value" x-text="formatNumber(peso_caja)"></span> kg
+                                    Precio/Kg = <span class="calc-value" x-text="formatNumber(formulaPrecioMxn())"></span> MXN ÷ <span class="calc-value" x-text="formatNumber(peso_caja)"></span> kg
                                 </div>
-                                <div class="calc-result" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+                                <div class="calc-result calc-result--final">
                                     <span class="calc-result-label">PRECIO FINAL POR KG:</span>
                                     <span class="calc-result-value">$<span x-text="formatNumber(tipoFleteCalc === 'corto' ? precio_kg_corto : precio_kg_largo)"></span> MXN</span>
                                 </div>
@@ -277,11 +311,19 @@
 
                 <!-- Parámetros Configurables -->
                 <div class="section">
-                    <div class="accordion-header" @click="mostrarParametros = !mostrarParametros">
+                    <div
+                        class="accordion-header"
+                        role="button"
+                        tabindex="0"
+                        :aria-expanded="mostrarParametros ? 'true' : 'false'"
+                        @click="mostrarParametros = !mostrarParametros"
+                        @keydown.enter.prevent="mostrarParametros = !mostrarParametros"
+                        @keydown.space.prevent="mostrarParametros = !mostrarParametros"
+                    >
                         <span>Parámetros de Configuración</span>
                         <span class="accordion-icon" :class="{ 'open': mostrarParametros }">▼</span>
                     </div>
-                    <div class="accordion-content" x-show="mostrarParametros" x-transition>
+                    <div class="accordion-content" :class="{ 'is-hidden': !mostrarParametros }">
                     <div class="params-section">
                         
                         <!-- Grupo 1: Parámetros Básicos -->
@@ -299,7 +341,7 @@
                                         type="text" 
                                         x-model="comision_venta"
                                         inputmode="decimal"
-                                        pattern="[0-9]*"
+                                        pattern="[0-9.,]*"
                                     >
                                 </div>
                             </div>
@@ -314,7 +356,7 @@
                                         type="text" 
                                         x-model="peso_caja"
                                         inputmode="decimal"
-                                        pattern="[0-9]*"
+                                        pattern="[0-9.,]*"
                                     >
                                 </div>
                             </div>
@@ -337,7 +379,7 @@
                                         type="text" 
                                         x-model="costo_flete_corto_mxn"
                                         inputmode="decimal"
-                                        pattern="[0-9]*"
+                                        pattern="[0-9.,]*"
                                     >
                                 </div>
                             </div>
@@ -352,7 +394,7 @@
                                         type="text" 
                                         x-model="costo_flete_largo_mxn"
                                         inputmode="decimal"
-                                        pattern="[0-9]*"
+                                        pattern="[0-9.,]*"
                                     >
                                 </div>
                             </div>
@@ -367,7 +409,7 @@
                                         type="text" 
                                         x-model="cajas_flete_corto"
                                         inputmode="numeric"
-                                        pattern="[0-9]*"
+                                        pattern="[0-9.,]*"
                                     >
                                 </div>
                             </div>
@@ -382,7 +424,7 @@
                                         type="text" 
                                         x-model="cajas_flete_largo"
                                         inputmode="numeric"
-                                        pattern="[0-9]*"
+                                        pattern="[0-9.,]*"
                                     >
                                 </div>
                             </div>
@@ -405,7 +447,7 @@
                                         type="text" 
                                         x-model="costo_aduana_embarque"
                                         inputmode="decimal"
-                                        pattern="[0-9]*"
+                                        pattern="[0-9.,]*"
                                     >
                                 </div>
                             </div>
@@ -420,7 +462,7 @@
                                         type="text" 
                                         x-model="costo_manejo_caja"
                                         inputmode="decimal"
-                                        pattern="[0-9]*"
+                                        pattern="[0-9.,]*"
                                     >
                                 </div>
                             </div>
@@ -435,7 +477,7 @@
                                         type="text" 
                                         x-model="costo_sobrepeso_embarque"
                                         inputmode="decimal"
-                                        pattern="[0-9]*"
+                                        pattern="[0-9.,]*"
                                     >
                                 </div>
                             </div>
@@ -458,7 +500,7 @@
                                         type="text" 
                                         x-model="costo_carton_caja"
                                         inputmode="decimal"
-                                        pattern="[0-9]*"
+                                        pattern="[0-9.,]*"
                                     >
                                 </div>
                             </div>
@@ -473,7 +515,7 @@
                                         type="text" 
                                         x-model="costo_empaque_caja_mxn"
                                         inputmode="decimal"
-                                        pattern="[0-9]*"
+                                        pattern="[0-9.,]*"
                                     >
                                 </div>
                             </div>
@@ -482,19 +524,26 @@
                         </div>
 
                         <div class="button-group">
-                            <button class="btn-save" @click="guardarConfiguracion()" :class="{ 'saved': configuracionGuardada }">
-                                <span x-text="configuracionGuardada ? 'Configuración Guardada ✓' : 'Guardar Configuración'"></span>
+                            <button type="button" class="btn-save" @click="guardarConfiguracion()" :class="{ 'saved': configuracionGuardada }">
+                                <span x-text="configuracionGuardada ? 'Configuración guardada' : 'Guardar Configuración'"></span>
                             </button>
-                            <button class="btn-reset" @click="resetearValores()">
+                            <button type="button" class="btn-reset" @click="resetearValores()">
                                 Restaurar Valores
                             </button>
+                            <button type="button" class="btn-export-backup" @click="exportarRespaldo()">
+                                Exportar respaldo
+                            </button>
+                            <button type="button" class="btn-import-backup" @click="$refs.importBackupInput.click()">
+                                Importar respaldo
+                            </button>
+                            <input type="file" class="is-hidden" accept="application/json,.json" x-ref="importBackupInput" @change="importarRespaldoSeleccionado($event)">
                         </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Botón Compartir Cotización -->
-                <button class="btn-compartir" @click="generarCotizacionHTML()">
+                <button type="button" class="btn-compartir" @click="generarCotizacionHTML()">
                     <span>Generar informe</span>
                 </button>
 
@@ -502,705 +551,5 @@
         </div>
     </div>
 
-    <script>
-        const VALORES_PREDETERMINADOS = {
-                tipo_cambio: 18.50,
-                comision_venta: 10.00,
-                peso_caja: 11.40,
-                costo_flete_corto_mxn: 38000.00,
-                costo_flete_largo_mxn: 42000.00,
-                costo_aduana_embarque: 103.00,
-                costo_carton_caja: 1.25,
-                costo_empaque_caja_mxn: 26.00,
-                costo_manejo_caja: 0.22,
-                costo_sobrepeso_embarque: 250.00,
-                cajas_flete_corto: 1650,
-                cajas_flete_largo: 2250,
-            precio_venta: ''
-        };
-
-        function cotizador() {
-            return {
-                // Variables principales
-                precio_venta: '',
-                tipo_cambio: VALORES_PREDETERMINADOS.tipo_cambio,
-                comision_venta: VALORES_PREDETERMINADOS.comision_venta,
-                peso_caja: VALORES_PREDETERMINADOS.peso_caja,
-                
-                // Costos de flete (en MXN)
-                costo_flete_corto_mxn: VALORES_PREDETERMINADOS.costo_flete_corto_mxn,
-                costo_flete_largo_mxn: VALORES_PREDETERMINADOS.costo_flete_largo_mxn,
-                
-                // Costos adicionales
-                costo_aduana_embarque: VALORES_PREDETERMINADOS.costo_aduana_embarque,
-                costo_carton_caja: VALORES_PREDETERMINADOS.costo_carton_caja,
-                costo_empaque_caja_mxn: VALORES_PREDETERMINADOS.costo_empaque_caja_mxn,
-                costo_manejo_caja: VALORES_PREDETERMINADOS.costo_manejo_caja,
-                costo_sobrepeso_embarque: VALORES_PREDETERMINADOS.costo_sobrepeso_embarque,
-                
-                // Número de cajas
-                cajas_flete_corto: VALORES_PREDETERMINADOS.cajas_flete_corto,
-                cajas_flete_largo: VALORES_PREDETERMINADOS.cajas_flete_largo,
-                
-                // Resultados
-                precio_kg_corto: 0,
-                precio_kg_largo: 0,
-                
-                // Estado de acordeones
-                mostrarParametros: false,
-                mostrarFormulas: false,
-                
-                // Estado de guardado
-                configuracionGuardada: false,
-                
-                // Tipo de flete para visualización de cálculos
-                tipoFleteCalc: 'corto',
-
-                init() {
-                    this.cargarConfiguracion();
-                    this.calcular();
-                    
-                    this.$nextTick(() => {
-                        ['precio_venta', 'tipo_cambio', 'comision_venta', 'peso_caja',
-                         'costo_flete_corto_mxn', 'costo_flete_largo_mxn', 'costo_aduana_embarque',
-                         'costo_carton_caja', 'costo_empaque_caja_mxn', 'costo_manejo_caja',
-                         'costo_sobrepeso_embarque', 'cajas_flete_corto', 'cajas_flete_largo'
-                        ].forEach(campo => {
-                            this.$watch(campo, () => {
-                                this.guardarEnLocalStorage();
-                                this.configuracionGuardada = false;
-                                this.calcular();
-                            });
-                        });
-                    });
-                },
-
-                cargarConfiguracion() {
-                    try {
-                    const datosGuardados = localStorage.getItem('cotizador_config');
-                    
-                    if (datosGuardados) {
-                        const datos = JSON.parse(datosGuardados);
-                        datos.precio_venta = '';
-                        this.aplicarDatos(datos);
-                    } else {
-                        this.aplicarDatos({ ...VALORES_PREDETERMINADOS });
-                            this.guardarEnLocalStorage();
-                        }
-                    } catch (error) {
-                        console.error('Error cargando configuración:', error);
-                        this.aplicarDatos({ ...VALORES_PREDETERMINADOS });
-                    }
-                },
-
-                aplicarDatos(datos, esReset = false) {
-                    this.precio_venta = esReset ? (datos.precio_venta ?? VALORES_PREDETERMINADOS.precio_venta) : '';
-                    this.tipo_cambio = datos.tipo_cambio ?? VALORES_PREDETERMINADOS.tipo_cambio;
-                    this.comision_venta = datos.comision_venta ?? VALORES_PREDETERMINADOS.comision_venta;
-                    this.peso_caja = datos.peso_caja ?? VALORES_PREDETERMINADOS.peso_caja;
-                    this.costo_flete_corto_mxn = datos.costo_flete_corto_mxn ?? VALORES_PREDETERMINADOS.costo_flete_corto_mxn;
-                    this.costo_flete_largo_mxn = datos.costo_flete_largo_mxn ?? VALORES_PREDETERMINADOS.costo_flete_largo_mxn;
-                    this.costo_aduana_embarque = datos.costo_aduana_embarque ?? VALORES_PREDETERMINADOS.costo_aduana_embarque;
-                    this.costo_carton_caja = datos.costo_carton_caja ?? VALORES_PREDETERMINADOS.costo_carton_caja;
-                    this.costo_empaque_caja_mxn = datos.costo_empaque_caja_mxn ?? VALORES_PREDETERMINADOS.costo_empaque_caja_mxn;
-                    this.costo_manejo_caja = datos.costo_manejo_caja ?? VALORES_PREDETERMINADOS.costo_manejo_caja;
-                    this.costo_sobrepeso_embarque = datos.costo_sobrepeso_embarque ?? VALORES_PREDETERMINADOS.costo_sobrepeso_embarque;
-                    this.cajas_flete_corto = datos.cajas_flete_corto ?? VALORES_PREDETERMINADOS.cajas_flete_corto;
-                    this.cajas_flete_largo = datos.cajas_flete_largo ?? VALORES_PREDETERMINADOS.cajas_flete_largo;
-                },
-
-                guardarEnLocalStorage() {
-                    try {
-                    const datos = {
-                        precio_venta: this.precio_venta,
-                        tipo_cambio: this.tipo_cambio,
-                        comision_venta: this.comision_venta,
-                        peso_caja: this.peso_caja,
-                        costo_flete_corto_mxn: this.costo_flete_corto_mxn,
-                        costo_flete_largo_mxn: this.costo_flete_largo_mxn,
-                        costo_aduana_embarque: this.costo_aduana_embarque,
-                        costo_carton_caja: this.costo_carton_caja,
-                        costo_empaque_caja_mxn: this.costo_empaque_caja_mxn,
-                        costo_manejo_caja: this.costo_manejo_caja,
-                        costo_sobrepeso_embarque: this.costo_sobrepeso_embarque,
-                        cajas_flete_corto: this.cajas_flete_corto,
-                        cajas_flete_largo: this.cajas_flete_largo
-                    };
-                    localStorage.setItem('cotizador_config', JSON.stringify(datos));
-                    } catch (error) {
-                        console.error('Error guardando en localStorage:', error);
-                    }
-                },
-
-                // Validación de valores numéricos seguros
-                validarNumero(valor, nombre, minimo = 0, maximo = Infinity) {
-                    // Remover separadores de miles (comas) antes de convertir
-                    const valorLimpio = typeof valor === 'string' ? valor.replace(/,/g, '') : valor;
-                    const num = Number(valorLimpio);
-                    
-                    if (isNaN(num) || !isFinite(num)) {
-                        return minimo;
-                    }
-                    
-                    if (num < minimo) return minimo;
-                    if (num > maximo) return maximo;
-                    
-                    return num;
-                },
-
-                calcularGastosEmbarque(costoFleteMXN, cajas) {
-                    const costoFleteUSD = this.validarNumero(costoFleteMXN, '', 0) / this.validarNumero(this.tipo_cambio, '', 0.01);
-                    const numCajas = this.validarNumero(cajas, '', 1);
-                    const costoAduana = this.validarNumero(this.costo_aduana_embarque, '', 0);
-                    const costoCarton = this.validarNumero(this.costo_carton_caja, '', 0);
-                    const costoEmpaqueMXN = this.validarNumero(this.costo_empaque_caja_mxn, '', 0);
-                    const costoEmpaqueUSD = costoEmpaqueMXN / this.validarNumero(this.tipo_cambio, '', 0.01);
-                    const costoManejo = this.validarNumero(this.costo_manejo_caja, '', 0);
-                    
-                    const resultado = (
-                        costoFleteUSD +
-                        costoAduana +
-                        (costoCarton * numCajas) +
-                        (costoEmpaqueUSD * numCajas) +
-                        (costoManejo * numCajas)
-                    );
-                    
-                    return this.validarNumero(resultado, '', 0);
-                },
-
-                calcularPrecioKg(precioVenta, comisionVenta, gastosEmbarque, cajas, tipoCambio, pesoCaja) {
-                    const pv = this.validarNumero(precioVenta, '', 0);
-                    const cv = this.validarNumero(comisionVenta, '', 0, 100);
-                    const ge = this.validarNumero(gastosEmbarque, '', 0);
-                    const nc = this.validarNumero(cajas, '', 1);
-                    const tc = this.validarNumero(tipoCambio, '', 0.01);
-                    const pc = this.validarNumero(pesoCaja, '', 0.01);
-                    
-                    const precioNeto = pv - (pv * cv / 100) - (ge / nc);
-                    const resultado = (precioNeto * tc) / pc;
-                    
-                    if (!isFinite(resultado) || isNaN(resultado)) return 0;
-                    
-                    return resultado;
-                },
-
-                calcular() {
-                    try {
-                        const precioVentaNum = parseFloat(String(this.precio_venta).replace(/,/g, ''));
-                        const tipoCambioNum = parseFloat(String(this.tipo_cambio).replace(/,/g, ''));
-                        
-                        if (!precioVentaNum || isNaN(precioVentaNum) || !tipoCambioNum || isNaN(tipoCambioNum) ||
-                            tipoCambioNum <= 0 || this.peso_caja <= 0 || 
-                            this.cajas_flete_corto <= 0 || this.cajas_flete_largo <= 0) {
-                            this.precio_kg_corto = 0;
-                            this.precio_kg_largo = 0;
-                            return;
-                        }
-                        
-                    const gastosEmbarqueCorto = this.calcularGastosEmbarque(
-                        this.costo_flete_corto_mxn,
-                        this.cajas_flete_corto
-                    );
-                    
-                    const gastosEmbarqueLargo = this.calcularGastosEmbarque(
-                        this.costo_flete_largo_mxn,
-                        this.cajas_flete_largo
-                        ) + this.validarNumero(this.costo_sobrepeso_embarque, '', 0);
-
-                    this.precio_kg_corto = this.calcularPrecioKg(
-                            precioVentaNum,
-                        this.comision_venta,
-                        gastosEmbarqueCorto,
-                        this.cajas_flete_corto,
-                            tipoCambioNum,
-                        this.peso_caja
-                    );
-
-                    this.precio_kg_largo = this.calcularPrecioKg(
-                            precioVentaNum,
-                        this.comision_venta,
-                        gastosEmbarqueLargo,
-                        this.cajas_flete_largo,
-                            tipoCambioNum,
-                        this.peso_caja
-                    );
-                        
-                        this.precio_kg_corto = this.validarNumero(this.precio_kg_corto, '', 0);
-                        this.precio_kg_largo = this.validarNumero(this.precio_kg_largo, '', 0);
-                        
-                    } catch (error) {
-                        console.error('Error en cálculo:', error);
-                        this.precio_kg_corto = 0;
-                        this.precio_kg_largo = 0;
-                    }
-                },
-
-                guardarConfiguracion() {
-                    try {
-                        this.guardarEnLocalStorage();
-                        this.configuracionGuardada = true;
-                        
-                        setTimeout(() => {
-                            this.configuracionGuardada = false;
-                        }, 2000);
-                    } catch (error) {
-                        console.error('Error al guardar configuración:', error);
-                        this.configuracionGuardada = false;
-                    }
-                },
-
-                resetearValores() {
-                    if (confirm('¿Estás seguro de que deseas restaurar los valores predeterminados? Se perderá tu configuración actual.')) {
-                        try {
-                        localStorage.removeItem('cotizador_config');
-                        
-                        this.aplicarDatos({ ...VALORES_PREDETERMINADOS }, true);
-                            this.guardarEnLocalStorage();
-                            this.calcular();
-                        this.configuracionGuardada = false;
-                        } catch (error) {
-                            console.error('Error al resetear valores:', error);
-                        }
-                    }
-                },
-
-                formatNumber(num) {
-                    if (isNaN(num) || !isFinite(num)) return '0.00';
-                    return num.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    });
-                },
-
-                calcularGastosEmbarqueDisplay() {
-                    const costoFleteMXN = this.tipoFleteCalc === 'corto' ? this.costo_flete_corto_mxn : this.costo_flete_largo_mxn;
-                    const cajas = this.tipoFleteCalc === 'corto' ? this.cajas_flete_corto : this.cajas_flete_largo;
-                    
-                    const gastosBase = this.calcularGastosEmbarque(costoFleteMXN, cajas);
-                    
-                    if (this.tipoFleteCalc === 'largo') {
-                        return gastosBase + this.validarNumero(this.costo_sobrepeso_embarque, '', 0);
-                    }
-                    
-                    return gastosBase;
-                },
-
-                generarCotizacionHTML() {
-                    try {
-                        const precioVentaNum = parseFloat(String(this.precio_venta).replace(/,/g, '')) || 0;
-                        const tipoCambioNum = parseFloat(String(this.tipo_cambio).replace(/,/g, '')) || 0;
-                        
-                        if (precioVentaNum === 0 || tipoCambioNum === 0) {
-                            console.warn('No se puede generar cotización sin precio de venta o tipo de cambio');
-                            return;
-                        }
-                        
-                    const fecha = new Date().toLocaleDateString('es-MX', { 
-                        day: '2-digit', 
-                        month: 'long', 
-                        year: 'numeric' 
-                    });
-                    const hora = new Date().toLocaleTimeString('es-MX', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                    });
-
-                    const calcularPasosPorFlete = (tipo) => {
-                        const costoFleteMXN = tipo === 'corto' ? this.costo_flete_corto_mxn : this.costo_flete_largo_mxn;
-                        const cajas = tipo === 'corto' ? this.cajas_flete_corto : this.cajas_flete_largo;
-                        const gastosEmbarque = this.calcularGastosEmbarque(costoFleteMXN, cajas);
-                        const gastosTotal = tipo === 'largo' ? gastosEmbarque + this.costo_sobrepeso_embarque : gastosEmbarque;
-                        
-                        const comision = precioVentaNum * this.comision_venta / 100;
-                        const gastosPorCaja = gastosTotal / cajas;
-                        const precioNeto = precioVentaNum - comision - gastosPorCaja;
-                        const precioMXN = precioNeto * tipoCambioNum;
-                        const precioKg = tipo === 'corto' ? this.precio_kg_corto : this.precio_kg_largo;
-
-                        return {
-                            fleteUSD: costoFleteMXN / tipoCambioNum,
-                            empaqueUSD: this.costo_empaque_caja_mxn / tipoCambioNum,
-                            gastosTotal,
-                            gastosPorCaja,
-                            comision,
-                            precioNeto,
-                            precioMXN,
-                            precioKg
-                        };
-                    };
-
-                    const calcCorto = calcularPasosPorFlete('corto');
-                    const calcLargo = calcularPasosPorFlete('largo');
-
-                        // Calcular detalles para ambos fletes
-                        const detallesCorto = {
-                            fleteUSD: calcCorto.fleteUSD,
-                            empaqueUSD: calcCorto.empaqueUSD,
-                            cartonTotal: this.costo_carton_caja * this.cajas_flete_corto,
-                            empaqueTotal: calcCorto.empaqueUSD * this.cajas_flete_corto,
-                            manejoTotal: this.costo_manejo_caja * this.cajas_flete_corto
-                        };
-                        
-                        const detallesLargo = {
-                            fleteUSD: calcLargo.fleteUSD,
-                            empaqueUSD: calcLargo.empaqueUSD,
-                            cartonTotal: this.costo_carton_caja * this.cajas_flete_largo,
-                            empaqueTotal: calcLargo.empaqueUSD * this.cajas_flete_largo,
-                            manejoTotal: this.costo_manejo_caja * this.cajas_flete_largo
-                        };
-
-                        const datosInforme = {
-                            fecha: fecha,
-                            hora: hora,
-                            precioVenta: precioVentaNum,
-                            tipoCambio: tipoCambioNum,
-                            precioKgCorto: this.precio_kg_corto,
-                            precioKgLargo: this.precio_kg_largo,
-                            calcCorto: [
-                                {
-                                    titulo: 'Paso 1: Conversión de Flete a USD',
-                                    badge: 'Conversión',
-                                    formula: `Costo Flete USD = ${this.formatNumber(this.costo_flete_corto_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
-                                    resultado: `$${this.formatNumber(calcCorto.fleteUSD)} USD`,
-                                    label: 'Costo Flete USD:',
-                                    highlight: false
-                                },
-                                {
-                                    titulo: 'Paso 2: Conversión de Empaque a USD',
-                                    badge: 'Conversión',
-                                    formula: `Costo Empaque USD = ${this.formatNumber(this.costo_empaque_caja_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
-                                    resultado: `$${this.formatNumber(calcCorto.empaqueUSD)} USD`,
-                                    label: 'Costo Empaque USD:',
-                                    highlight: false
-                                },
-                                {
-                                    titulo: 'Paso 3: Gastos Totales de Embarque',
-                                    badge: 'Suma',
-                                    formula: `= ${this.formatNumber(calcCorto.fleteUSD)} (Flete USD)<br>+ ${this.formatNumber(this.costo_aduana_embarque)} (Aduana)<br>+ (${this.formatNumber(this.costo_carton_caja)} × ${this.formatNumber(this.cajas_flete_corto)}) = ${this.formatNumber(detallesCorto.cartonTotal)} (Cartón)<br>+ (${this.formatNumber(calcCorto.empaqueUSD)} × ${this.formatNumber(this.cajas_flete_corto)}) = ${this.formatNumber(detallesCorto.empaqueTotal)} (Empaque)<br>+ (${this.formatNumber(this.costo_manejo_caja)} × ${this.formatNumber(this.cajas_flete_corto)}) = ${this.formatNumber(detallesCorto.manejoTotal)} (Manejo)`,
-                                    resultado: `$${this.formatNumber(calcCorto.gastosTotal)} USD`,
-                                    label: 'Gastos Embarque Total:',
-                                    highlight: true
-                                },
-                                {
-                                    titulo: 'Paso 4: Gastos Prorrateados por Caja',
-                                    badge: 'División',
-                                    formula: `Gastos por Caja = ${this.formatNumber(calcCorto.gastosTotal)} USD ÷ ${this.formatNumber(this.cajas_flete_corto)} cajas`,
-                                    resultado: `$${this.formatNumber(calcCorto.gastosPorCaja)} USD`,
-                                    label: 'Gastos por Caja:',
-                                    highlight: false
-                                },
-                                {
-                                    titulo: 'Paso 5: Descuento por Comisión',
-                                    badge: 'Porcentaje',
-                                    formula: `Descuento = ${this.formatNumber(precioVentaNum)} USD × ${this.formatNumber(this.comision_venta)}% ÷ 100`,
-                                    resultado: `$${this.formatNumber(calcCorto.comision)} USD`,
-                                    label: 'Descuento Comisión:',
-                                    highlight: false
-                                },
-                                {
-                                    titulo: 'Paso 6: Precio Neto por Caja (USD)',
-                                    badge: 'Resta',
-                                    formula: `= ${this.formatNumber(precioVentaNum)} (Precio Venta)<br>- ${this.formatNumber(calcCorto.comision)} (Comisión)<br>- ${this.formatNumber(calcCorto.gastosPorCaja)} (Gastos/Caja)`,
-                                    resultado: `$${this.formatNumber(calcCorto.precioNeto)} USD`,
-                                    label: 'Precio Neto por Caja:',
-                                    highlight: true
-                                },
-                                {
-                                    titulo: 'Paso 7: Conversión a Pesos Mexicanos',
-                                    badge: 'Multiplicación',
-                                    formula: `Precio MXN = ${this.formatNumber(calcCorto.precioNeto)} USD × ${this.formatNumber(tipoCambioNum)}`,
-                                    resultado: `$${this.formatNumber(calcCorto.precioMXN)} MXN`,
-                                    label: 'Precio en MXN:',
-                                    highlight: false
-                                },
-                                {
-                                    titulo: 'Paso 8: Precio Final por Kilogramo',
-                                    badge: 'División',
-                                    formula: `Precio/Kg = ${this.formatNumber(calcCorto.precioMXN)} MXN ÷ ${this.formatNumber(this.peso_caja)} kg`,
-                                    resultado: `$${this.formatNumber(calcCorto.precioKg)} MXN/kg`,
-                                    label: 'PRECIO FINAL POR KG:',
-                                    highlight: true,
-                                    final: true
-                                }
-                            ],
-                            calcLargo: [
-                                {
-                                    titulo: 'Paso 1: Conversión de Flete a USD',
-                                    badge: 'Conversión',
-                                    formula: `Costo Flete USD = ${this.formatNumber(this.costo_flete_largo_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
-                                    resultado: `$${this.formatNumber(calcLargo.fleteUSD)} USD`,
-                                    label: 'Costo Flete USD:',
-                                    highlight: false
-                                },
-                                {
-                                    titulo: 'Paso 2: Conversión de Empaque a USD',
-                                    badge: 'Conversión',
-                                    formula: `Costo Empaque USD = ${this.formatNumber(this.costo_empaque_caja_mxn)} MXN ÷ ${this.formatNumber(tipoCambioNum)}`,
-                                    resultado: `$${this.formatNumber(calcLargo.empaqueUSD)} USD`,
-                                    label: 'Costo Empaque USD:',
-                                    highlight: false
-                                },
-                                {
-                                    titulo: 'Paso 3: Gastos Totales de Embarque',
-                                    badge: 'Suma',
-                                    formula: `= ${this.formatNumber(calcLargo.fleteUSD)} (Flete USD)<br>+ ${this.formatNumber(this.costo_aduana_embarque)} (Aduana)<br>+ (${this.formatNumber(this.costo_carton_caja)} × ${this.formatNumber(this.cajas_flete_largo)}) = ${this.formatNumber(detallesLargo.cartonTotal)} (Cartón)<br>+ (${this.formatNumber(calcLargo.empaqueUSD)} × ${this.formatNumber(this.cajas_flete_largo)}) = ${this.formatNumber(detallesLargo.empaqueTotal)} (Empaque)<br>+ (${this.formatNumber(this.costo_manejo_caja)} × ${this.formatNumber(this.cajas_flete_largo)}) = ${this.formatNumber(detallesLargo.manejoTotal)} (Manejo)<br>+ ${this.formatNumber(this.costo_sobrepeso_embarque)} (Sobrepeso)`,
-                                    resultado: `$${this.formatNumber(calcLargo.gastosTotal)} USD`,
-                                    label: 'Gastos Embarque Total:',
-                                    highlight: true
-                                },
-                                {
-                                    titulo: 'Paso 4: Gastos Prorrateados por Caja',
-                                    badge: 'División',
-                                    formula: `Gastos por Caja = ${this.formatNumber(calcLargo.gastosTotal)} USD ÷ ${this.formatNumber(this.cajas_flete_largo)} cajas`,
-                                    resultado: `$${this.formatNumber(calcLargo.gastosPorCaja)} USD`,
-                                    label: 'Gastos por Caja:',
-                                    highlight: false
-                                },
-                                {
-                                    titulo: 'Paso 5: Descuento por Comisión',
-                                    badge: 'Porcentaje',
-                                    formula: `Descuento = ${this.formatNumber(precioVentaNum)} USD × ${this.formatNumber(this.comision_venta)}% ÷ 100`,
-                                    resultado: `$${this.formatNumber(calcLargo.comision)} USD`,
-                                    label: 'Descuento Comisión:',
-                                    highlight: false
-                                },
-                                {
-                                    titulo: 'Paso 6: Precio Neto por Caja (USD)',
-                                    badge: 'Resta',
-                                    formula: `= ${this.formatNumber(precioVentaNum)} (Precio Venta)<br>- ${this.formatNumber(calcLargo.comision)} (Comisión)<br>- ${this.formatNumber(calcLargo.gastosPorCaja)} (Gastos/Caja)`,
-                                    resultado: `$${this.formatNumber(calcLargo.precioNeto)} USD`,
-                                    label: 'Precio Neto por Caja:',
-                                    highlight: true
-                                },
-                                {
-                                    titulo: 'Paso 7: Conversión a Pesos Mexicanos',
-                                    badge: 'Multiplicación',
-                                    formula: `Precio MXN = ${this.formatNumber(calcLargo.precioNeto)} USD × ${this.formatNumber(tipoCambioNum)}`,
-                                    resultado: `$${this.formatNumber(calcLargo.precioMXN)} MXN`,
-                                    label: 'Precio en MXN:',
-                                    highlight: false
-                                },
-                                {
-                                    titulo: 'Paso 8: Precio Final por Kilogramo',
-                                    badge: 'División',
-                                    formula: `Precio/Kg = ${this.formatNumber(calcLargo.precioMXN)} MXN ÷ ${this.formatNumber(this.peso_caja)} kg`,
-                                    resultado: `$${this.formatNumber(calcLargo.precioKg)} MXN/kg`,
-                                    label: 'PRECIO FINAL POR KG:',
-                                    highlight: true,
-                                    final: true
-                                }
-                            ],
-                            parametros: [
-                                { nombre: 'Comisión', valor: `${this.formatNumber(this.comision_venta)}%` },
-                                { nombre: 'Peso por Caja', valor: `${this.formatNumber(this.peso_caja)} kg` },
-                                { nombre: 'Flete Corto', valor: `$${this.formatNumber(this.costo_flete_corto_mxn)} MXN` },
-                                { nombre: 'Flete Largo', valor: `$${this.formatNumber(this.costo_flete_largo_mxn)} MXN` },
-                                { nombre: 'Cajas Flete Corto', valor: this.formatNumber(this.cajas_flete_corto) },
-                                { nombre: 'Cajas Flete Largo', valor: this.formatNumber(this.cajas_flete_largo) },
-                                { nombre: 'Aduana Embarque', valor: `$${this.formatNumber(this.costo_aduana_embarque)} USD` },
-                                { nombre: 'Cartón por Caja', valor: `$${this.formatNumber(this.costo_carton_caja)} USD` },
-                                { nombre: 'Empaque por Caja', valor: `$${this.formatNumber(this.costo_empaque_caja_mxn)} MXN` },
-                                { nombre: 'Manejo por Caja', valor: `$${this.formatNumber(this.costo_manejo_caja)} USD` },
-                                { nombre: 'Sobrepeso', valor: `$${this.formatNumber(this.costo_sobrepeso_embarque)} USD` }
-                            ]
-                        };
-
-                        // Guardar en localStorage
-                        try {
-                            const datosJSON = JSON.stringify(datosInforme);
-                            localStorage.setItem('cotizacion_informe', datosJSON);
-                            
-                            // También guardarlo en sessionStorage como respaldo
-                            sessionStorage.setItem('cotizacion_informe', datosJSON);
-                            
-                            console.log('Datos guardados correctamente');
-                            
-                            // Abrir ventana con datos en URL hash (para file://)
-                            const datosEncoded = encodeURIComponent(datosJSON);
-                            
-                            // Para desarrollo local (file://), usar hash
-                            // Para producción (https://), usar localStorage que funciona correctamente
-                            if (window.location.protocol === 'file:') {
-                                // Modo archivo local: usar hash
-                                const ventana = window.open(`./informe.html#${datosEncoded}`, '_blank');
-                                if (!ventana) {
-                                    console.error('No se pudo abrir la ventana. Permite pop-ups.');
-                                }
-                            } else {
-                                // Modo servidor: usar localStorage normalmente
-                                setTimeout(() => {
-                                    window.open('./informe.html', '_blank');
-                                }, 100);
-                            }
-                        } catch (storageError) {
-                            console.error('Error guardando datos:', storageError);
-                        }
-                    } catch (error) {
-                        console.error('Error generando cotización:', error);
-                    }
-                }
-            }
-        }
-    </script>
-
-    <script>
-        let newServiceWorker = null;
-        let swRegistration = null;
-        let updateCheckInterval = null;
-
-        function mostrarToastActualizacion() {
-            const toast = document.getElementById('updateToast');
-            if (toast) {
-                toast.style.display = 'flex';
-            } else {
-                console.error('❌ No se encontró el elemento updateToast');
-            }
-        }
-
-        function actualizarApp() {
-            const toast = document.getElementById('updateToast');
-            if (toast) {
-                toast.style.display = 'none';
-            }
-            
-            if (newServiceWorker) {
-                newServiceWorker.postMessage({ action: 'skipWaiting' });
-            } else {
-                console.error('❌ No hay newServiceWorker disponible');
-                if (swRegistration) {
-                    swRegistration.update().then(() => {
-            window.location.reload();
-                    });
-                }
-            }
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
-                    .then(registration => {
-                        swRegistration = registration;
-                        
-                        // Verificar inmediatamente si hay actualización
-                        registration.update();
-                        
-                        // Verificar actualizaciones cada 30 segundos
-                        updateCheckInterval = setInterval(() => {
-                            registration.update().catch(err => {
-                                console.error('❌ Error verificando actualización:', err);
-                            });
-                        }, 30000);
-                        
-                        // Detectar cuando hay una nueva versión instalándose
-                        registration.addEventListener('updatefound', () => {
-                            newServiceWorker = registration.installing;
-                            
-                            newServiceWorker.addEventListener('statechange', () => {
-                                if (newServiceWorker.state === 'installed') {
-                                    if (navigator.serviceWorker.controller) {
-                                    mostrarToastActualizacion();
-                                    }
-                                }
-                            });
-                        });
-
-                        // Revisar si ya hay un SW esperando
-                        if (registration.waiting) {
-                            newServiceWorker = registration.waiting;
-                            mostrarToastActualizacion();
-                        }
-
-                        // Revisar si hay uno instalándose
-                        if (registration.installing) {
-                            newServiceWorker = registration.installing;
-                        }
-                    })
-                    .catch(err => {
-                        console.error('❌ Error registrando Service Worker:', err);
-                    });
-            });
-
-            // Recargar cuando el nuevo SW tome control
-            let refreshing = false;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (!refreshing) {
-                    refreshing = true;
-                    
-                    if (updateCheckInterval) {
-                        clearInterval(updateCheckInterval);
-                    }
-                    
-                    window.location.reload();
-                }
-            });
-
-            // Detectar cuando volvemos de background (app resume)
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden && swRegistration) {
-                    swRegistration.update();
-                }
-            });
-        } else {
-            console.error('❌ Service Worker NO soportado en este navegador');
-        }
-
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
-
-        // Formateo automático de números con separadores de miles
-        document.addEventListener('DOMContentLoaded', () => {
-            // Función para formatear números con separadores de miles
-            function formatearConSeparadores(valor) {
-                // Remover caracteres no numéricos excepto punto y coma
-                let limpio = valor.replace(/[^\d.,]/g, '');
-                
-                // Reemplazar coma por punto para decimal
-                limpio = limpio.replace(',', '.');
-                
-                // Si no hay valor, retornar vacío
-                if (!limpio) return '';
-                
-                // Separar parte entera y decimal
-                const partes = limpio.split('.');
-                let parteEntera = partes[0];
-                const parteDecimal = partes[1];
-                
-                // Agregar separadores de miles
-                parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                
-                // Reconstruir el número
-                return parteDecimal !== undefined ? `${parteEntera}.${parteDecimal}` : parteEntera;
-            }
-
-            // Aplicar formateo a todos los inputs de parámetros
-            setTimeout(() => {
-                const paramInputs = document.querySelectorAll('.param-input-wrapper input');
-                
-                paramInputs.forEach(input => {
-                    input.addEventListener('input', function(e) {
-                        const cursorPos = this.selectionStart;
-                        const valorAnterior = this.value;
-                        const valorFormateado = formatearConSeparadores(valorAnterior);
-                        
-                        if (valorFormateado !== valorAnterior) {
-                            this.value = valorFormateado;
-                            
-                            // Ajustar posición del cursor
-                            const diff = valorFormateado.length - valorAnterior.length;
-                            this.setSelectionRange(cursorPos + diff, cursorPos + diff);
-                        }
-                    });
-                    
-                    // Formatear valor inicial si existe
-                    if (input.value) {
-                        input.value = formatearConSeparadores(input.value);
-                    }
-                });
-            }, 500);
-        });
-    </script>
 </body>
 </html>

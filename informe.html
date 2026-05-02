@@ -2,280 +2,31 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
     <title>Informe de Cotización - Piña</title>
-    
-    <!-- Victor Mono Font -->
+    <meta name="description" content="Informe de cotización de piña">
+    <meta name="theme-color" content="#0f62fe">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Victor+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
     
-    <!-- Estilos -->
     <link rel="stylesheet" href="styles.css">
     
-    <!-- html2canvas para captura de imagen -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="js/app-config.js"></script>
+    <script src="js/theme-meta.js"></script>
+    <script src="js/format-number.js"></script>
+    <script src="js/informe-validate.js"></script>
+    <script src="js/vendor/html2canvas.min.js"></script>
+    <script defer src="js/informe-app.js"></script>
 </head>
 <body class="informe">
     <div class="container">
         <div id="informe-content"></div>
     </div>
-
-    <script>
-        function formatNumber(num) {
-            if (isNaN(num) || !isFinite(num)) return '0.00';
-            return num.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-        }
-
-        function cargarInforme() {
-            console.log('Cargando informe...');
-            let datos = null;
-            
-            // Intentar obtener datos del hash (para file://)
-            if (window.location.hash && window.location.hash.length > 1) {
-                console.log('Datos encontrados en URL hash');
-                try {
-                    datos = decodeURIComponent(window.location.hash.substring(1));
-                } catch (e) {
-                    console.error('Error decodificando hash:', e);
-                }
-            }
-            
-            // Si no hay en hash, intentar localStorage
-            if (!datos) {
-                datos = localStorage.getItem('cotizacion_informe');
-                console.log('Datos en localStorage:', datos ? 'Encontrados' : 'No encontrados');
-            }
-            
-            // Si no hay en localStorage, intentar sessionStorage
-            if (!datos) {
-                datos = sessionStorage.getItem('cotizacion_informe');
-                console.log('Datos en sessionStorage:', datos ? 'Encontrados' : 'No encontrados');
-            }
-            
-            if (!datos) {
-                console.error('No se encontraron datos en hash, localStorage ni sessionStorage');
-                document.getElementById('informe-content').innerHTML = `
-                    <div class="no-data">
-                        <h2>No hay datos de cotización</h2>
-                        <p>Por favor, genera un informe desde el cotizador.</p>
-                        <a href="index.html">Ir al Cotizador</a>
-                    </div>
-                `;
-                return;
-            }
-
-            console.log('Parseando datos JSON...');
-            const informe = JSON.parse(datos);
-            console.log('Informe cargado exitosamente');
-            
-            document.getElementById('informe-content').innerHTML = `
-                <div class="header">
-                    <h1>COTIZACIÓN DE PIÑA</h1>
-                    <p>Amador Russell → Chula Brand</p>
-                    <div class="fecha">${informe.fecha} - ${informe.hora}</div>
-                </div>
-
-                <div class="informe-actions">
-                    <button class="btn-share btn-print" onclick="window.print()">
-                        🖨️ Imprimir PDF
-                    </button>
-                    <button class="btn-share btn-download" onclick="descargarHTML()">
-                        📥 Descargar HTML
-                    </button>
-                    <button class="btn-share btn-image" onclick="descargarImagen()">
-                        📸 Descargar Imagen
-                    </button>
-                </div>
-
-                <div class="content">
-                    <div class="section">
-                        <div class="section-title">Datos de Entrada</div>
-                        <div class="datos-principales">
-                            <div class="dato-box">
-                                <div class="dato-label">Precio de Venta</div>
-                                <div class="dato-value">$${formatNumber(informe.precioVenta)} USD</div>
-                            </div>
-                            <div class="dato-box">
-                                <div class="dato-label">Tipo de Cambio</div>
-                                <div class="dato-value">$${formatNumber(informe.tipoCambio)} MXN</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <div class="section-title">Precios por Kilogramo</div>
-                        <div class="resultados-grid">
-                            <div class="resultado-card">
-                                <div class="resultado-label">Flete Corto</div>
-                                <div class="resultado-value">$${formatNumber(informe.precioKgCorto)}</div>
-                                <div class="resultado-unit">MXN por kg</div>
-                            </div>
-                            <div class="resultado-card">
-                                <div class="resultado-label">Flete Largo</div>
-                                <div class="resultado-value">$${formatNumber(informe.precioKgLargo)}</div>
-                                <div class="resultado-unit">MXN por kg</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <div class="section-title">Flujo de Cálculos Detallado</div>
-                        <div class="flujo-grid">
-                            <!-- Flete Corto -->
-                            <div class="flujo-columna">
-                                <h3>FLETE CORTO</h3>
-                                ${informe.calcCorto.map((paso, i) => `
-                                    <div class="calc-step ${paso.highlight ? 'highlight' : ''}">
-                                        <div class="calc-step-header">
-                                            <div class="calc-step-title">${paso.titulo}</div>
-                                            <div class="calc-step-badge">${paso.badge}</div>
-                                        </div>
-                                        <div class="calc-formula">${paso.formula}</div>
-                                        <div class="calc-result" style="${paso.final ? 'background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);' : ''}">
-                                            <span class="calc-result-label">${paso.label}</span>
-                                            <span class="calc-result-value">${paso.resultado}</span>
-                                        </div>
-                                    </div>
-                                    ${i < informe.calcCorto.length - 1 ? '<div class="calc-arrow">↓</div>' : ''}
-                                `).join('')}
-                            </div>
-
-                            <!-- Flete Largo -->
-                            <div class="flujo-columna">
-                                <h3>FLETE LARGO</h3>
-                                ${informe.calcLargo.map((paso, i) => `
-                                    <div class="calc-step ${paso.highlight ? 'highlight' : ''}">
-                                        <div class="calc-step-header">
-                                            <div class="calc-step-title">${paso.titulo}</div>
-                                            <div class="calc-step-badge">${paso.badge}</div>
-                                        </div>
-                                        <div class="calc-formula">${paso.formula}</div>
-                                        <div class="calc-result" style="${paso.final ? 'background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);' : ''}">
-                                            <span class="calc-result-label">${paso.label}</span>
-                                            <span class="calc-result-value">${paso.resultado}</span>
-                                        </div>
-                                    </div>
-                                    ${i < informe.calcLargo.length - 1 ? '<div class="calc-arrow">↓</div>' : ''}
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <div class="section-title">Parámetros Utilizados</div>
-                        <div class="parametros-grid">
-                            ${informe.parametros.map(p => `
-                                <div class="param-box">
-                                    <div class="param-nombre">${p.nombre}</div>
-                                    <div class="param-valor">${p.valor}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="footer">
-                    <strong>Cotizador de Piña - Amador Russell → Chula Brand</strong><br>
-                    Documento generado automáticamente el ${informe.fecha} a las ${informe.hora}
-                </div>
-            `;
-        }
-
-        // Cargar informe al abrir la página
-        window.addEventListener('load', cargarInforme);
-
-        // Función para descargar HTML autocontenido
-        async function descargarHTML() {
-            try {
-                const datos = localStorage.getItem('cotizacion_informe') || 
-                              sessionStorage.getItem('cotizacion_informe') ||
-                              (window.location.hash ? decodeURIComponent(window.location.hash.substring(1)) : null);
-                
-                if (!datos) {
-                    alert('No hay datos para generar el informe');
-                    return;
-                }
-
-                // Obtener el CSS
-                const response = await fetch('styles.css');
-                const cssContent = await response.text();
-
-                // Crear HTML completo con CSS embebido
-                const htmlCompleto = `<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cotización de Piña - Informe</title>
-    <style>${cssContent}</style>
-</head>
-<body class="informe">
-    <div class="container">
-        ${document.getElementById('informe-content').innerHTML}
-    </div>
-</body>
-</html>`;
-
-                // Descargar archivo
-                const blob = new Blob([htmlCompleto], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Cotizacion-Pina-${new Date().toISOString().split('T')[0]}.html`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                alert('Informe descargado. Ahora puedes compartirlo por WhatsApp o Telegram como archivo.');
-            } catch (error) {
-                console.error('Error descargando HTML:', error);
-                alert('Error al descargar el informe');
-            }
-        }
-
-        // Función para descargar como imagen
-        async function descargarImagen() {
-            try {
-                // Ocultar botones temporalmente
-                const botones = document.querySelector('.informe-actions');
-                if (botones) botones.style.display = 'none';
-
-                const container = document.querySelector('.container');
-                const canvas = await html2canvas(container, {
-                    scale: 2,
-                    backgroundColor: '#ffffff',
-                    logging: false,
-                    windowWidth: 900,
-                    windowHeight: container.scrollHeight
-                });
-
-                // Restaurar botones
-                if (botones) botones.style.display = 'flex';
-
-                // Convertir a imagen y descargar
-                canvas.toBlob(function(blob) {
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `Cotizacion-Pina-${new Date().toISOString().split('T')[0]}.png`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    
-                    alert('Imagen descargada. Ahora puedes compartirla por WhatsApp o Telegram.');
-                });
-            } catch (error) {
-                console.error('Error generando imagen:', error);
-                alert('Error al generar la imagen');
-            }
-        }
-    </script>
 </body>
 </html>
-

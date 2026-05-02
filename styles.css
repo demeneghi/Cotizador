@@ -1,13 +1,65 @@
 /* ==========================================
-   COTIZADOR DE PIÑA - ESTILOS PRINCIPALES
+   COTIZADOR DE PIÑA — IBM Carbon / marketing (DESIGN.md)
+   Plex Sans, IBM Blue #0f62fe, esquinas 0px, superficies planas.
    ========================================== */
+
+:root {
+    --ibm-canvas: #ffffff;
+    --ibm-surface-1: #f4f4f4;
+    --ibm-surface-2: #e0e0e0;
+    --ibm-ink: #161616;
+    --ibm-ink-muted: #525252;
+    --ibm-ink-subtle: #8c8c8c;
+    --ibm-primary: #0f62fe;
+    --ibm-primary-hover: #0050e6;
+    --ibm-primary-pressed: #002d9c;
+    --ibm-on-primary: #ffffff;
+    --ibm-hairline: #e0e0e0;
+    --ibm-success: #24a148;
+    --ibm-success-dark: #198038;
+    --ibm-error: #da1e28;
+    --ibm-inverse: #161616;
+    --ibm-inverse-surface-1: #262626;
+    --ibm-inverse-muted: #c6c6c6;
+    --ibm-error-hover: #a2191f;
+    --color-primary: var(--ibm-primary);
+    --color-secondary: var(--ibm-ink);
+    --color-success: var(--ibm-success);
+    --color-danger: var(--ibm-error);
+    --tap-highlight: rgba(15, 98, 254, 0.12);
+    --font-sans: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+    --body-tracking: 0.16px;
+}
+
+.is-hidden {
+    display: none !important;
+}
+
+.cotizador-error {
+    display: none;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border-radius: 0;
+    background: var(--ibm-surface-1);
+    color: var(--ibm-ink);
+    border: 1px solid var(--ibm-hairline);
+    border-bottom: 2px solid var(--ibm-error);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: var(--body-tracking);
+}
+
+.cotizador-error.is-visible {
+    display: block;
+}
 
 /* Reset y Base */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
+    -webkit-tap-highlight-color: var(--tap-highlight);
 }
 
 html {
@@ -16,10 +68,15 @@ html {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: var(--body-tracking);
+    color: var(--ibm-ink);
+    background: var(--ibm-surface-1);
     min-height: 100vh;
-    padding: 20px;
+    padding: 24px 16px 48px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -38,49 +95,97 @@ body {
 }
 
 .card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    background: var(--ibm-canvas);
+    border-radius: 0;
+    border: 1px solid var(--ibm-hairline);
+    box-shadow: none;
     overflow: hidden;
     margin-top: env(safe-area-inset-top, 5px);
     margin-bottom: env(safe-area-inset-bottom, 5px);
+    max-width: 1056px;
 }
 
 /* Header */
 .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 30px;
-    text-align: center;
+    background: var(--ibm-canvas);
+    color: var(--ibm-ink);
+    padding: 32px 24px 24px;
+    text-align: left;
+    border-bottom: 1px solid var(--ibm-hairline);
 }
 
 .header h1 {
     font-size: 32px;
-    font-weight: 600;
-    margin-bottom: 5px;
+    font-weight: 300;
+    line-height: 1.25;
+    letter-spacing: 0;
+    margin-bottom: 8px;
+    color: var(--ibm-ink);
 }
 
 .header p {
     font-size: 14px;
-    opacity: 0.9;
+    font-weight: 400;
+    color: var(--ibm-ink-muted);
+    letter-spacing: var(--body-tracking);
+}
+
+.estado-tabs {
+    display: flex;
+    justify-content: flex-start;
+    gap: 0;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--ibm-hairline);
+}
+
+.estado-tab {
+    padding: 16px 20px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    background: transparent;
+    color: var(--ibm-ink-muted);
+    border-radius: 0;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 14px;
+    font-family: inherit;
+    letter-spacing: var(--body-tracking);
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    min-height: 48px;
+}
+
+.estado-tab:hover {
+    color: var(--ibm-ink);
+    background: var(--ibm-surface-1);
+}
+
+.estado-tab.active {
+    background: transparent;
+    color: var(--ibm-ink);
+    font-weight: 600;
+    border-bottom-color: var(--ibm-primary);
 }
 
 /* Content */
 .content {
-    padding: 30px;
+    padding: 24px;
 }
 
 .section {
-    margin-bottom: 30px;
+    margin-bottom: 32px;
 }
 
 .section-title {
     font-size: 14px;
     font-weight: 600;
-    color: #667eea;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 15px;
+    color: var(--ibm-ink);
+    text-transform: none;
+    letter-spacing: var(--body-tracking);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ibm-hairline);
 }
 
 /* Inputs */
@@ -98,51 +203,61 @@ body {
 }
 
 .input-wrapper label {
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 600;
-    color: #2d3748;
+    color: var(--ibm-ink-muted);
     margin-bottom: 8px;
+    letter-spacing: var(--body-tracking);
 }
 
 .input-wrapper .input-with-prefix {
     display: flex;
     align-items: stretch;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
+    border: 1px solid var(--ibm-hairline);
+    border-bottom: 1px solid var(--ibm-hairline);
+    border-radius: 0;
     min-width: 0;
     overflow: hidden;
-    min-height: 56px;
+    min-height: 48px;
+    background: var(--ibm-surface-1);
 }
 
 .input-wrapper .input-with-prefix:focus-within {
-    border-color: #667eea;
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+    outline: 2px solid var(--ibm-primary);
+    outline-offset: -2px;
+    border-bottom: 2px solid var(--ibm-primary);
+    box-shadow: none;
 }
 
 .input-wrapper .input-prefix {
-    padding: 0 14px;
-    font-size: 18px;
-    background: #f7fafc;
-    border-right: 2px solid #e2e8f0;
+    padding: 0 16px;
+    font-size: 14px;
+    background: var(--ibm-surface-2);
+    border-right: 1px solid var(--ibm-hairline);
     flex-shrink: 0;
     white-space: nowrap;
     display: flex;
     align-items: center;
     height: 100%;
     font-weight: 600;
+    color: var(--ibm-ink-muted);
 }
 
 .input-wrapper input {
-    padding: 14px 15px;
+    padding: 11px 16px;
     border: none;
-    border-radius: 0 6px 6px 0;
-    font-size: 26px;
-    font-weight: 700;
-    transition: all 0.2s;
+    border-radius: 0;
+    font-size: 20px;
+    font-weight: 400;
+    font-family: var(--font-sans);
+    transition: background 0.15s;
     text-align: center;
     flex: 1;
     min-width: 0;
     width: 100%;
+    background: var(--ibm-surface-1);
+    color: var(--ibm-ink);
+    letter-spacing: var(--body-tracking);
 }
 
 input {
@@ -153,25 +268,25 @@ input {
 
 input::placeholder {
     opacity: 0.4;
-    color: #a0aec0;
+    color: var(--ibm-ink-subtle);
     font-size: 0.8em;
 }
 
 input::-webkit-input-placeholder {
     opacity: 0.4;
-    color: #a0aec0;
+    color: var(--ibm-ink-subtle);
     font-size: 0.8em;
 }
 
 input::-moz-placeholder {
     opacity: 0.4;
-    color: #a0aec0;
+    color: var(--ibm-ink-subtle);
     font-size: 0.8em;
 }
 
 input:-ms-input-placeholder {
     opacity: 0.4;
-    color: #a0aec0;
+    color: var(--ibm-ink-subtle);
     font-size: 0.8em;
 }
 
@@ -184,45 +299,50 @@ input:-ms-input-placeholder {
 }
 
 .result-card {
-    background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
-    border-radius: 12px;
-    padding: 30px;
+    background: var(--ibm-canvas);
+    border-radius: 0;
+    padding: 24px;
     text-align: center;
-    border: 2px solid #e2e8f0;
+    border: 1px solid var(--ibm-hairline);
 }
 
 .result-card.highlight {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
+    background: var(--ibm-canvas);
+    color: var(--ibm-ink);
+    border: 1px solid var(--ibm-primary);
+    border-top: 3px solid var(--ibm-primary);
 }
 
 .result-label {
-    font-size: 14px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0.32px;
     margin-bottom: 12px;
-    opacity: 0.8;
+    color: var(--ibm-ink-muted);
 }
 
 .result-value {
     font-size: 42px;
-    font-weight: 700;
+    font-weight: 300;
     line-height: 1.2;
+    letter-spacing: 0;
+    color: var(--ibm-primary);
 }
 
 .result-unit {
-    font-size: 15px;
-    opacity: 0.9;
+    font-size: 14px;
+    color: var(--ibm-ink-muted);
     margin-top: 8px;
+    letter-spacing: var(--body-tracking);
 }
 
 /* Parameters */
 .params-section {
-    background: #f7fafc;
-    border-radius: 12px;
+    background: var(--ibm-surface-1);
+    border-radius: 0;
     padding: 16px;
+    border: 1px solid var(--ibm-hairline);
 }
 
 .param-group {
@@ -234,14 +354,14 @@ input:-ms-input-placeholder {
 }
 
 .param-group-title {
-    font-size: 12px;
-    font-weight: 700;
-    color: #667eea;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ibm-ink);
+    text-transform: none;
+    letter-spacing: var(--body-tracking);
     margin-bottom: 10px;
-    padding-bottom: 6px;
-    border-bottom: 2px solid #667eea;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ibm-primary);
 }
 
 .params-grid {
@@ -254,19 +374,19 @@ input:-ms-input-placeholder {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 10px;
-    background: white;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    padding: 12px;
+    background: var(--ibm-canvas);
+    border-radius: 0;
+    border: 1px solid var(--ibm-hairline);
     min-width: 0;
 }
 
 .param-label {
     font-size: 12px;
-    font-weight: 600;
-    color: #4a5568;
-    text-transform: uppercase;
-    letter-spacing: 0.2px;
+    font-weight: 400;
+    color: var(--ibm-ink-muted);
+    text-transform: none;
+    letter-spacing: 0.32px;
     line-height: 1.2;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -282,130 +402,183 @@ input:-ms-input-placeholder {
     align-items: stretch;
     flex: 1;
     min-width: 0;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    background: white;
-    transition: all 0.2s;
+    border: 1px solid var(--ibm-hairline);
+    border-radius: 0;
+    background: var(--ibm-surface-1);
+    transition: border-color 0.15s, outline 0.15s;
     overflow: hidden;
-    min-height: 56px;
+    min-height: 48px;
 }
 
 .param-input-wrapper .input-with-prefix:focus-within {
-    border-color: #667eea;
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+    outline: 2px solid var(--ibm-primary);
+    outline-offset: -2px;
+    border-bottom: 2px solid var(--ibm-primary);
+    box-shadow: none;
 }
 
 .param-input-wrapper .input-prefix {
     padding: 0 14px;
     font-size: 14px;
     font-weight: 600;
-    color: #2d3748;
-    background: #f7fafc;
-    border-right: 2px solid #e2e8f0;
+    color: var(--ibm-ink-muted);
+    background: var(--ibm-surface-2);
+    border-right: 1px solid var(--ibm-hairline);
     white-space: nowrap;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
-    min-height: 56px;
+    min-height: 48px;
 }
 
 .param-input-wrapper input {
-    padding: 14px 15px;
+    padding: 11px 16px;
     border: none;
-    border-radius: 0 6px 6px 0;
-    font-size: 18px;
-    font-weight: 600;
+    border-radius: 0;
+    font-size: 16px;
+    font-weight: 400;
+    font-family: var(--font-sans);
     flex: 1;
     min-width: 0;
     text-align: right;
-    transition: all 0.2s;
+    transition: background 0.15s;
+    background: var(--ibm-surface-1);
+    color: var(--ibm-ink);
+    letter-spacing: var(--body-tracking);
 }
 
-/* Buttons */
+/* Buttons — Carbon: primario azul, secundario carbón, peligro rojo, respaldos terciario / neutro */
 .btn-reset,
 .btn-save,
-.btn-compartir {
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
+.btn-compartir,
+.btn-export-backup,
+.btn-import-backup {
+    border-radius: 0;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: var(--body-tracking);
     cursor: pointer;
     width: 100%;
-    color: white;
-    min-height: 44px;
+    min-height: 48px;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
-    transition: all 0.3s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
+    font-family: var(--font-sans);
+}
+
+.btn-reset,
+.btn-save,
+.btn-compartir {
+    border: none;
 }
 
 .btn-reset,
 .btn-save {
-    padding: 10px 20px;
-    font-size: 13px;
+    padding: 12px 16px;
+}
+
+.btn-export-backup,
+.btn-import-backup {
+    padding: 11px 16px;
+    box-sizing: border-box;
 }
 
 .btn-reset {
-    background: #e53e3e;
+    background: var(--ibm-error);
+    color: var(--ibm-on-primary);
 }
 
 .btn-save {
-    background: #48bb78;
+    background: var(--ibm-ink);
+    color: var(--ibm-on-primary);
 }
 
-.btn-reset:hover,
-.btn-save:hover,
-.btn-compartir:hover {
-    transform: translateY(-1px);
+.btn-reset:hover {
+    background: var(--ibm-error-hover);
+}
+
+.btn-save:hover {
+    background: var(--ibm-inverse-surface-1);
 }
 
 .btn-reset:active,
 .btn-save:active,
 .btn-compartir:active {
-    transform: scale(0.98);
-}
-
-.btn-reset:hover {
-    background: #c53030;
-}
-
-.btn-save:hover {
-    background: #38a169;
+    opacity: 0.95;
 }
 
 .btn-save.saved {
-    background: #4299e1;
+    background: var(--ibm-success);
+    color: var(--ibm-on-primary);
 }
 
 .btn-save.saved:hover {
-    background: #3182ce;
+    background: var(--ibm-success-dark);
+}
+
+/* Respaldo: exportar (terciario IBM), importar (neutro con borde carbón) */
+.btn-export-backup {
+    background: var(--ibm-canvas);
+    color: var(--ibm-primary);
+    border: 1px solid var(--ibm-primary);
+}
+
+.btn-export-backup:hover {
+    background: rgba(15, 98, 254, 0.08);
+    color: var(--ibm-primary-hover);
+    border-color: var(--ibm-primary-hover);
+}
+
+.btn-export-backup:active {
+    background: rgba(15, 98, 254, 0.14);
+    border-color: var(--ibm-primary-pressed);
+    color: var(--ibm-primary-pressed);
+}
+
+.btn-import-backup {
+    background: var(--ibm-canvas);
+    color: var(--ibm-ink);
+    border: 1px solid var(--ibm-ink);
+}
+
+.btn-import-backup:hover {
+    background: var(--ibm-surface-1);
+    border-color: var(--ibm-inverse-surface-1);
+    color: var(--ibm-ink);
+}
+
+.btn-import-backup:active {
+    background: var(--ibm-surface-2);
+    border-color: var(--ibm-ink);
 }
 
 .button-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 15px;
+    gap: 8px;
+    margin-top: 16px;
 }
 
 .btn-compartir {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
+    background: var(--ibm-primary);
+    color: var(--ibm-on-primary);
     border: none;
-    padding: 12px 32px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
+    padding: 12px 16px;
+    border-radius: 0;
+    font-size: 14px;
+    font-weight: 400;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: background 0.15s;
     width: 100%;
-    margin-top: 30px;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    margin-top: 24px;
+    box-shadow: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -413,37 +586,43 @@ input:-ms-input-placeholder {
 }
 
 .btn-compartir:hover {
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    background: var(--ibm-primary-hover);
+    box-shadow: none;
+}
+
+.btn-compartir:active {
+    background: var(--ibm-primary-pressed);
 }
 
 /* Accordion */
 .accordion-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 15px 20px;
-    border-radius: 8px;
+    background: var(--ibm-surface-1);
+    color: var(--ibm-ink);
+    padding: 14px 16px;
+    border-radius: 0;
+    border: 1px solid var(--ibm-hairline);
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-weight: 600;
     font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-    min-height: 50px;
+    text-transform: none;
+    letter-spacing: var(--body-tracking);
+    transition: background 0.15s;
+    box-shadow: none;
+    min-height: 48px;
     user-select: none;
     -webkit-user-select: none;
 }
 
 .accordion-header:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    background: var(--ibm-surface-2);
+    box-shadow: none;
 }
 
 .accordion-header:active {
-    transform: translateY(0);
+    background: var(--ibm-surface-1);
 }
 
 .accordion-icon {
@@ -461,10 +640,11 @@ input:-ms-input-placeholder {
 
 /* Formula Section */
 .formula-section {
-    background: white;
-    border-radius: 12px;
+    background: var(--ibm-canvas);
+    border-radius: 0;
+    border: 1px solid var(--ibm-hairline);
     padding: 20px;
-    margin-top: 15px;
+    margin-top: 12px;
 }
 
 .calc-flow {
@@ -474,16 +654,16 @@ input:-ms-input-placeholder {
 }
 
 .calc-step {
-    background: white;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 15px;
+    background: var(--ibm-canvas);
+    border: 1px solid var(--ibm-hairline);
+    border-radius: 0;
+    padding: 16px;
     position: relative;
 }
 
 .calc-step.highlight {
-    background: white;
-    border: 2px solid #e2e8f0;
+    background: var(--ibm-surface-1);
+    border: 1px solid var(--ibm-hairline);
 }
 
 .calc-step-header {
@@ -492,42 +672,43 @@ input:-ms-input-placeholder {
     align-items: center;
     margin-bottom: 12px;
     padding-bottom: 8px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--ibm-hairline);
 }
 
 .calc-step-title {
     font-size: 11px;
-    font-weight: 700;
-    color: #667eea;
+    font-weight: 600;
+    color: var(--ibm-ink-muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.32px;
 }
 
 .calc-step-badge {
-    background: #667eea;
-    color: white;
-    padding: 3px 8px;
-    border-radius: 12px;
+    background: var(--ibm-primary);
+    color: var(--ibm-on-primary);
+    padding: 4px 8px;
+    border-radius: 0;
     font-size: 10px;
     font-weight: 600;
+    letter-spacing: 0.32px;
 }
 
 .calc-formula {
-    font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace !important;
+    font-family: var(--font-mono) !important;
     font-size: 13px !important;
-    color: #4a5568;
+    color: var(--ibm-ink-muted);
     margin-bottom: 10px;
     padding: 8px 12px;
-    background: white;
-    border-radius: 6px;
+    background: var(--ibm-canvas);
+    border-radius: 0;
     line-height: 1.7;
 }
 
 .calc-value {
-    color: #667eea;
-    font-weight: 700;
+    color: var(--ibm-primary);
+    font-weight: 600;
     font-size: 12px !important;
-    font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace !important;
+    font-family: var(--font-mono) !important;
 }
 
 .calc-result {
@@ -535,10 +716,11 @@ input:-ms-input-placeholder {
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 8px;
-    font-weight: 600;
+    background: var(--ibm-ink);
+    color: var(--ibm-on-primary);
+    border-radius: 0;
+    font-weight: 400;
+    letter-spacing: var(--body-tracking);
 }
 
 .calc-result-label {
@@ -549,42 +731,51 @@ input:-ms-input-placeholder {
 .calc-result-value {
     font-size: 15px !important;
     font-weight: 700;
-    font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace !important;
+    font-family: var(--font-mono) !important;
+}
+
+.calc-result--final {
+    background: var(--ibm-success);
+    color: var(--ibm-on-primary);
 }
 
 .calc-arrow {
     text-align: center;
-    color: #667eea;
+    color: var(--ibm-primary);
     font-size: 24px;
     margin: 5px 0;
 }
 
 .calc-tabs {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #e2e8f0;
+    gap: 0;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--ibm-hairline);
 }
 
 .calc-tab {
-    padding: 10px 20px;
+    padding: 16px 20px;
     background: transparent;
     border: none;
-    border-bottom: 3px solid transparent;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
-    color: #718096;
-    transition: all 0.2s;
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--ibm-ink-muted);
+    letter-spacing: var(--body-tracking);
+    transition: color 0.15s, border-color 0.15s;
 }
 
 .calc-tab.active {
-    color: #667eea;
-    border-bottom-color: #667eea;
+    color: var(--ibm-ink);
+    font-weight: 600;
+    border-bottom-color: var(--ibm-primary);
 }
 
 .calc-tab:hover {
-    color: #667eea;
+    color: var(--ibm-ink);
+    background: var(--ibm-surface-1);
 }
 
 /* Toast Update */
@@ -593,18 +784,25 @@ input:-ms-input-placeholder {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--ibm-inverse);
+    color: var(--ibm-on-primary);
     padding: 16px 24px;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    display: flex;
+    border-radius: 0;
+    border: 1px solid var(--ibm-inverse);
+    box-shadow: none;
+    display: none;
     align-items: center;
     gap: 15px;
     z-index: 9999;
     min-width: 320px;
     max-width: 90%;
     animation: slideUp 0.3s ease-out;
+    font-family: var(--font-sans);
+    letter-spacing: var(--body-tracking);
+}
+
+.toast-update.is-visible {
+    display: flex;
 }
 
 @keyframes slideUp {
@@ -626,25 +824,27 @@ input:-ms-input-placeholder {
 }
 
 .toast-update-button {
-    background: white;
-    color: #667eea;
+    background: var(--ibm-primary);
+    color: var(--ibm-on-primary);
     border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 12px 16px;
+    border-radius: 0;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 400;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.15s;
     white-space: nowrap;
+    font-family: var(--font-sans);
+    letter-spacing: var(--body-tracking);
 }
 
 .toast-update-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+    background: var(--ibm-primary-hover);
+    box-shadow: none;
 }
 
 .toast-update-button:active {
-    transform: scale(0.98);
+    background: var(--ibm-primary-pressed);
 }
 
 /* ==========================================
@@ -675,7 +875,7 @@ input:-ms-input-placeholder {
     }
 
     .card {
-        border-radius: 12px;
+        border-radius: 0;
         overflow-x: hidden;
     }
 
@@ -737,14 +937,17 @@ input:-ms-input-placeholder {
     }
 
     .input-wrapper .input-with-prefix:focus-within {
-        box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.2);
+        outline: 2px solid var(--ibm-primary);
+        outline-offset: -2px;
+        border-bottom: 2px solid var(--ibm-primary);
+        box-shadow: none;
     }
 
     .input-wrapper .input-prefix {
         padding: 0 10px;
         font-size: 16px;
-        background: #f7fafc;
-        border-right: 2px solid #e2e8f0;
+        background: var(--ibm-surface-1);
+        border-right: 1px solid var(--ibm-hairline);
         display: flex;
         align-items: center;
         height: 100%;
@@ -799,8 +1002,8 @@ input:-ms-input-placeholder {
     .param-input-wrapper .input-prefix {
         padding: 0 10px;
         font-size: 16px;
-        background: #f7fafc;
-        border-right: 2px solid #e2e8f0;
+        background: var(--ibm-surface-1);
+        border-right: 1px solid var(--ibm-hairline);
     }
 
     .param-input-wrapper input {
@@ -837,7 +1040,9 @@ input:-ms-input-placeholder {
     }
 
     .btn-save,
-    .btn-reset {
+    .btn-reset,
+    .btn-export-backup,
+    .btn-import-backup {
         padding: 14px 20px;
         font-size: 15px;
         font-weight: 600;
@@ -862,13 +1067,13 @@ input:-ms-input-placeholder {
     }
 
     .calc-formula {
-        font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
+        font-family: var(--font-mono);
         font-size: 10px;
         padding: 8px 10px;
     }
 
     .calc-value {
-        font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
+        font-family: var(--font-mono);
         font-size: 11px;
     }
 
@@ -877,7 +1082,7 @@ input:-ms-input-placeholder {
     }
 
     .calc-result-value {
-        font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
+        font-family: var(--font-mono);
         font-size: 16px;
     }
 
@@ -997,8 +1202,8 @@ input:-ms-input-placeholder {
     .input-wrapper .input-prefix {
         font-size: 14px;
         padding: 0 8px;
-        background: #f7fafc;
-        border-right: 2px solid #e2e8f0;
+        background: var(--ibm-surface-1);
+        border-right: 1px solid var(--ibm-hairline);
         display: flex;
         align-items: center;
         height: 100%;
@@ -1053,8 +1258,8 @@ input:-ms-input-placeholder {
     .param-input-wrapper .input-prefix {
         padding: 0 8px;
         font-size: 14px;
-        background: #f7fafc;
-        border-right: 2px solid #e2e8f0;
+        background: var(--ibm-surface-1);
+        border-right: 1px solid var(--ibm-hairline);
     }
 
     .param-input-wrapper input {
@@ -1071,12 +1276,12 @@ input:-ms-input-placeholder {
     }
 
     .calc-formula {
-        font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
+        font-family: var(--font-mono);
         font-size: 9px;
     }
 
     .calc-value {
-        font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
+        font-family: var(--font-mono);
         font-size: 10px;
     }
 
@@ -1085,7 +1290,7 @@ input:-ms-input-placeholder {
     }
 
     .calc-result-value {
-        font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
+        font-family: var(--font-mono);
         font-size: 14px;
     }
 
@@ -1095,7 +1300,9 @@ input:-ms-input-placeholder {
     }
 
     .btn-save,
-    .btn-reset {
+    .btn-reset,
+    .btn-export-backup,
+    .btn-import-backup {
         font-size: 14px;
     }
 
@@ -1130,67 +1337,93 @@ input:-ms-input-placeholder {
    ESTILOS ESPECÍFICOS PARA INFORME
    ========================================== */
 
-/* Sobrescribir estilos base para informe empresarial */
+/* Informe — misma línea visual IBM */
 body.informe {
-    background: #f5f5f5;
+    background: var(--ibm-surface-1);
     padding: 0;
+    font-family: var(--font-sans);
+    letter-spacing: var(--body-tracking);
 }
 
 body.informe .container {
     max-width: 900px;
-    margin: 40px auto;
-    background: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 32px auto;
+    background: var(--ibm-canvas);
+    box-shadow: none;
+    border: 1px solid var(--ibm-hairline);
     border-radius: 0;
 }
 
 body.informe .header {
-    background: white;
-    color: #2d3748;
+    background: var(--ibm-canvas);
+    color: var(--ibm-ink);
     padding: 40px;
-    border-bottom: 3px solid #667eea;
+    border-bottom: 2px solid var(--ibm-primary);
 }
 
 body.informe .header h1 {
-    color: #667eea;
+    color: var(--ibm-ink);
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 300;
     margin-bottom: 8px;
 }
 
 body.informe .header p {
-    color: #4a5568;
+    color: var(--ibm-ink-muted);
     opacity: 1;
     font-size: 14px;
+}
+
+body.informe .estado-informe {
+    color: var(--ibm-ink-muted);
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 10px;
+    margin-bottom: 0;
 }
 
 .fecha {
     font-size: 13px;
     margin-top: 12px;
     opacity: 1;
-    color: #718096;
+    color: var(--ibm-ink-subtle);
 }
 
 .informe-actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: flex-end;
     padding: 20px 40px;
-    background: white;
-    border-bottom: 1px solid #e2e8f0;
+    background: var(--ibm-canvas);
+    border-bottom: 1px solid var(--ibm-hairline);
+}
+
+.informe-actions.informe-actions--hidden {
+    display: none !important;
+}
+
+body.informe .calc-formula {
+    white-space: pre-wrap;
+}
+
+body.informe .calc-result.calc-result--final {
+    background: var(--ibm-success);
+    color: var(--ibm-on-primary);
 }
 
 .btn-share {
-    padding: 10px 20px;
+    padding: 12px 16px;
     border: none;
-    border-radius: 6px;
+    border-radius: 0;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 400;
+    letter-spacing: var(--body-tracking);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.15s;
     display: flex;
     align-items: center;
     gap: 8px;
+    font-family: var(--font-sans);
 }
 
 .btn-whatsapp {
@@ -1214,23 +1447,21 @@ body.informe .header p {
 }
 
 .btn-print {
-    background: #4a5568;
-    color: white;
+    background: var(--ibm-ink);
+    color: var(--ibm-on-primary);
 }
 
 .btn-print:hover {
-    background: #2d3748;
-    transform: translateY(-1px);
+    background: var(--ibm-primary-hover);
 }
 
 .btn-download {
-    background: #667eea;
-    color: white;
+    background: var(--ibm-primary);
+    color: var(--ibm-on-primary);
 }
 
 .btn-download:hover {
-    background: #5568d3;
-    transform: translateY(-1px);
+    background: var(--ibm-primary-hover);
 }
 
 .btn-image {
@@ -1251,26 +1482,26 @@ body.informe .header p {
 }
 
 .dato-box {
-    background: #f9fafb;
+    background: var(--ibm-surface-1);
     padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    border-left: 4px solid #667eea;
+    border-radius: 0;
+    border: 1px solid var(--ibm-hairline);
+    border-top: 3px solid var(--ibm-primary);
 }
 
 .dato-label {
     font-size: 11px;
-    color: #718096;
+    color: var(--ibm-ink-muted);
     font-weight: 600;
     text-transform: uppercase;
     margin-bottom: 8px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.32px;
 }
 
 .dato-value {
     font-size: 26px;
-    font-weight: 700;
-    color: #2d3748;
+    font-weight: 300;
+    color: var(--ibm-ink);
 }
 
 .flujo-grid {
@@ -1280,52 +1511,54 @@ body.informe .header p {
 }
 
 .flujo-columna h3 {
-    background: white;
-    color: #2d3748;
-    padding: 12px;
-    border-radius: 8px;
+    background: var(--ibm-surface-1);
+    color: var(--ibm-ink);
+    padding: 12px 16px;
+    border-radius: 0;
     font-size: 15px;
     text-align: center;
     margin-bottom: 20px;
-    border: 2px solid #667eea;
-    font-weight: 700;
+    border: 1px solid var(--ibm-hairline);
+    border-bottom: 2px solid var(--ibm-primary);
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.32px;
 }
 
 .paso {
-    background: white;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
+    background: var(--ibm-canvas);
+    border: 1px solid var(--ibm-hairline);
+    border-radius: 0;
     padding: 15px;
     margin-bottom: 15px;
 }
 
 .paso-titulo {
     font-size: 11px;
-    font-weight: 700;
-    color: #667eea;
+    font-weight: 600;
+    color: var(--ibm-ink-muted);
     text-transform: uppercase;
     margin-bottom: 10px;
+    letter-spacing: 0.32px;
 }
 
 .paso-formula {
-    font-family: 'Victor Mono', 'SF Mono', 'Monaco', 'Consolas', monospace;
+    font-family: var(--font-mono);
     font-size: 14px;
-    color: #4a5568;
-    background: white;
+    color: var(--ibm-ink-muted);
+    background: var(--ibm-canvas);
     padding: 8px;
-    border-radius: 6px;
+    border-radius: 0;
     margin-bottom: 8px;
 }
 
 .paso-resultado {
-    background: #667eea;
-    color: white;
-    padding: 10px;
-    border-radius: 6px;
+    background: var(--ibm-ink);
+    color: var(--ibm-on-primary);
+    padding: 10px 16px;
+    border-radius: 0;
     text-align: center;
-    font-weight: 700;
+    font-weight: 400;
     font-size: 14px;
 }
 
@@ -1339,33 +1572,34 @@ body.informe .header p {
 }
 
 .param-box {
-    background: #f7fafc;
+    background: var(--ibm-surface-1);
     padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    border-radius: 0;
+    border: 1px solid var(--ibm-hairline);
 }
 
 .param-nombre {
     font-size: 10px;
-    color: #718096;
+    color: var(--ibm-ink-muted);
     font-weight: 600;
     text-transform: uppercase;
     margin-bottom: 6px;
+    letter-spacing: 0.32px;
 }
 
 .param-valor {
     font-size: 14px;
-    font-weight: 700;
-    color: #2d3748;
+    font-weight: 600;
+    color: var(--ibm-ink);
 }
 
 body.informe .footer {
-    background: white;
-    padding: 30px;
+    background: var(--ibm-inverse);
+    padding: 32px;
     text-align: center;
-    border-top: 2px solid #e2e8f0;
-    color: #718096;
-    font-size: 11px;
+    border-top: 1px solid var(--ibm-inverse);
+    color: var(--ibm-inverse-muted);
+    font-size: 12px;
 }
 
 .no-data {
@@ -1374,25 +1608,26 @@ body.informe .footer {
 }
 
 .no-data h2 {
-    color: #667eea;
+    color: var(--ibm-ink);
+    font-weight: 300;
     margin-bottom: 20px;
 }
 
 .no-data a {
     display: inline-block;
-    background: #667eea;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
+    background: var(--ibm-primary);
+    color: var(--ibm-on-primary);
+    padding: 12px 16px;
+    border-radius: 0;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 400;
     margin-top: 20px;
+    letter-spacing: var(--body-tracking);
 }
 
 .no-data a:hover {
-    background: #5568d3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    background: var(--ibm-primary-hover);
+    box-shadow: none;
 }
 
 /* Media queries para informe */
@@ -1420,7 +1655,7 @@ body.informe .footer {
     }
     
     body.informe .header {
-        border-bottom: 2px solid #667eea;
+        border-bottom: 2px solid var(--ibm-primary);
         padding: 20px;
     }
 
