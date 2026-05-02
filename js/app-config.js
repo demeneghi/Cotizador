@@ -46,10 +46,10 @@ window.__APP_CONFIG__ = {
         "informeJsonSchemaVersion": 2
     },
     "theme": {
-        "colorPrimary": "#0f62fe",
-        "colorSecondary": "#161616",
-        "colorSuccess": "#24a148",
-        "colorDanger": "#da1e28"
+        "colorPrimary": "#0a0a0a",
+        "colorSecondary": "#3a3a3a",
+        "colorSuccess": "#22c55e",
+        "colorDanger": "#ef4444"
     },
     "cdn": {
         "alpine": {
