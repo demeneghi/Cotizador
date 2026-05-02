@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cotizador-pina-v13';
+const CACHE_NAME = 'cotizador-pina-v16';
 
 const urlsToCache = [
   './index.html',
@@ -13,6 +13,7 @@ const urlsToCache = [
   './js/vendor/alpine.min.js',
   './js/vendor/html2canvas.min.js',
   './config/app.json',
+  './icon-180.png',
   './icon-192.png',
   './icon-512.png',
   './styles.css',
