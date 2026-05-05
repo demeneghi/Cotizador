@@ -147,17 +147,17 @@
     }
 
     .ponderado-input-cell .input-with-prefix {
-        min-height: 50px;
+        min-height: 44px;
     }
 
     .ponderado-input-cell input {
-        font-size: 18px;
-        padding: 12px 8px;
+        font-size: 17px;
+        padding: 9px 8px;
         font-weight: 700;
     }
 
     .ponderado-input-cell .input-prefix {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .result-card {
@@ -408,17 +408,17 @@
     }
 
     .ponderado-input-cell .input-with-prefix {
-        min-height: 46px;
+        min-height: 40px;
     }
 
     .ponderado-input-cell input {
-        font-size: 17px;
-        padding: 10px 6px;
+        font-size: 16px;
+        padding: 8px 6px;
         font-weight: 700;
     }
 
     .ponderado-input-cell .input-prefix {
-        font-size: 14px;
+        font-size: 13px;
         padding: 0 8px;
     }
 

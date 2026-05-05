@@ -1166,17 +1166,17 @@ body.update-modal-open {
     }
 
     .ponderado-input-cell .input-with-prefix {
-        min-height: 50px;
+        min-height: 44px;
     }
 
     .ponderado-input-cell input {
-        font-size: 18px;
-        padding: 12px 8px;
+        font-size: 17px;
+        padding: 9px 8px;
         font-weight: 700;
     }
 
     .ponderado-input-cell .input-prefix {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .result-card {
@@ -1427,17 +1427,17 @@ body.update-modal-open {
     }
 
     .ponderado-input-cell .input-with-prefix {
-        min-height: 46px;
+        min-height: 40px;
     }
 
     .ponderado-input-cell input {
-        font-size: 17px;
-        padding: 10px 6px;
+        font-size: 16px;
+        padding: 8px 6px;
         font-weight: 700;
     }
 
     .ponderado-input-cell .input-prefix {
-        font-size: 14px;
+        font-size: 13px;
         padding: 0 8px;
     }
 
@@ -2432,7 +2432,7 @@ body.informe .footer {
     border-radius: var(--radius-md);
     background: var(--clay-canvas);
     overflow: hidden;
-    min-height: 48px;
+    min-height: 42px;
     min-width: 0;
     transition: border-color 0.15s, outline 0.15s;
 }
@@ -2445,7 +2445,7 @@ body.informe .footer {
 
 .ponderado-input-cell .input-prefix {
     padding: 0 10px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--clay-ink-muted);
     background: var(--clay-surface-card);
@@ -2456,13 +2456,13 @@ body.informe .footer {
     flex-shrink: 0;
 }
 
-/* Misma tipografía base que Precio de venta / Tipo de cambio (.input-wrapper input) */
+/* Tabla ponderada: un punto menos y caja más baja que el bloque principal */
 .ponderado-input-cell input {
-    padding: 11px 10px;
+    padding: 8px 10px;
     border: none;
     background: var(--clay-canvas);
     color: var(--clay-ink);
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 400;
     font-family: var(--font-sans);
     text-align: right;
@@ -2483,7 +2483,7 @@ body.informe .footer {
 
 .ponderado-pond {
     text-align: right;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
     color: var(--clay-ink);
     font-variant-numeric: tabular-nums;
@@ -2857,7 +2857,7 @@ body.informe .footer {
     }
 
     .ponderado-pond {
-        font-size: 18px;
+        font-size: 16px;
     }
 
     .ponderado-size {
