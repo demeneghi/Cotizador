@@ -4,7 +4,8 @@ window.__APP_CONFIG__ = {
     "storage": {
         "cotizadorDataV2": "cotizador_data_v2",
         "legacyCotizadorConfig": "cotizador_config",
-        "cotizacionInforme": "cotizacion_informe"
+        "cotizacionInforme": "cotizacion_informe",
+        "cotizadorPonderadoV1": "cotizador_ponderado_v1"
     },
     "estadoDefault": "veracruz",
     "estadosDisponibles": [
@@ -40,6 +41,18 @@ window.__APP_CONFIG__ = {
         "cajas_flete_corto": 1650,
         "cajas_flete_largo": 2250,
         "precio_venta": ""
+    },
+    "ponderado": {
+        "calibres": ["4s", "5s", "6s", "7s", "8s", "9s"],
+        "valoresPredeterminados": {
+            "4s": { "porcentaje": "", "precio": "" },
+            "5s": { "porcentaje": "", "precio": "" },
+            "6s": { "porcentaje": "", "precio": "" },
+            "7s": { "porcentaje": "", "precio": "" },
+            "8s": { "porcentaje": "", "precio": "" },
+            "9s": { "porcentaje": "", "precio": "" }
+        },
+        "tolerancia_suma_pct": 0.01
     },
     "informe": {
         "maxHashUrlChars": 48000,
