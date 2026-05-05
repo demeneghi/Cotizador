@@ -283,12 +283,15 @@
 
     .toast-update {
         bottom: 15px;
-        left: 10px;
-        right: 10px;
-        transform: none;
-        min-width: auto;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: max-content;
+        max-width: min(560px, calc(100% - 32px));
+        min-width: 0;
         padding: 14px 18px;
         gap: 12px;
+        box-sizing: border-box;
     }
 
     .toast-update-message {
@@ -302,11 +305,11 @@
 
     @keyframes slideUp {
         from {
-            transform: translateY(100px);
+            transform: translateX(-50%) translateY(100px);
             opacity: 0;
         }
         to {
-            transform: translateY(0);
+            transform: translateX(-50%) translateY(0);
             opacity: 1;
         }
     }
@@ -514,12 +517,17 @@
 
     .toast-update {
         bottom: 10px;
-        left: 8px;
-        right: 8px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: max-content;
+        max-width: min(560px, calc(100% - 24px));
+        min-width: 0;
         padding: 12px 14px;
         gap: 10px;
         flex-direction: column;
         text-align: center;
+        box-sizing: border-box;
     }
 
     .toast-update-message {
