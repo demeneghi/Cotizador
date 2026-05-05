@@ -101,7 +101,7 @@ window.__APP_CONFIG__ = {
             "colorDanger": "#ef4444"
         },
         "brand": {
-            "titulo": "Cotizador de pina",
+            "titulo": "Cotizador de piña",
             "tituloInforme": "Cotización de piña",
             "subtituloPre": "ARU → ",
             "subtituloMid": "Sunrise",

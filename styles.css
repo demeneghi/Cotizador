@@ -2309,6 +2309,8 @@ body.informe .footer {
     min-height: 44px;
     margin-bottom: -1px;
     border-bottom: 2px solid transparent;
+    flex: 0 0 200px;
+    text-align: center;
 }
 
 .app-tab:hover {

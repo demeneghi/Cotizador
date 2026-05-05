@@ -196,7 +196,7 @@
         var base = {
             estadosDisponibles: ESTADOS_DISPONIBLES,
             estadoActivo: ESTADO_DEFAULT,
-            brandTitulo: BRAND.titulo || 'Cotizador de pina',
+            brandTitulo: BRAND.titulo || 'Cotizador de piña',
             brandSubtituloPre: BRAND.subtituloPre || '',
             brandSubtituloMid: BRAND.subtituloMid || '',
             brandSubtituloPost: BRAND.subtituloPost || '',
