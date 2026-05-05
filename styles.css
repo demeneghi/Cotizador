@@ -1482,6 +1482,7 @@ input:-ms-input-placeholder {
 
 /* ==========================================
 /* ===== styles/informe.css ===== */
+/* ==========================================
    ESTILOS ESPECÍFICOS PARA INFORME
    ========================================== */
 
@@ -1805,7 +1806,7 @@ body.informe .footer {
         page-break-after: avoid;
     }
     
-    .informe-actions {
+    body.informe .informe-actions {
         display: none !important;
     }
     
@@ -1825,41 +1826,41 @@ body.informe .footer {
         font-size: 12px;
     }
 
-    .fecha {
+    body.informe .fecha {
         font-size: 11px;
         margin-top: 8px;
     }
 
-    .content {
+    body.informe .content {
         padding: 20px;
     }
 
-    .section {
+    body.informe .section {
         margin-bottom: 20px;
         page-break-inside: avoid;
     }
 
-    .section-title {
+    body.informe .section-title {
         font-size: 14px;
         margin-bottom: 12px;
         padding-bottom: 6px;
     }
 
-    .datos-principales {
+    body.informe .datos-principales {
         gap: 15px;
         margin-bottom: 20px;
     }
 
-    .dato-box {
+    body.informe .dato-box {
         padding: 12px;
     }
 
-    .dato-label {
+    body.informe .dato-label {
         font-size: 10px;
         margin-bottom: 4px;
     }
 
-    .dato-value {
+    body.informe .dato-value {
         font-size: 20px;
     }
 
@@ -1885,74 +1886,74 @@ body.informe .footer {
         font-size: 11px;
     }
 
-    .flujo-grid {
+    body.informe .flujo-grid {
         gap: 20px;
     }
 
-    .flujo-columna h3 {
+    body.informe .flujo-columna h3 {
         font-size: 13px;
         padding: 8px;
         margin-bottom: 12px;
     }
 
-    .calc-step {
+    body.informe .calc-step {
         padding: 10px;
         margin-bottom: 10px;
         page-break-inside: avoid;
     }
 
-    .calc-step-header {
+    body.informe .calc-step-header {
         margin-bottom: 8px;
         padding-bottom: 6px;
     }
 
-    .calc-step-title {
+    body.informe .calc-step-title {
         font-size: 10px;
     }
 
-    .calc-step-badge {
+    body.informe .calc-step-badge {
         font-size: 9px;
         padding: 2px 6px;
     }
 
-    .calc-formula {
+    body.informe .calc-formula {
         font-size: 10px;
         padding: 6px 8px;
         margin-bottom: 6px;
         line-height: 1.4;
     }
 
-    .calc-result {
+    body.informe .calc-result {
         padding: 8px 12px;
     }
 
-    .calc-result-label {
+    body.informe .calc-result-label {
         font-size: 10px;
     }
 
-    .calc-result-value {
+    body.informe .calc-result-value {
         font-size: 12px !important;
     }
 
-    .calc-arrow {
+    body.informe .calc-arrow {
         font-size: 14px;
         margin: 2px 0;
     }
 
-    .parametros-grid {
+    body.informe .parametros-grid {
         gap: 10px;
     }
 
-    .param-box {
+    body.informe .param-box {
         padding: 8px;
     }
 
-    .param-nombre {
+    body.informe .param-nombre {
         font-size: 9px;
         margin-bottom: 4px;
     }
 
-    .param-valor {
+    body.informe .param-valor {
         font-size: 11px;
     }
 
@@ -1977,23 +1978,23 @@ body.informe .footer {
         letter-spacing: var(--type-h1-tracking);
     }
 
-    .informe-actions {
+    body.informe .informe-actions {
         padding: 15px 20px;
         flex-wrap: wrap;
     }
 
-    .btn-share {
+    body.informe .btn-share {
         font-size: 13px;
         padding: 8px 16px;
     }
 
-    .content {
+    body.informe .content {
         padding: 30px 20px;
     }
 
-    .datos-principales, 
-    .flujo-grid, 
-    .parametros-grid {
+    body.informe .datos-principales,
+    body.informe .flujo-grid,
+    body.informe .parametros-grid {
         grid-template-columns: 1fr;
     }
     
@@ -2084,10 +2085,6 @@ body.informe .footer {
 }
 
 .ponderado-head > div {
-    text-align: center;
-}
-
-.ponderado-head > div:first-child {
     text-align: center;
 }
 

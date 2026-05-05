@@ -83,10 +83,6 @@
     text-align: center;
 }
 
-.ponderado-head > div:first-child {
-    text-align: center;
-}
-
 .ponderado-head > div:last-child {
     text-align: right;
 }
