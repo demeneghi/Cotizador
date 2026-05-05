@@ -131,7 +131,7 @@ body {
 
 /* Container y Card */
 .container {
-    max-width: 1000px;
+    max-width: 520px;
     width: 100%;
     padding: 0 15px;
     margin: 0 auto;
@@ -947,7 +947,7 @@ input:-ms-input-placeholder {
     }
 
     .container {
-        max-width: 880px;
+        max-width: 520px;
         padding: 0 24px;
     }
 
@@ -960,7 +960,7 @@ input:-ms-input-placeholder {
     }
 
     body.informe .container {
-        max-width: 800px;
+        max-width: 520px;
     }
 }
 
@@ -2060,7 +2060,7 @@ body.informe .footer {
 
 .ponderado-row {
     display: grid;
-    grid-template-columns: minmax(0, 0.5fr) repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1fr);
     gap: 10px;
     align-items: center;
     padding: 6px 12px;
@@ -2307,7 +2307,7 @@ body.informe .footer {
 
 @media (max-width: 600px) {
     .ponderado-row {
-        grid-template-columns: minmax(0, 0.5fr) repeat(3, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1fr);
         gap: 6px;
         padding: 8px 8px;
     }
