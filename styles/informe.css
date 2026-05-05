@@ -11,7 +11,7 @@ body.informe {
 }
 
 body.informe .container {
-    max-width: 520px;
+    max-width: 720px;
     margin: 32px auto;
     background: var(--clay-canvas);
     box-shadow: none;

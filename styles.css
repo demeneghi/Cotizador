@@ -133,7 +133,7 @@ body {
 
 /* Container y Card */
 .container {
-    max-width: 520px;
+    max-width: 720px;
     width: 100%;
     padding: 0 15px;
     margin: 0 auto;
@@ -948,7 +948,7 @@ input:-ms-input-placeholder {
     }
 
     .container {
-        max-width: 520px;
+        max-width: 720px;
         padding: 0 24px;
     }
 
@@ -961,7 +961,7 @@ input:-ms-input-placeholder {
     }
 
     body.informe .container {
-        max-width: 520px;
+        max-width: 720px;
     }
 }
 
@@ -1495,7 +1495,7 @@ body.informe {
 }
 
 body.informe .container {
-    max-width: 520px;
+    max-width: 720px;
     margin: 32px auto;
     background: var(--clay-canvas);
     box-shadow: none;
