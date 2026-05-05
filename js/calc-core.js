@@ -47,7 +47,43 @@
         return resultado;
     }
 
-    var api = { validarNumero: validarNumero, calcularGastosEmbarque: calcularGastosEmbarque, calcularPrecioKg: calcularPrecioKg };
+    /**
+     * Promedio ponderado por calibre.
+     * @param {Array<{porcentaje:(number|string), precio:(number|string)}>} calibres
+     *   El campo `size` es metadato y no se usa aqui.
+     * @returns {{ total:number, sumaPct:number, ponderaciones:number[] }}
+     *   total: precio promedio ponderado.
+     *   sumaPct: suma cruda de % (sin tolerancia, para que la UI valide ~100).
+     *   ponderaciones: aporte de cada renglon ((p/100) * precio).
+     */
+    function calcularPrecioPonderado(calibres) {
+        var ponderaciones = [];
+        var total = 0;
+        var sumaPct = 0;
+        if (!calibres || !calibres.length) {
+            return { total: 0, sumaPct: 0, ponderaciones: ponderaciones };
+        }
+        for (var i = 0; i < calibres.length; i++) {
+            var fila = calibres[i] || {};
+            var p = validarNumero(fila.porcentaje, 0, 100);
+            var pr = validarNumero(fila.precio, 0);
+            var aporte = (p / 100) * pr;
+            if (!isFinite(aporte) || isNaN(aporte)) aporte = 0;
+            ponderaciones.push(aporte);
+            sumaPct += p;
+            total += aporte;
+        }
+        if (!isFinite(total) || isNaN(total)) total = 0;
+        if (!isFinite(sumaPct) || isNaN(sumaPct)) sumaPct = 0;
+        return { total: total, sumaPct: sumaPct, ponderaciones: ponderaciones };
+    }
+
+    var api = {
+        validarNumero: validarNumero,
+        calcularGastosEmbarque: calcularGastosEmbarque,
+        calcularPrecioKg: calcularPrecioKg,
+        calcularPrecioPonderado: calcularPrecioPonderado
+    };
     global.CotizadorCalc = api;
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = api;
