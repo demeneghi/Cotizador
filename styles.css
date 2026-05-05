@@ -312,6 +312,10 @@ body.informe .header h1,
     letter-spacing: var(--body-tracking);
 }
 
+.input-wrapper input#precio_venta {
+    font-weight: 700;
+}
+
 input {
     -webkit-appearance: none;
     appearance: none;
