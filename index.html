@@ -44,16 +44,36 @@
             Nueva versión disponible
         </div>
         <button type="button" class="toast-update-button" id="toastUpdateButton">
-            Actualizar Ahora
+            Actualizar ahora
         </button>
     </div>
 
     <div class="container" x-data="cotizador()">
         <div class="card">
             <div class="header">
-                <h1>Cotizador de Piña</h1>
-                <p>Sunrise · ARU · CBP</p>
-                <div class="estado-tabs" role="tablist" aria-label="Estado de cotización">
+                <h1>Cotizador de piña</h1>
+                <p>ARU &rarr; <strong>Sunrise</strong> &larr; CBP</p>
+                <div class="app-tabs" role="tablist" aria-label="Modo de cotización">
+                    <button
+                        type="button"
+                        role="tab"
+                        class="app-tab"
+                        :class="{ 'active': tabActivo === 'basico' }"
+                        :aria-selected="tabActivo === 'basico'"
+                        @click="cambiarTab('basico')">
+                        Cotizador
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        class="app-tab"
+                        :class="{ 'active': tabActivo === 'avanzado' }"
+                        :aria-selected="tabActivo === 'avanzado'"
+                        @click="cambiarTab('avanzado')">
+                        Precio ponderado
+                    </button>
+                </div>
+                <div class="estado-tabs" role="tablist" aria-label="Estado de cotización" x-show="tabActivo === 'basico'">
                     <template x-for="estado in estadosDisponibles" :key="estado.key">
                         <button
                             type="button"
@@ -70,12 +90,14 @@
 
             <div class="content">
                 <div id="cotizador-error" class="cotizador-error" role="alert" aria-live="polite"></div>
-                <!-- Sección Principal: Precio y Tipo de Cambio -->
+
+                <div x-show="tabActivo === 'basico'" role="tabpanel" aria-label="Cotizador">
+                <!-- Sección principal: precio y tipo de cambio -->
                 <div class="section">
-                    <div class="section-title">Datos Principales</div>
+                    <div class="section-title">Datos principales</div>
                     <div class="input-group">
                         <div class="input-wrapper">
-                            <label for="precio_venta">Precio Venta</label>
+                            <label for="precio_venta">Precio de venta</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">USD $</span>
                             <input 
@@ -88,7 +110,7 @@
                             </div>
                         </div>
                         <div class="input-wrapper">
-                            <label for="tipo_cambio">Tipo Cambio</label>
+                            <label for="tipo_cambio">Tipo de cambio</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">MXN $</span>
                                 <input 
@@ -105,15 +127,15 @@
 
                 <!-- Resultados -->
                 <div class="section">
-                    <div class="section-title">Precio por Kilogramo</div>
+                    <div class="section-title">Precio por kilogramo</div>
                     <div class="results-grid">
                         <div class="result-card highlight">
-                            <div class="result-label">Flete Corto</div>
+                            <div class="result-label">Flete corto</div>
                             <div class="result-value">$<span x-text="formatNumber(precio_kg_corto)"></span></div>
                             <div class="result-unit">MXN por kg</div>
                         </div>
                         <div class="result-card highlight">
-                            <div class="result-label">Flete Largo</div>
+                            <div class="result-label">Flete largo</div>
                             <div class="result-value">$<span x-text="formatNumber(precio_kg_largo)"></span></div>
                             <div class="result-unit">MXN por kg</div>
                         </div>
@@ -131,20 +153,20 @@
                         @keydown.enter.prevent="mostrarParametros = !mostrarParametros"
                         @keydown.space.prevent="mostrarParametros = !mostrarParametros"
                     >
-                        <span>Parámetros de Configuración</span>
+                        <span>Parámetros de configuración</span>
                         <span class="accordion-icon" :class="{ 'open': mostrarParametros }">▼</span>
                     </div>
                     <div class="accordion-content" :class="{ 'is-hidden': !mostrarParametros }">
                     <div class="params-section">
                         
-                        <!-- Grupo 1: Parámetros Básicos -->
+                        <!-- Grupo 1: parámetros básicos -->
                         <div class="param-group">
                             <div class="param-group-title">
-                                <span>Parámetros Básicos</span>
+                                <span>Parámetros básicos</span>
                             </div>
                             <div class="params-grid">
                         <div class="param-item">
-                            <div class="param-label">Comisión de Venta</div>
+                            <div class="param-label">Comisión de venta</div>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">%</span>
@@ -159,7 +181,7 @@
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Peso por Caja</div>
+                            <div class="param-label">Peso por caja</div>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">kg</span>
@@ -175,14 +197,14 @@
                             </div>
                         </div>
 
-                        <!-- Grupo 2: Transporte y Logística -->
+                        <!-- Grupo 2: transporte y logística -->
                         <div class="param-group">
                             <div class="param-group-title">
-                                <span>Transporte y Logística</span>
+                                <span>Transporte y logística</span>
                             </div>
                             <div class="params-grid">
                         <div class="param-item">
-                            <div class="param-label">Costo Flete Corto</div>
+                            <div class="param-label">Costo flete corto</div>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">MXN $</span>
@@ -197,7 +219,7 @@
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Costo Flete Largo</div>
+                            <div class="param-label">Costo flete largo</div>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">MXN $</span>
@@ -212,7 +234,7 @@
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Cajas Flete Corto</div>
+                            <div class="param-label">Cajas flete corto</div>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">cajas</span>
@@ -227,7 +249,7 @@
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Cajas Flete Largo</div>
+                            <div class="param-label">Cajas flete largo</div>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">cajas</span>
@@ -243,14 +265,14 @@
                             </div>
                         </div>
 
-                        <!-- Grupo 3: Costos de Embarque (USD) -->
+                        <!-- Grupo 3: costos de embarque (USD) -->
                         <div class="param-group">
                             <div class="param-group-title">
-                                <span>Costos de Embarque (USD)</span>
+                                <span>Costos de embarque (USD)</span>
                             </div>
                             <div class="params-grid">
                         <div class="param-item">
-                            <div class="param-label">Costo Aduana Embarque</div>
+                            <div class="param-label">Costo aduana embarque</div>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">USD $</span>
@@ -265,7 +287,7 @@
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Costo Manejo por Caja</div>
+                            <div class="param-label">Costo manejo por caja</div>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">USD $</span>
@@ -280,7 +302,7 @@
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Costo Sobrepeso Embarque</div>
+                            <div class="param-label">Costo sobrepeso embarque</div>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">USD $</span>
@@ -296,14 +318,14 @@
                             </div>
                         </div>
 
-                        <!-- Grupo 4: Costos de Empaque -->
+                        <!-- Grupo 4: costos de empaque -->
                         <div class="param-group">
                             <div class="param-group-title">
-                                <span>Costos de Empaque</span>
+                                <span>Costos de empaque</span>
                             </div>
                             <div class="params-grid">
                         <div class="param-item">
-                            <div class="param-label">Costo Cartón por Caja</div>
+                            <div class="param-label">Costo cartón por caja</div>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">USD $</span>
@@ -318,7 +340,7 @@
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Costo Empaque por Caja</div>
+                            <div class="param-label">Costo empaque por caja</div>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">MXN $</span>
@@ -336,10 +358,10 @@
 
                         <div class="button-group">
                             <button type="button" class="btn-save" @click="guardarConfiguracion()" :class="{ 'saved': configuracionGuardada }">
-                                <span x-text="configuracionGuardada ? 'Configuración guardada' : 'Guardar Configuración'"></span>
+                                <span x-text="configuracionGuardada ? 'Configuración guardada' : 'Guardar configuración'"></span>
                             </button>
                             <button type="button" class="btn-reset" @click="resetearValores()">
-                                Restaurar Valores
+                                Restaurar valores
                             </button>
                             <button type="button" class="btn-export-backup" @click="exportarRespaldo()">
                                 Exportar respaldo
@@ -357,6 +379,99 @@
                 <button type="button" class="btn-compartir" @click="generarCotizacionHTML()">
                     <span>Generar informe</span>
                 </button>
+
+                </div><!-- /tabpanel basico -->
+
+                <div x-show="tabActivo === 'avanzado'" role="tabpanel" aria-label="Precio promedio ponderado" class="tab-ponderado">
+                    <div class="section">
+                        <div class="ponderado-disponible-strip" aria-live="polite">
+                            <span class="ponderado-disponible-label">% por asignar</span>
+                            <span
+                                class="ponderado-badge ponderado-badge-lg"
+                                :class="disponibleClase()"
+                                x-text="disponibleTexto()"></span>
+                        </div>
+
+                        <div class="ponderado-table" role="table" aria-label="Calibres con porcentaje y precio">
+                            <div class="ponderado-row ponderado-head" role="row">
+                                <div role="columnheader">Size</div>
+                                <div role="columnheader">%</div>
+                                <div role="columnheader">$ USD</div>
+                                <div role="columnheader">$ Pond</div>
+                            </div>
+                            <template x-for="(cal, idx) in calibres" :key="cal.size">
+                                <div class="ponderado-row" role="row">
+                                    <div class="ponderado-size" role="cell" x-text="cal.size"></div>
+                                    <div class="ponderado-input-cell" role="cell">
+                                        <div class="input-with-prefix">
+                                            <span class="input-prefix">%</span>
+                                            <input
+                                                type="text"
+                                                x-model="cal.porcentaje"
+                                                inputmode="decimal"
+                                                pattern="[0-9.,]*"
+                                                :aria-label="'Porcentaje calibre ' + cal.size"
+                                                placeholder="0">
+                                        </div>
+                                    </div>
+                                    <div class="ponderado-input-cell" role="cell">
+                                        <div class="input-with-prefix">
+                                            <span class="input-prefix">USD $</span>
+                                            <input
+                                                type="text"
+                                                x-model="cal.precio"
+                                                inputmode="decimal"
+                                                pattern="[0-9.,]*"
+                                                :aria-label="'Precio USD calibre ' + cal.size"
+                                                placeholder="0.00">
+                                        </div>
+                                    </div>
+                                    <div class="ponderado-pond" role="cell">
+                                        <span x-text="'$ ' + formatNumber(ponderaciones[idx] || 0)"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <div class="results-grid ponderado-resultado-grid" aria-live="polite">
+                            <div class="result-card highlight">
+                                <div class="result-label">Precio promedio ponderado</div>
+                                <div class="result-value">
+                                    <span x-show="ponderadoSumaValida()">$<span x-text="formatNumber(totalPonderado)"></span></span>
+                                    <span x-show="!ponderadoSumaValida()" class="ponderado-total-placeholder" aria-label="Pendiente: completa el 100%">—</span>
+                                </div>
+                                <div class="result-unit">USD</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="section">
+                        <div class="ponderado-aplicar">
+                            <div class="ponderado-aplicar-label">Aplicar precio ponderado a:</div>
+                            <div class="ponderado-radios" role="radiogroup" aria-label="Estado destino">
+                                <template x-for="estado in estadosDisponibles" :key="'pond-' + estado.key">
+                                    <label class="ponderado-radio">
+                                        <input
+                                            type="radio"
+                                            name="estadoDestinoPonderado"
+                                            :value="estado.key"
+                                            x-model="estadoDestinoPonderado">
+                                        <span x-text="estado.nombre"></span>
+                                    </label>
+                                </template>
+                            </div>
+                            <button
+                                type="button"
+                                class="btn-compartir"
+                                :disabled="!puedeAplicarPonderado()"
+                                @click="aplicarPonderadoABasico()">
+                                <span x-show="!ponderadoAplicadoOk">Confirmar y aplicar</span>
+                                <span x-show="ponderadoAplicadoOk">Aplicado</span>
+                            </button>
+                        </div>
+                    </div>
+                </div><!-- /tabpanel avanzado -->
 
             </div>
         </div>

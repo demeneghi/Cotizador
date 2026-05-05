@@ -10,9 +10,28 @@
     var STORAGE_KEY = CFG.storage.cotizadorDataV2;
     var LEGACY_STORAGE_KEY = CFG.storage.legacyCotizadorConfig;
     var STORAGE_INFORME = CFG.storage.cotizacionInforme;
+    var STORAGE_PONDERADO = CFG.storage.cotizadorPonderadoV1;
     var ESTADO_DEFAULT = CFG.estadoDefault;
     var CAMPOS_PERSISTIBLES = CFG.camposPersistibles;
     var VALORES_PREDETERMINADOS = CFG.valoresPredeterminados;
+    var PONDERADO_CFG = CFG.ponderado || { calibres: [], valoresPredeterminados: {}, tolerancia_suma_pct: 0.01 };
+    var PONDERADO_CALIBRES = PONDERADO_CFG.calibres || [];
+    var PONDERADO_DEFAULTS = PONDERADO_CFG.valoresPredeterminados || {};
+    var PONDERADO_TOL = typeof PONDERADO_CFG.tolerancia_suma_pct === 'number' ? PONDERADO_CFG.tolerancia_suma_pct : 0.01;
+
+    function crearCalibresDesdeDefaults() {
+        var arr = [];
+        for (var i = 0; i < PONDERADO_CALIBRES.length; i++) {
+            var size = PONDERADO_CALIBRES[i];
+            var def = PONDERADO_DEFAULTS[size] || { porcentaje: '', precio: '' };
+            arr.push({
+                size: size,
+                porcentaje: def.porcentaje !== undefined && def.porcentaje !== null ? def.porcentaje : '',
+                precio: def.precio !== undefined && def.precio !== null ? def.precio : ''
+            });
+        }
+        return arr;
+    }
     var Calc = window.CotizadorCalc;
     if (!Calc) {
         throw new Error('Falta CotizadorCalc (cargar js/calc-core.js antes)');
@@ -140,9 +159,25 @@
 
             configuracionGuardada: false,
 
+            tabActivo: 'basico', // 'basico' | 'avanzado'
+
+            calibres: crearCalibresDesdeDefaults(),
+            ponderaciones: (function () {
+                var z = [];
+                for (var i = 0; i < PONDERADO_CALIBRES.length; i++) z.push(0);
+                return z;
+            })(),
+            sumaPct: 0,
+            totalPonderado: 0,
+            estadoDestinoPonderado: ESTADO_DEFAULT,
+            ponderadoAplicadoOk: false,
+
             init: function () {
                 this.cargarConfiguracion();
+                this.cargarPonderado();
                 this.calcular();
+                this.calcularPonderado();
+                if (!this.estadoDestinoPonderado) this.estadoDestinoPonderado = this.estadoActivo;
 
                 this.$nextTick(function () {
                     CAMPOS_PERSISTIBLES.forEach(function (campo) {
@@ -152,6 +187,12 @@
                             this.calcular();
                         }.bind(this));
                     }.bind(this));
+
+                    /* Watcher profundo del array de calibres: recalcula y persiste. */
+                    this.$watch('calibres', function () {
+                        this.calcularPonderado();
+                        this.guardarPonderadoEnLocalStorage();
+                    }.bind(this), { deep: true });
                 }.bind(this));
             },
 
@@ -492,6 +533,123 @@
                 reader.readAsText(file, 'UTF-8');
             },
 
+            cambiarTab: function (tab) {
+                if (tab !== 'basico' && tab !== 'avanzado') return;
+                this.tabActivo = tab;
+                if (tab === 'avanzado') this.ponderadoAplicadoOk = false;
+            },
+
+            calcularPonderado: function () {
+                try {
+                    var r = Calc.calcularPrecioPonderado(this.calibres);
+                    this.ponderaciones = r.ponderaciones;
+                    this.sumaPct = r.sumaPct;
+                    this.totalPonderado = r.total;
+                } catch (e) {
+                    console.error('Error en calcularPonderado:', e);
+                    this.ponderaciones = [];
+                    this.sumaPct = 0;
+                    this.totalPonderado = 0;
+                }
+            },
+
+            ponderadoSumaValida: function () {
+                return Math.abs(this.sumaPct - 100) <= PONDERADO_TOL;
+            },
+
+            /**
+             * Porcentaje aun disponible para asignar (100 - sumaPct).
+             * Positivo = falta, 0 = completo, negativo = excedido.
+             * Redondeo a 2 decimales para evitar artefactos de punto flotante.
+             */
+            porcentajeDisponible: function () {
+                var dif = 100 - this.sumaPct;
+                return Math.round(dif * 100) / 100;
+            },
+
+            disponibleClase: function () {
+                var d = this.porcentajeDisponible();
+                if (Math.abs(d) <= PONDERADO_TOL) return 'is-completo';
+                if (d > 0) return 'is-falta';
+                return 'is-excedido';
+            },
+
+            disponibleTexto: function () {
+                var d = this.porcentajeDisponible();
+                if (Math.abs(d) <= PONDERADO_TOL) return 'Completo (100%)';
+                if (d > 0) return 'Disponible: ' + Fmt.formatNumber(d) + '%';
+                return 'Excedido: ' + Fmt.formatNumber(Math.abs(d)) + '%';
+            },
+
+            ponderadoValido: function () {
+                return this.ponderadoSumaValida() && this.totalPonderado > 0;
+            },
+
+            puedeAplicarPonderado: function () {
+                if (!this.ponderadoValido()) return false;
+                for (var i = 0; i < ESTADOS_DISPONIBLES.length; i++) {
+                    if (ESTADOS_DISPONIBLES[i].key === this.estadoDestinoPonderado) return true;
+                }
+                return false;
+            },
+
+            nombreEstadoPorKey: function (key) {
+                for (var i = 0; i < ESTADOS_DISPONIBLES.length; i++) {
+                    if (ESTADOS_DISPONIBLES[i].key === key) return ESTADOS_DISPONIBLES[i].nombre;
+                }
+                return key || '';
+            },
+
+            aplicarPonderadoABasico: function () {
+                if (!this.puedeAplicarPonderado()) return;
+                var destino = this.estadoDestinoPonderado;
+                var valor = this.totalPonderado.toFixed(2);
+                if (destino !== this.estadoActivo) {
+                    /* cambiarEstado persiste el estado actual y carga el destino. */
+                    this.cambiarEstado(destino);
+                }
+                this.precio_venta = valor;
+                this.tabActivo = 'basico';
+                this.ponderadoAplicadoOk = true;
+                var self = this;
+                setTimeout(function () { self.ponderadoAplicadoOk = false; }, 2500);
+            },
+
+            guardarPonderadoEnLocalStorage: function () {
+                try {
+                    var data = { version: 1, calibres: this.calibres };
+                    localStorage.setItem(STORAGE_PONDERADO, JSON.stringify(data));
+                } catch (e) {
+                    if (e && e.name === 'QuotaExceededError') {
+                        mostrarErrorCotizador('Almacenamiento lleno. Libera espacio del navegador o borra datos del sitio.');
+                    }
+                }
+            },
+
+            cargarPonderado: function () {
+                try {
+                    var raw = localStorage.getItem(STORAGE_PONDERADO);
+                    if (!raw) return;
+                    var p = JSON.parse(raw);
+                    if (!p || !Array.isArray(p.calibres)) return;
+                    /* Fusion segura: respetar size fijo de config y solo copiar porcentaje/precio. */
+                    for (var i = 0; i < this.calibres.length; i++) {
+                        var size = this.calibres[i].size;
+                        var match = null;
+                        for (var j = 0; j < p.calibres.length; j++) {
+                            if (p.calibres[j] && p.calibres[j].size === size) { match = p.calibres[j]; break; }
+                        }
+                        if (!match && p.calibres[i]) match = p.calibres[i];
+                        if (match) {
+                            this.calibres[i].porcentaje = match.porcentaje !== undefined && match.porcentaje !== null ? match.porcentaje : '';
+                            this.calibres[i].precio = match.precio !== undefined && match.precio !== null ? match.precio : '';
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error cargando ponderado:', e);
+                }
+            },
+
             generarCotizacionHTML: function () {
                 mostrarErrorCotizador('');
                 try {
@@ -577,36 +735,36 @@
                         precioKgCorto: this.precio_kg_corto,
                         precioKgLargo: this.precio_kg_largo,
                         calcCorto: [
-                            { titulo: 'Paso 1: Conversión de Flete a USD', badge: 'Conversión', formula: 'Costo Flete USD = ' + this.formatNumber(this.costo_flete_corto_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcCorto.fleteUSD) + ' USD', label: 'Costo Flete USD:', highlight: false },
-                            { titulo: 'Paso 2: Conversión de Empaque a USD', badge: 'Conversión', formula: 'Costo Empaque USD = ' + this.formatNumber(this.costo_empaque_caja_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcCorto.empaqueUSD) + ' USD', label: 'Costo Empaque USD:', highlight: false },
-                            { titulo: 'Paso 3: Gastos Totales de Embarque', badge: 'Suma', formula: '= ' + this.formatNumber(calcCorto.fleteUSD) + ' (Flete USD)' + nl + '+ ' + this.formatNumber(this.costo_aduana_embarque) + ' (Aduana)' + nl + '+ (' + this.formatNumber(this.costo_carton_caja) + ' × ' + this.formatNumber(this.cajas_flete_corto) + ') = ' + this.formatNumber(detallesCorto.cartonTotal) + ' (Cartón)' + nl + '+ (' + this.formatNumber(calcCorto.empaqueUSD) + ' × ' + this.formatNumber(this.cajas_flete_corto) + ') = ' + this.formatNumber(detallesCorto.empaqueTotal) + ' (Empaque)' + nl + '+ (' + this.formatNumber(this.costo_manejo_caja) + ' × ' + this.formatNumber(this.cajas_flete_corto) + ') = ' + this.formatNumber(detallesCorto.manejoTotal) + ' (Manejo)', resultado: '$' + this.formatNumber(calcCorto.gastosTotal) + ' USD', label: 'Gastos Embarque Total:', highlight: true },
-                            { titulo: 'Paso 4: Gastos Prorrateados por Caja', badge: 'División', formula: 'Gastos por Caja = ' + this.formatNumber(calcCorto.gastosTotal) + ' USD ÷ ' + this.formatNumber(this.cajas_flete_corto) + ' cajas', resultado: '$' + this.formatNumber(calcCorto.gastosPorCaja) + ' USD', label: 'Gastos por Caja:', highlight: false },
-                            { titulo: 'Paso 5: Descuento por Comisión', badge: 'Porcentaje', formula: 'Descuento = ' + this.formatNumber(precioVentaNum) + ' USD × ' + this.formatNumber(this.comision_venta) + '% ÷ 100', resultado: '$' + this.formatNumber(calcCorto.comision) + ' USD', label: 'Descuento Comisión:', highlight: false },
-                            { titulo: 'Paso 6: Precio Neto por Caja (USD)', badge: 'Resta', formula: '= ' + this.formatNumber(precioVentaNum) + ' (Precio Venta)' + nl + '- ' + this.formatNumber(calcCorto.comision) + ' (Comisión)' + nl + '- ' + this.formatNumber(calcCorto.gastosPorCaja) + ' (Gastos/Caja)', resultado: '$' + this.formatNumber(calcCorto.precioNeto) + ' USD', label: 'Precio Neto por Caja:', highlight: true },
-                            { titulo: 'Paso 7: Conversión a Pesos Mexicanos', badge: 'Multiplicación', formula: 'Precio MXN = ' + this.formatNumber(calcCorto.precioNeto) + ' USD × ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcCorto.precioMXN) + ' MXN', label: 'Precio en MXN:', highlight: false },
-                            { titulo: 'Paso 8: Precio Final por Kilogramo', badge: 'División', formula: 'Precio/Kg = ' + this.formatNumber(calcCorto.precioMXN) + ' MXN ÷ ' + this.formatNumber(this.peso_caja) + ' kg', resultado: '$' + this.formatNumber(calcCorto.precioKg) + ' MXN/kg', label: 'PRECIO FINAL POR KG:', highlight: true, final: true }
+                            { titulo: 'Paso 1: conversión de flete a USD', badge: 'Conversión', formula: 'Costo flete USD = ' + this.formatNumber(this.costo_flete_corto_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcCorto.fleteUSD) + ' USD', label: 'Costo flete USD:', highlight: false },
+                            { titulo: 'Paso 2: conversión de empaque a USD', badge: 'Conversión', formula: 'Costo empaque USD = ' + this.formatNumber(this.costo_empaque_caja_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcCorto.empaqueUSD) + ' USD', label: 'Costo empaque USD:', highlight: false },
+                            { titulo: 'Paso 3: gastos totales de embarque', badge: 'Suma', formula: '= ' + this.formatNumber(calcCorto.fleteUSD) + ' (flete USD)' + nl + '+ ' + this.formatNumber(this.costo_aduana_embarque) + ' (aduana)' + nl + '+ (' + this.formatNumber(this.costo_carton_caja) + ' × ' + this.formatNumber(this.cajas_flete_corto) + ') = ' + this.formatNumber(detallesCorto.cartonTotal) + ' (cartón)' + nl + '+ (' + this.formatNumber(calcCorto.empaqueUSD) + ' × ' + this.formatNumber(this.cajas_flete_corto) + ') = ' + this.formatNumber(detallesCorto.empaqueTotal) + ' (empaque)' + nl + '+ (' + this.formatNumber(this.costo_manejo_caja) + ' × ' + this.formatNumber(this.cajas_flete_corto) + ') = ' + this.formatNumber(detallesCorto.manejoTotal) + ' (manejo)', resultado: '$' + this.formatNumber(calcCorto.gastosTotal) + ' USD', label: 'Gastos embarque total:', highlight: true },
+                            { titulo: 'Paso 4: gastos prorrateados por caja', badge: 'División', formula: 'Gastos por caja = ' + this.formatNumber(calcCorto.gastosTotal) + ' USD ÷ ' + this.formatNumber(this.cajas_flete_corto) + ' cajas', resultado: '$' + this.formatNumber(calcCorto.gastosPorCaja) + ' USD', label: 'Gastos por caja:', highlight: false },
+                            { titulo: 'Paso 5: descuento por comisión', badge: 'Porcentaje', formula: 'Descuento = ' + this.formatNumber(precioVentaNum) + ' USD × ' + this.formatNumber(this.comision_venta) + '% ÷ 100', resultado: '$' + this.formatNumber(calcCorto.comision) + ' USD', label: 'Descuento comisión:', highlight: false },
+                            { titulo: 'Paso 6: precio neto por caja (USD)', badge: 'Resta', formula: '= ' + this.formatNumber(precioVentaNum) + ' (precio de venta)' + nl + '- ' + this.formatNumber(calcCorto.comision) + ' (comisión)' + nl + '- ' + this.formatNumber(calcCorto.gastosPorCaja) + ' (gastos/caja)', resultado: '$' + this.formatNumber(calcCorto.precioNeto) + ' USD', label: 'Precio neto por caja:', highlight: true },
+                            { titulo: 'Paso 7: conversión a pesos mexicanos', badge: 'Multiplicación', formula: 'Precio MXN = ' + this.formatNumber(calcCorto.precioNeto) + ' USD × ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcCorto.precioMXN) + ' MXN', label: 'Precio en MXN:', highlight: false },
+                            { titulo: 'Paso 8: precio final por kilogramo', badge: 'División', formula: 'Precio/kg = ' + this.formatNumber(calcCorto.precioMXN) + ' MXN ÷ ' + this.formatNumber(this.peso_caja) + ' kg', resultado: '$' + this.formatNumber(calcCorto.precioKg) + ' MXN/kg', label: 'Precio final por kg:', highlight: true, final: true }
                         ],
                         calcLargo: [
-                            { titulo: 'Paso 1: Conversión de Flete a USD', badge: 'Conversión', formula: 'Costo Flete USD = ' + this.formatNumber(this.costo_flete_largo_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcLargo.fleteUSD) + ' USD', label: 'Costo Flete USD:', highlight: false },
-                            { titulo: 'Paso 2: Conversión de Empaque a USD', badge: 'Conversión', formula: 'Costo Empaque USD = ' + this.formatNumber(this.costo_empaque_caja_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcLargo.empaqueUSD) + ' USD', label: 'Costo Empaque USD:', highlight: false },
-                            { titulo: 'Paso 3: Gastos Totales de Embarque', badge: 'Suma', formula: '= ' + this.formatNumber(calcLargo.fleteUSD) + ' (Flete USD)' + nl + '+ ' + this.formatNumber(this.costo_aduana_embarque) + ' (Aduana)' + nl + '+ (' + this.formatNumber(this.costo_carton_caja) + ' × ' + this.formatNumber(this.cajas_flete_largo) + ') = ' + this.formatNumber(detallesLargo.cartonTotal) + ' (Cartón)' + nl + '+ (' + this.formatNumber(calcLargo.empaqueUSD) + ' × ' + this.formatNumber(this.cajas_flete_largo) + ') = ' + this.formatNumber(detallesLargo.empaqueTotal) + ' (Empaque)' + nl + '+ (' + this.formatNumber(this.costo_manejo_caja) + ' × ' + this.formatNumber(this.cajas_flete_largo) + ') = ' + this.formatNumber(detallesLargo.manejoTotal) + ' (Manejo)' + nl + '+ ' + this.formatNumber(this.costo_sobrepeso_embarque) + ' (Sobrepeso)', resultado: '$' + this.formatNumber(calcLargo.gastosTotal) + ' USD', label: 'Gastos Embarque Total:', highlight: true },
-                            { titulo: 'Paso 4: Gastos Prorrateados por Caja', badge: 'División', formula: 'Gastos por Caja = ' + this.formatNumber(calcLargo.gastosTotal) + ' USD ÷ ' + this.formatNumber(this.cajas_flete_largo) + ' cajas', resultado: '$' + this.formatNumber(calcLargo.gastosPorCaja) + ' USD', label: 'Gastos por Caja:', highlight: false },
-                            { titulo: 'Paso 5: Descuento por Comisión', badge: 'Porcentaje', formula: 'Descuento = ' + this.formatNumber(precioVentaNum) + ' USD × ' + this.formatNumber(this.comision_venta) + '% ÷ 100', resultado: '$' + this.formatNumber(calcLargo.comision) + ' USD', label: 'Descuento Comisión:', highlight: false },
-                            { titulo: 'Paso 6: Precio Neto por Caja (USD)', badge: 'Resta', formula: '= ' + this.formatNumber(precioVentaNum) + ' (Precio Venta)' + nl + '- ' + this.formatNumber(calcLargo.comision) + ' (Comisión)' + nl + '- ' + this.formatNumber(calcLargo.gastosPorCaja) + ' (Gastos/Caja)', resultado: '$' + this.formatNumber(calcLargo.precioNeto) + ' USD', label: 'Precio Neto por Caja:', highlight: true },
-                            { titulo: 'Paso 7: Conversión a Pesos Mexicanos', badge: 'Multiplicación', formula: 'Precio MXN = ' + this.formatNumber(calcLargo.precioNeto) + ' USD × ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcLargo.precioMXN) + ' MXN', label: 'Precio en MXN:', highlight: false },
-                            { titulo: 'Paso 8: Precio Final por Kilogramo', badge: 'División', formula: 'Precio/Kg = ' + this.formatNumber(calcLargo.precioMXN) + ' MXN ÷ ' + this.formatNumber(this.peso_caja) + ' kg', resultado: '$' + this.formatNumber(calcLargo.precioKg) + ' MXN/kg', label: 'PRECIO FINAL POR KG:', highlight: true, final: true }
+                            { titulo: 'Paso 1: conversión de flete a USD', badge: 'Conversión', formula: 'Costo flete USD = ' + this.formatNumber(this.costo_flete_largo_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcLargo.fleteUSD) + ' USD', label: 'Costo flete USD:', highlight: false },
+                            { titulo: 'Paso 2: conversión de empaque a USD', badge: 'Conversión', formula: 'Costo empaque USD = ' + this.formatNumber(this.costo_empaque_caja_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcLargo.empaqueUSD) + ' USD', label: 'Costo empaque USD:', highlight: false },
+                            { titulo: 'Paso 3: gastos totales de embarque', badge: 'Suma', formula: '= ' + this.formatNumber(calcLargo.fleteUSD) + ' (flete USD)' + nl + '+ ' + this.formatNumber(this.costo_aduana_embarque) + ' (aduana)' + nl + '+ (' + this.formatNumber(this.costo_carton_caja) + ' × ' + this.formatNumber(this.cajas_flete_largo) + ') = ' + this.formatNumber(detallesLargo.cartonTotal) + ' (cartón)' + nl + '+ (' + this.formatNumber(calcLargo.empaqueUSD) + ' × ' + this.formatNumber(this.cajas_flete_largo) + ') = ' + this.formatNumber(detallesLargo.empaqueTotal) + ' (empaque)' + nl + '+ (' + this.formatNumber(this.costo_manejo_caja) + ' × ' + this.formatNumber(this.cajas_flete_largo) + ') = ' + this.formatNumber(detallesLargo.manejoTotal) + ' (manejo)' + nl + '+ ' + this.formatNumber(this.costo_sobrepeso_embarque) + ' (sobrepeso)', resultado: '$' + this.formatNumber(calcLargo.gastosTotal) + ' USD', label: 'Gastos embarque total:', highlight: true },
+                            { titulo: 'Paso 4: gastos prorrateados por caja', badge: 'División', formula: 'Gastos por caja = ' + this.formatNumber(calcLargo.gastosTotal) + ' USD ÷ ' + this.formatNumber(this.cajas_flete_largo) + ' cajas', resultado: '$' + this.formatNumber(calcLargo.gastosPorCaja) + ' USD', label: 'Gastos por caja:', highlight: false },
+                            { titulo: 'Paso 5: descuento por comisión', badge: 'Porcentaje', formula: 'Descuento = ' + this.formatNumber(precioVentaNum) + ' USD × ' + this.formatNumber(this.comision_venta) + '% ÷ 100', resultado: '$' + this.formatNumber(calcLargo.comision) + ' USD', label: 'Descuento comisión:', highlight: false },
+                            { titulo: 'Paso 6: precio neto por caja (USD)', badge: 'Resta', formula: '= ' + this.formatNumber(precioVentaNum) + ' (precio de venta)' + nl + '- ' + this.formatNumber(calcLargo.comision) + ' (comisión)' + nl + '- ' + this.formatNumber(calcLargo.gastosPorCaja) + ' (gastos/caja)', resultado: '$' + this.formatNumber(calcLargo.precioNeto) + ' USD', label: 'Precio neto por caja:', highlight: true },
+                            { titulo: 'Paso 7: conversión a pesos mexicanos', badge: 'Multiplicación', formula: 'Precio MXN = ' + this.formatNumber(calcLargo.precioNeto) + ' USD × ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcLargo.precioMXN) + ' MXN', label: 'Precio en MXN:', highlight: false },
+                            { titulo: 'Paso 8: precio final por kilogramo', badge: 'División', formula: 'Precio/kg = ' + this.formatNumber(calcLargo.precioMXN) + ' MXN ÷ ' + this.formatNumber(this.peso_caja) + ' kg', resultado: '$' + this.formatNumber(calcLargo.precioKg) + ' MXN/kg', label: 'Precio final por kg:', highlight: true, final: true }
                         ],
                         parametros: [
                             { nombre: 'Comisión', valor: this.formatNumber(this.comision_venta) + '%' },
-                            { nombre: 'Peso por Caja', valor: this.formatNumber(this.peso_caja) + ' kg' },
-                            { nombre: 'Flete Corto', valor: '$' + this.formatNumber(this.costo_flete_corto_mxn) + ' MXN' },
-                            { nombre: 'Flete Largo', valor: '$' + this.formatNumber(this.costo_flete_largo_mxn) + ' MXN' },
-                            { nombre: 'Cajas Flete Corto', valor: this.formatNumber(this.cajas_flete_corto) },
-                            { nombre: 'Cajas Flete Largo', valor: this.formatNumber(this.cajas_flete_largo) },
-                            { nombre: 'Aduana Embarque', valor: '$' + this.formatNumber(this.costo_aduana_embarque) + ' USD' },
-                            { nombre: 'Cartón por Caja', valor: '$' + this.formatNumber(this.costo_carton_caja) + ' USD' },
-                            { nombre: 'Empaque por Caja', valor: '$' + this.formatNumber(this.costo_empaque_caja_mxn) + ' MXN' },
-                            { nombre: 'Manejo por Caja', valor: '$' + this.formatNumber(this.costo_manejo_caja) + ' USD' },
+                            { nombre: 'Peso por caja', valor: this.formatNumber(this.peso_caja) + ' kg' },
+                            { nombre: 'Flete corto', valor: '$' + this.formatNumber(this.costo_flete_corto_mxn) + ' MXN' },
+                            { nombre: 'Flete largo', valor: '$' + this.formatNumber(this.costo_flete_largo_mxn) + ' MXN' },
+                            { nombre: 'Cajas flete corto', valor: this.formatNumber(this.cajas_flete_corto) },
+                            { nombre: 'Cajas flete largo', valor: this.formatNumber(this.cajas_flete_largo) },
+                            { nombre: 'Aduana embarque', valor: '$' + this.formatNumber(this.costo_aduana_embarque) + ' USD' },
+                            { nombre: 'Cartón por caja', valor: '$' + this.formatNumber(this.costo_carton_caja) + ' USD' },
+                            { nombre: 'Empaque por caja', valor: '$' + this.formatNumber(this.costo_empaque_caja_mxn) + ' MXN' },
+                            { nombre: 'Manejo por caja', valor: '$' + this.formatNumber(this.costo_manejo_caja) + ' USD' },
                             { nombre: 'Sobrepeso', valor: '$' + this.formatNumber(this.costo_sobrepeso_embarque) + ' USD' }
                         ]
                     };
