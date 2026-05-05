@@ -52,8 +52,49 @@ test('validateInforme rechaza precio negativo o pocos pasos', () => {
     assert.strictEqual(Inv.validateInforme(short, 2), false);
 });
 
-test('validateInforme rechaza schemaVersion inesperado', () => {
+test('validateInforme rechaza schemaVersion inesperado o ausente', () => {
     var o = informeValido();
     o.schemaVersion = 99;
     assert.strictEqual(Inv.validateInforme(o, 2), false);
+    var o2 = informeValido();
+    delete o2.schemaVersion;
+    assert.strictEqual(Inv.validateInforme(o2, 2), false);
+    var o3 = informeValido();
+    o3.schemaVersion = 1;
+    assert.strictEqual(Inv.validateInforme(o3, 2), false);
+});
+
+test('validateInforme rechaza strings demasiado largos (DoS por enlace)', () => {
+    var o = informeValido();
+    o.calcCorto[0].titulo = 'x'.repeat(Inv.LIMITS.titulo + 1);
+    assert.strictEqual(Inv.validateInforme(o, 2), false);
+
+    var o2 = informeValido();
+    o2.calcLargo[2].formula = 'y'.repeat(Inv.LIMITS.formula + 1);
+    assert.strictEqual(Inv.validateInforme(o2, 2), false);
+
+    var o3 = informeValido();
+    o3.fecha = 'z'.repeat(Inv.LIMITS.fecha + 1);
+    assert.strictEqual(Inv.validateInforme(o3, 2), false);
+});
+
+test('validateInforme rechaza demasiados pasos o parametros', () => {
+    var o = informeValido();
+    for (var i = 0; i < Inv.MAX_PASOS_INFORME + 1; i++) o.calcCorto.push(pasoBase(i));
+    assert.strictEqual(Inv.validateInforme(o, 2), false);
+
+    var o2 = informeValido();
+    var many = [];
+    for (var j = 0; j < Inv.MAX_PARAMETROS_INFORME + 1; j++) many.push({ nombre: 'N', valor: 'V' });
+    o2.parametros = many;
+    assert.strictEqual(Inv.validateInforme(o2, 2), false);
+});
+
+test('validateInforme rechaza numeros no finitos o gigantes', () => {
+    var o = informeValido();
+    o.precioVenta = 1e15;
+    assert.strictEqual(Inv.validateInforme(o, 2), false);
+    var o2 = informeValido();
+    o2.tipoCambio = Infinity;
+    assert.strictEqual(Inv.validateInforme(o2, 2), false);
 });

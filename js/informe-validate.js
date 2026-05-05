@@ -1,21 +1,46 @@
 /**
- * Validación estricta del JSON de informe (navegador + tests Node).
+ * Validacion estricta del JSON de informe (navegador + tests Node).
+ * Limites de longitud por campo para evitar DoS por enlace controlado.
  */
 (function (global) {
     'use strict';
 
     var MIN_PASOS = 8;
+    var MAX_PASOS = 32;
+    var MAX_PARAMETROS = 64;
+    var LIMITS = {
+        titulo: 200,
+        badge: 64,
+        formula: 4000,
+        resultado: 200,
+        label: 200,
+        nombre: 100,
+        valor: 200,
+        fecha: 80,
+        hora: 40,
+        estado: 80
+    };
+    var MAX_NUMBER = 1e12;
 
-    function isNonEmptyString(v) {
-        return typeof v === 'string' && v.length > 0;
+    function isNonEmptyString(v, max) {
+        return typeof v === 'string' && v.length > 0 && v.length <= max;
+    }
+
+    function isBoundedString(v, max) {
+        return typeof v === 'string' && v.length <= max;
+    }
+
+    function isFiniteSafeNumber(n) {
+        return typeof n === 'number' && isFinite(n) && !isNaN(n) && Math.abs(n) <= MAX_NUMBER;
     }
 
     function validatePaso(p) {
         if (!p || typeof p !== 'object') return false;
-        if (!isNonEmptyString(p.titulo) || !isNonEmptyString(p.badge)) return false;
-        if (typeof p.formula !== 'string') return false;
-        if (typeof p.resultado !== 'string') return false;
-        if (typeof p.label !== 'string') return false;
+        if (!isNonEmptyString(p.titulo, LIMITS.titulo)) return false;
+        if (!isNonEmptyString(p.badge, LIMITS.badge)) return false;
+        if (!isBoundedString(p.formula, LIMITS.formula)) return false;
+        if (!isBoundedString(p.resultado, LIMITS.resultado)) return false;
+        if (!isBoundedString(p.label, LIMITS.label)) return false;
         if (p.highlight !== undefined && typeof p.highlight !== 'boolean') return false;
         if (p.final !== undefined && typeof p.final !== 'boolean') return false;
         return true;
@@ -23,28 +48,27 @@
 
     function validateParametro(p) {
         if (!p || typeof p !== 'object') return false;
-        return isNonEmptyString(p.nombre) && typeof p.valor === 'string';
+        return isNonEmptyString(p.nombre, LIMITS.nombre) && isBoundedString(p.valor, LIMITS.valor);
     }
 
     /**
      * @param {object} o - objeto parseado del informe
-     * @param {number} [expectedSchema] - versión esperada desde config
+     * @param {number} [expectedSchema] - version esperada desde config
      */
     function validateInforme(o, expectedSchema) {
         if (!o || typeof o !== 'object') return false;
         if (!Array.isArray(o.calcCorto) || !Array.isArray(o.calcLargo) || !Array.isArray(o.parametros)) return false;
-        if (o.calcCorto.length < MIN_PASOS || o.calcLargo.length < MIN_PASOS) return false;
-        if (o.parametros.length < 1) return false;
-        if (typeof o.precioVenta !== 'number' || typeof o.tipoCambio !== 'number') return false;
-        if (typeof o.precioKgCorto !== 'number' || typeof o.precioKgLargo !== 'number') return false;
-        if (!isFinite(o.precioVenta) || !isFinite(o.tipoCambio)) return false;
-        if (!isFinite(o.precioKgCorto) || !isFinite(o.precioKgLargo)) return false;
+        if (o.calcCorto.length < MIN_PASOS || o.calcCorto.length > MAX_PASOS) return false;
+        if (o.calcLargo.length < MIN_PASOS || o.calcLargo.length > MAX_PASOS) return false;
+        if (o.parametros.length < 1 || o.parametros.length > MAX_PARAMETROS) return false;
+        if (!isFiniteSafeNumber(o.precioVenta) || !isFiniteSafeNumber(o.tipoCambio)) return false;
+        if (!isFiniteSafeNumber(o.precioKgCorto) || !isFiniteSafeNumber(o.precioKgLargo)) return false;
         if (o.precioVenta < 0 || o.tipoCambio <= 0) return false;
         if (o.precioKgCorto < 0 || o.precioKgLargo < 0) return false;
-        if (typeof o.fecha !== 'string' || typeof o.hora !== 'string') return false;
-        if (o.estado !== undefined && typeof o.estado !== 'string') return false;
+        if (!isNonEmptyString(o.fecha, LIMITS.fecha) || !isNonEmptyString(o.hora, LIMITS.hora)) return false;
+        if (o.estado !== undefined && !isBoundedString(o.estado, LIMITS.estado)) return false;
         var exp = expectedSchema !== undefined ? expectedSchema : 2;
-        if (o.schemaVersion !== undefined && o.schemaVersion !== 1 && o.schemaVersion !== exp) {
+        if (o.schemaVersion === undefined || o.schemaVersion !== exp) {
             return false;
         }
         for (var i = 0; i < o.calcCorto.length; i++) {
@@ -59,7 +83,13 @@
         return true;
     }
 
-    var api = { validateInforme: validateInforme, MIN_PASOS_INFORME: MIN_PASOS };
+    var api = {
+        validateInforme: validateInforme,
+        MIN_PASOS_INFORME: MIN_PASOS,
+        MAX_PASOS_INFORME: MAX_PASOS,
+        MAX_PARAMETROS_INFORME: MAX_PARAMETROS,
+        LIMITS: LIMITS
+    };
     global.CotizadorInformeValidate = api;
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = api;
