@@ -45,7 +45,7 @@
         setText(p, 'Por favor, genera un informe desde el cotizador.');
         var a = document.createElement('a');
         a.href = 'index.html';
-        setText(a, 'Ir al Cotizador');
+        setText(a, 'Ir al cotizador');
         wrap.appendChild(h2);
         wrap.appendChild(p);
         wrap.appendChild(a);
@@ -62,7 +62,7 @@
         setText(p, msg);
         var a = document.createElement('a');
         a.href = 'index.html';
-        setText(a, 'Ir al Cotizador');
+        setText(a, 'Ir al cotizador');
         wrap.appendChild(h2);
         wrap.appendChild(p);
         wrap.appendChild(a);
@@ -122,9 +122,13 @@
         var header = document.createElement('div');
         header.className = 'header';
         var h1 = document.createElement('h1');
-        setText(h1, 'COTIZACIÓN DE PIÑA');
+        setText(h1, 'Cotización de piña');
         var sub = document.createElement('p');
-        setText(sub, 'Sunrise · ARU · CBP');
+        sub.appendChild(document.createTextNode('ARU \u2192 '));
+        var subStrong = document.createElement('strong');
+        setText(subStrong, 'Sunrise');
+        sub.appendChild(subStrong);
+        sub.appendChild(document.createTextNode(' \u2190 CBP'));
         header.appendChild(h1);
         header.appendChild(sub);
         if (informe.estado) {
@@ -156,7 +160,7 @@
         var btnImg = document.createElement('button');
         btnImg.className = 'btn-share btn-image';
         btnImg.type = 'button';
-        btnImg.textContent = 'Descargar Imagen';
+        btnImg.textContent = 'Descargar imagen';
         btnImg.addEventListener('click', descargarImagen);
         actions.appendChild(btnPrint);
         actions.appendChild(btnDl);
@@ -170,7 +174,7 @@
         sec1.className = 'section';
         var st1 = document.createElement('div');
         st1.className = 'section-title';
-        setText(st1, 'Datos de Entrada');
+        setText(st1, 'Datos de entrada');
         sec1.appendChild(st1);
         var dp = document.createElement('div');
         dp.className = 'datos-principales';
@@ -178,7 +182,7 @@
         b1.className = 'dato-box';
         var l1 = document.createElement('div');
         l1.className = 'dato-label';
-        setText(l1, 'Precio de Venta');
+        setText(l1, 'Precio de venta');
         var v1 = document.createElement('div');
         v1.className = 'dato-value';
         setText(v1, '$' + formatNumber(informe.precioVenta) + ' USD');
@@ -188,7 +192,7 @@
         b2.className = 'dato-box';
         var l2 = document.createElement('div');
         l2.className = 'dato-label';
-        setText(l2, 'Tipo de Cambio');
+        setText(l2, 'Tipo de cambio');
         var v2 = document.createElement('div');
         v2.className = 'dato-value';
         setText(v2, '$' + formatNumber(informe.tipoCambio) + ' MXN');
@@ -203,7 +207,7 @@
         sec2.className = 'section';
         var st2 = document.createElement('div');
         st2.className = 'section-title';
-        setText(st2, 'Precios por Kilogramo');
+        setText(st2, 'Precios por kilogramo');
         sec2.appendChild(st2);
         var rg = document.createElement('div');
         rg.className = 'resultados-grid';
@@ -211,7 +215,7 @@
         c1.className = 'resultado-card';
         var rl1 = document.createElement('div');
         rl1.className = 'resultado-label';
-        setText(rl1, 'Flete Corto');
+        setText(rl1, 'Flete corto');
         var rv1 = document.createElement('div');
         rv1.className = 'resultado-value';
         setText(rv1, '$' + formatNumber(informe.precioKgCorto));
@@ -225,7 +229,7 @@
         c2.className = 'resultado-card';
         var rl2 = document.createElement('div');
         rl2.className = 'resultado-label';
-        setText(rl2, 'Flete Largo');
+        setText(rl2, 'Flete largo');
         var rv2 = document.createElement('div');
         rv2.className = 'resultado-value';
         setText(rv2, '$' + formatNumber(informe.precioKgLargo));
@@ -244,16 +248,16 @@
         sec3.className = 'section';
         var st3 = document.createElement('div');
         st3.className = 'section-title';
-        setText(st3, 'Flujo de Cálculos Detallado');
+        setText(st3, 'Flujo de cálculos detallado');
         sec3.appendChild(st3);
         var fg = document.createElement('div');
         fg.className = 'flujo-grid';
         var colC = document.createElement('div');
         colC.className = 'flujo-columna';
-        appendCalcSteps(colC, 'FLETE CORTO', informe.calcCorto);
+        appendCalcSteps(colC, 'Flete corto', informe.calcCorto);
         var colL = document.createElement('div');
         colL.className = 'flujo-columna';
-        appendCalcSteps(colL, 'FLETE LARGO', informe.calcLargo);
+        appendCalcSteps(colL, 'Flete largo', informe.calcLargo);
         fg.appendChild(colC);
         fg.appendChild(colL);
         sec3.appendChild(fg);
@@ -263,7 +267,7 @@
         sec4.className = 'section';
         var st4 = document.createElement('div');
         st4.className = 'section-title';
-        setText(st4, 'Parámetros Utilizados');
+        setText(st4, 'Parámetros utilizados');
         sec4.appendChild(st4);
         var pg = document.createElement('div');
         pg.className = 'parametros-grid';
@@ -289,7 +293,7 @@
         var foot = document.createElement('div');
         foot.className = 'footer';
         var strong = document.createElement('strong');
-        setText(strong, 'Cotizador de Piña');
+        setText(strong, 'Cotizador de piña');
         foot.appendChild(strong);
         foot.appendChild(document.createElement('br'));
         var ft = document.createTextNode('Documento generado automáticamente el ' + informe.fecha + ' a las ' + informe.hora);
