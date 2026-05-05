@@ -34,16 +34,9 @@
 
     function intentarVolcarCotizadorAntesDeRecarga() {
         try {
-            var Alpine = window.Alpine;
-            if (!Alpine || typeof Alpine.$data !== 'function') return;
-            var root = document.querySelector('[x-data]');
-            if (!root) return;
-            var d = Alpine.$data(root);
-            if (d && typeof d.volcarPersistenciaSync === 'function') {
-                d.volcarPersistenciaSync();
-            } else if (d && typeof d.scheduleGuardar === 'function') {
-                d.scheduleGuardar();
-            }
+            var g = typeof globalThis !== 'undefined' ? globalThis : window;
+            var fn = g && g.__cotizadorFlushStores;
+            if (typeof fn === 'function') fn();
         } catch (e) {
             console.warn('Volcado previo a recarga SW omitido:', e && e.message);
         }
