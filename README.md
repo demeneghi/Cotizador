@@ -1,42 +1,54 @@
-# Cotizador de Piña (PWA)
+# Cotizador de Pina (PWA)
 
-Aplicación web progresiva para calcular precios de piña por kilogramo (flete corto y largo), con **persistencia por estado** (Veracruz y Colima) y generación de informe.
+Aplicacion web progresiva para calcular precios de pina por kilogramo (flete corto y largo), con persistencia por estado (Veracruz y Colima) y generacion de informe.
 
 ## Estructura del repositorio
 
-```
-├── index.html              # Shell HTML (CSP, carga de scripts)
+```text
+.
+├── index.html              # Shell HTML del cotizador (CSP, scripts con defer)
 ├── informe.html            # Vista de informe
 ├── manifest.json           # PWA
-├── sw.js                   # Service Worker (caché versionada)
-├── styles.css              # Estilos (tokens en :root)
-├── Dockerfile              # Nginx estático opcional (docker build)
-├── config/app.json         # Configuración: estados, almacenamiento, defaults, rutas de scripts
+├── sw.js                   # Service Worker (CACHE_NAME generado por build)
+├── styles.css              # CSS auto-generado por build (concatenando styles/*.css)
+├── styles/                 # Modulos de CSS (fuente)
+│   ├── tokens-and-base.css
+│   ├── responsive.css
+│   ├── informe.css
+│   └── avanzado.css
+├── Dockerfile              # Imagen estatica nginx-unprivileged (multi-arch, no-root)
+├── nginx/default.conf      # Headers de seguridad y caching para nginx
+├── .dockerignore           # Excluye tests/, .git/, etc. de la imagen
+├── config/app.json         # Configuracion canonical (estados, defaults, brand, limites)
 ├── js/
-│   ├── app-config.js       # Espejo de config (file:// sin fetch); debe coincidir con config/app.json
+│   ├── app-config.js       # Auto-generado desde config/app.json (NO editar)
 │   ├── theme-meta.js       # Aplica theme.colorPrimary a meta theme-color
-│   ├── format-number.js    # Formato numérico compartido (cotizador, informe, tests)
-│   ├── informe-validate.js# Validación estricta del JSON de informe
-│   ├── calc-core.js        # Núcleo numérico (compartido con tests)
-│   ├── cotizador-main.js   # Lógica Alpine del cotizador
-│   ├── sw-register.js      # Registro del SW y utilidades de UI
-│   ├── informe-app.js      # Carga y render del informe (DOM seguro)
+│   ├── numeric.js          # Modulo unico de parseo/formato numerico
+│   ├── format-number.js    # Wrapper retro-compatible sobre Numeric
+│   ├── informe-validate.js # Validacion estricta del JSON de informe (con limites)
+│   ├── calc-core.js        # Nucleo numerico
+│   ├── storage.js          # Storage debounceado con eventos multi-pestana
+│   ├── inputs-format.js    # Formato vivo de inputs (delegacion en document)
+│   ├── cotizador-main.js   # Logica Alpine del cotizador
+│   ├── sw-register.js      # Registro del SW + visibilitychange con throttle
+│   ├── informe-app.js      # Render del informe (DOM seguro, html2canvas lazy)
 │   └── vendor/
-│       ├── alpine.min.js   # Alpine 3.14.3 (vendoreado)
+│       ├── alpine.min.js
 │       └── html2canvas.min.js
-├── tests/                  # Tests Node
-├── SHA256SUMS              # Integridad: iconos + JS listados
+├── scripts/build.cjs       # Genera app-config.js, styles.css, CACHE_NAME y SHA256SUMS
+├── tests/                  # Tests Node (calc, numeric, format, validate, storage, build)
+├── SHA256SUMS              # Auto-generado: cubre TODOS los archivos servidos
 └── .github/workflows/ci.yml
 ```
 
 ## Requisitos
 
 - Navegador moderno (Chrome, Safari, Firefox, Edge).
-- **Node.js 20+** para ejecutar tests y CI local (alineado con `engines` y GitHub Actions).
+- Node.js 20+ para tests, build y CI local.
 
 ## Uso local
 
-Sirve la carpeta con cualquier servidor estático (necesario para CSP, SW y rutas relativas):
+Sirve la carpeta con cualquier servidor estatico (CSP y SW requieren HTTP):
 
 ```bash
 npx serve .
@@ -44,49 +56,71 @@ npx serve .
 python3 -m http.server 8000
 ```
 
-Abre `http://localhost:8000` (o el puerto indicado). Abrir `index.html` como `file://` sigue siendo limitado para el Service Worker; se recomienda HTTP local.
-
 ### Docker (opcional)
 
 ```bash
 docker build -t cotizador-pina .
-docker run --rm -p 8080:80 cotizador-pina
+docker run --rm -p 8080:8080 cotizador-pina
+```
+
+La imagen usa `nginx-unprivileged` (no corre como root) con tag `1.27-alpine` y `nginx/default.conf` que aplica HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy y Permissions-Policy. Para builds totalmente reproducibles en pipeline, sustituye el tag por digest (`@sha256:...`) siguiendo las instrucciones del comentario inicial del `Dockerfile`.
+
+## Flujo de build (obligatorio antes de publicar)
+
+```bash
+node scripts/build.cjs
+```
+
+Genera de forma determinista:
+
+- `js/app-config.js` espejo de `config/app.json` (sin edicion manual).
+- `styles.css` concatenando `styles/*.css`.
+- `sw.js` con `CACHE_NAME` derivado del hash agregado de assets criticos (asegura invalidacion en cada release).
+- `SHA256SUMS` cubriendo HTML, JS, CSS, JSON, vendoreados e iconos.
+
+Para verificar sin escribir cambios:
+
+```bash
+node scripts/build.cjs --check
 ```
 
 ## Persistencia
 
-- Configuración multi-estado: clave `cotizador_data_v2` (definida en `config/app.json`); incluye **precio de venta y parámetros** por estado (Veracruz / Colima).
-- Informe reciente: clave `cotizacion_informe` (misma fuente de configuración).
-- Migración automática desde la clave legada `cotizador_config` hacia el estado por defecto (`estadoDefault`) en la primera carga; el resto de estados queda con valores predeterminados.
-- En la pantalla principal: **Exportar respaldo** / **Importar respaldo** (JSON de `cotizador_data_v2`) para copia de seguridad entre navegadores o equipos.
+- Configuracion multi-estado: clave `cotizador_data_v2` (definida en `config/app.json`); incluye precio y parametros por estado.
+- Informe reciente: `cotizacion_informe`.
+- Migracion automatica desde la clave legada `cotizador_config` hacia el estado por defecto.
+- Exportar respaldo / Importar respaldo (JSON) con limite de tamano configurable.
+- Storage layer con debounce y sincronizacion multi-pestana (`storage` event).
 
-## Tests y verificación
+## Tests y verificacion
 
 ```bash
 npm run verify
 ```
 
-Equivale a `npm audit` más tests (núcleo numérico, paridad `app.json` / `app-config.js`, formato, validación de informe).
+Equivale a `build:check` + `lint` + `npm audit` + tests (numeric, calc, format, validate, storage, build, app-config-parity, informe-validate).
 
-Comprobación de integridad (macOS):
+Comprobacion de integridad:
 
 ```bash
-shasum -a 256 -c SHA256SUMS
+sha256sum -c SHA256SUMS    # Linux (CI)
+shasum -a 256 -c SHA256SUMS  # macOS
 ```
-
-En Linux CI se usa `sha256sum -c SHA256SUMS` (iconos y los JS listados en `SHA256SUMS`).
 
 ## Seguridad
 
-- **CSP** en `index.html` e `informe.html`: en el cotizador, `script-src` incluye `'unsafe-eval'` porque **Alpine.js 3** evalúa las expresiones de plantilla (`x-data`, `@click`, `x-model`, etc.) con `new Function`; sin `'unsafe-eval'` el navegador bloquea Alpine y la interfaz no funciona. **`informe.html`** no usa Alpine y mantiene `script-src 'self'` sin eval. **Alpine** también puede aplicar estilos en runtime (`x-show`, etc.), por eso `style-src` incluye `'unsafe-inline'`. Los estilos propios van en `styles.css`.
-- **Sin CDN en runtime**: Alpine y html2canvas se sirven desde `js/vendor/`; la integridad de esos archivos se comprueba con `SHA256SUMS` en CI.
-- El informe se pinta con **DOM API y `textContent`**; la descarga HTML reconstruye el DOM desde JSON validado, no desde HTML arbitrario en almacenamiento.
-- **localStorage / sessionStorage** guardan datos en claro en el dispositivo; no almacenes secretos. Mitigación: CSP estricta en scripts y origen único (`'self'`).
+- CSP estricta en `index.html` (Alpine requiere `'unsafe-eval'`) e `informe.html` (sin `'unsafe-eval'`). `frame-ancestors 'none'`, `base-uri 'none'`, `referrer no-referrer`.
+- Sin CDN runtime ni Google Fonts: vendor de tipografia mediante stack del sistema.
+- `SHA256SUMS` cubre todos los assets servidos. CI valida en cada PR.
+- Storage debounceado con limite de tamano y manejo de `QuotaExceededError`.
+- Validacion del JSON de informe con limites de longitud por campo (defensa frente a DoS por enlace controlado).
+- `Dockerfile` con `USER nginx`, tag pinneado a `1.27-alpine` (digest opcional en pipeline) y headers de seguridad en nginx.
+- Workflow CI con `permissions: { contents: read }` y acciones pinned por SHA.
 
 ## Despliegue
 
-Sube los archivos a tu hosting estático (GitHub Pages, Netlify, S3, etc.). Los comandos de publicación remota (`git push`, etc.) los ejecuta el operador según la política del equipo.
+Sube el contenido a tu hosting estatico (GitHub Pages, Netlify, S3, etc.). Ejecuta `node scripts/build.cjs` antes de publicar para que `CACHE_NAME` y `SHA256SUMS` queden actualizados.
 
 ## Licencia
 
-Uso interno.
+UNLICENSED — uso interno (ver `LICENSE`).
