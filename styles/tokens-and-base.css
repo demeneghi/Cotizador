@@ -73,6 +73,10 @@
     --type-h1-weight: 700;
     --type-h1-lh: 1.1;
     --type-h1-tracking: -0.025em;
+
+    /* Precio ponderado — franja "% por asignar" (mismo valor en todos los breakpoints) */
+    --ponderado-disponible-margin-top: -12px;
+    --ponderado-disponible-margin-bottom: 12px;
 }
 
 .is-hidden {

@@ -414,11 +414,15 @@
     justify-content: space-between;
     gap: 12px;
     padding: 6px 10px;
-    margin-top: -12px;
-    margin-bottom: 12px;
     background: var(--clay-canvas);
     border: 1px solid var(--clay-hairline);
     border-radius: var(--radius-md);
+}
+
+/* Márgenes aquí (alta especificidad + tokens) para que no los pise el layout responsive de .content/.section */
+.tab-ponderado > .section:first-of-type > .ponderado-disponible-strip {
+    margin-top: var(--ponderado-disponible-margin-top);
+    margin-bottom: var(--ponderado-disponible-margin-bottom);
 }
 
 .ponderado-disponible-label {

@@ -75,6 +75,10 @@
     --type-h1-weight: 700;
     --type-h1-lh: 1.1;
     --type-h1-tracking: -0.025em;
+
+    /* Precio ponderado — franja "% por asignar" (mismo valor en todos los breakpoints) */
+    --ponderado-disponible-margin-top: -12px;
+    --ponderado-disponible-margin-bottom: 12px;
 }
 
 .is-hidden {
@@ -2625,11 +2629,15 @@ body.informe .footer {
     justify-content: space-between;
     gap: 12px;
     padding: 6px 10px;
-    margin-top: -12px;
-    margin-bottom: 12px;
     background: var(--clay-canvas);
     border: 1px solid var(--clay-hairline);
     border-radius: var(--radius-md);
+}
+
+/* Márgenes aquí (alta especificidad + tokens) para que no los pise el layout responsive de .content/.section */
+.tab-ponderado > .section:first-of-type > .ponderado-disponible-strip {
+    margin-top: var(--ponderado-disponible-margin-top);
+    margin-bottom: var(--ponderado-disponible-margin-bottom);
 }
 
 .ponderado-disponible-label {
