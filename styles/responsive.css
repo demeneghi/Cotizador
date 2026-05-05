@@ -146,6 +146,20 @@
         font-weight: 700;
     }
 
+    .ponderado-input-cell .input-with-prefix {
+        min-height: 50px;
+    }
+
+    .ponderado-input-cell input {
+        font-size: 18px;
+        padding: 12px 8px;
+        font-weight: 700;
+    }
+
+    .ponderado-input-cell .input-prefix {
+        font-size: 16px;
+    }
+
     .result-card {
         padding: 20px 12px;
     }
@@ -391,6 +405,21 @@
         flex: 1;
         min-width: 0;
         font-weight: 700;
+    }
+
+    .ponderado-input-cell .input-with-prefix {
+        min-height: 46px;
+    }
+
+    .ponderado-input-cell input {
+        font-size: 17px;
+        padding: 10px 6px;
+        font-weight: 700;
+    }
+
+    .ponderado-input-cell .input-prefix {
+        font-size: 14px;
+        padding: 0 8px;
     }
 
     .result-card {
