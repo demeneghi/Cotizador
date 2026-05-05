@@ -1,11 +1,15 @@
 {
   "name": "cotizador-pina",
   "private": true,
-  "description": "PWA Cotizador de Piña (tests del núcleo numérico)",
+  "license": "UNLICENSED",
+  "description": "PWA Cotizador de pina (build determinista, tests de nucleo y validaciones)",
   "scripts": {
+    "build": "node scripts/build.cjs",
+    "build:check": "node scripts/build.cjs --check",
+    "lint": "npx --yes eslint@9 --config eslint.config.js js sw.js scripts tests",
     "test": "node --test tests/*.cjs",
     "audit": "npm audit --audit-level=moderate",
-    "verify": "npm run audit && npm test"
+    "verify": "npm run build:check && npm run lint && npm run audit && npm test"
   },
   "engines": {
     "node": ">=20"

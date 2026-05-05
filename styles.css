@@ -1,3 +1,5 @@
+/* AUTO-GENERADO por scripts/build.cjs concatenando styles/*.css. */
+/* ===== styles/tokens-and-base.css ===== */
 /* ==========================================
    COTIZADOR DE PIÑA — Clay.com (DESIGN.md, getdesign clay)
    Lienzo crema, CTAs negros, Inter (h1 display-md + 700), tarjetas marca y radios md/lg/xl.
@@ -689,6 +691,10 @@ input:-ms-input-placeholder {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    font-family: inherit;
     font-weight: 600;
     font-size: 14px;
     text-transform: none;
@@ -932,7 +938,7 @@ input:-ms-input-placeholder {
 .toast-update-button:active {
     background: var(--clay-primary-pressed);
 }
-
+/* ===== styles/responsive.css ===== */
 /* ==========================================
    MEDIA QUERIES - ESCRITORIO (más margen, columna más estrecha)
    ========================================== */
@@ -1475,6 +1481,7 @@ input:-ms-input-placeholder {
 }
 
 /* ==========================================
+/* ===== styles/informe.css ===== */
    ESTILOS ESPECÍFICOS PARA INFORME
    ========================================== */
 
@@ -1994,7 +2001,7 @@ body.informe .footer {
         font-size: 32px;
     }
 }
-
+/* ===== styles/avanzado.css ===== */
 /* ==========================================
    COTIZADOR AVANZADO — Tabs principales y tabla ponderada
    ========================================== */
