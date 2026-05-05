@@ -22,6 +22,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=21">
 
     <link rel="stylesheet" href="styles.css">
+    <!-- Broma tap en "Sunrise": quitar este link + bloque #easterSunriseRoot + script easter-sunrise-joke.js + archivos styles/easter-sunrise-joke.css y js/easter-sunrise-joke.js + entradas en sw.js y scripts/build.cjs (SHA_FILES). -->
+    <link rel="stylesheet" href="styles/easter-sunrise-joke.css">
 
     <script src="js/disable-mobile-zoom.js"></script>
 
@@ -627,5 +629,21 @@
         </div>
     </main>
 
+    <div id="easterSunriseRoot" class="easter-sunrise-root is-hidden" aria-hidden="true">
+        <div id="easterSunriseBackdrop" class="easter-sunrise-backdrop"></div>
+        <canvas id="easterSunriseConfetti" class="easter-sunrise-confetti" width="300" height="150" aria-hidden="true"></canvas>
+        <div class="easter-sunrise-modal" role="dialog" aria-modal="true" aria-labelledby="easterSunriseTitle">
+            <div class="easter-sunrise-dialog">
+                <div class="easter-sunrise-sparkles" aria-hidden="true"></div>
+                <h2 id="easterSunriseTitle" class="easter-sunrise-title">Un mensaje para Sunrise</h2>
+                <p class="easter-sunrise-text">
+                    Díganle a <strong>ArCM</strong> (el terror de los productores) que, por favor, deje de vender barato.
+                </p>
+                <button type="button" class="easter-sunrise-btn" id="easterSunriseClose">Atentamente, los productores</button>
+            </div>
+        </div>
+    </div>
+
+    <script defer src="js/easter-sunrise-joke.js"></script>
 </body>
 </html>
