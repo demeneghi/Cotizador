@@ -1,14 +1,14 @@
 {
-  "id": "/",
-  "name": "Cotizador de piña",
+  "id": "./",
+  "name": "Cotizador de pina",
   "short_name": "Cotizador",
-  "description": "Cotizador de piña — herramienta de cotización",
+  "description": "Cotizador de pina - herramienta de cotizacion",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#fffaf0",
   "theme_color": "#0a0a0a",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {
       "src": "icon-192.png",

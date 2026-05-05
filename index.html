@@ -2,59 +2,63 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <!-- script-src incluye 'unsafe-eval' porque Alpine 3 evalúa expresiones (x-data, @click, x-model) vía new Function; sin esto la UI no arranca. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
-    <title>Cotizador de Piña</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- PWA Meta Tags -->
-    <meta name="description" content="Cotizador de Piña — herramienta de cotización">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, viewport-fit=cover">
+    <meta name="referrer" content="no-referrer">
+    <!-- script-src incluye 'unsafe-eval' porque Alpine 3 evalua expresiones de plantilla con new Function. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
+    <title>Cotizador de Pina</title>
+
+    <meta name="description" content="Cotizador de pina - herramienta de cotizacion">
     <meta name="theme-color" content="#0a0a0a">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Cotizador">
-    
-    <!-- PWA Manifest -->
+
     <link rel="manifest" href="manifest.json">
-    
-    <!-- PWA Icons (180 Apple touch; 192/512 favicon y manifest) -->
+
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=19">
-    
-    <!-- Estilos -->
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=21">
+
     <link rel="stylesheet" href="styles.css">
 
-    <script src="js/app-config.js"></script>
-    <script src="js/theme-meta.js"></script>
-    <script src="js/disable-mobile-zoom.js"></script>
-    <script src="js/calc-core.js"></script>
-    <script src="js/format-number.js"></script>
-    <script src="js/cotizador-main.js"></script>
-    <script defer src="js/vendor/alpine.min.js"></script>
+    <noscript>
+        <style>.requires-js{display:block;padding:24px;background:#fffaf0;color:#0a0a0a;font-family:system-ui,sans-serif}</style>
+        <div class="requires-js">Esta aplicacion requiere JavaScript habilitado.</div>
+    </noscript>
+
+    <script defer src="js/app-config.js"></script>
+    <script defer src="js/theme-meta.js"></script>
+    <script defer src="js/numeric.js"></script>
+    <script defer src="js/calc-core.js"></script>
+    <script defer src="js/format-number.js"></script>
+    <script defer src="js/storage.js"></script>
+    <script defer src="js/inputs-format.js"></script>
+    <script defer src="js/cotizador-main.js"></script>
+    <script defer src="js/vendor/alpine.min.js" integrity="sha384-iZD2X8o1Zdq0HR5H/7oa8W30WS4No+zWCKUPD7fHRay9I1Gf+C4F8sVmw7zec1wW" crossorigin="anonymous"></script>
     <script defer src="js/sw-register.js"></script>
 </head>
 <body>
-    <!-- Toast de Actualización -->
     <div id="updateToast" class="toast-update">
         <div class="toast-update-message">
-            Nueva versión disponible
+            Nueva version disponible
         </div>
         <button type="button" class="toast-update-button" id="toastUpdateButton">
             Actualizar ahora
         </button>
     </div>
 
-    <div class="container" x-data="cotizador()">
+    <main class="container" x-data="cotizador()">
         <div class="card">
             <div class="header">
-                <h1>Cotizador de piña</h1>
-                <p>ARU &rarr; <strong>Sunrise</strong> &larr; CBP</p>
-                <div class="app-tabs" role="tablist" aria-label="Modo de cotización">
+                <h1 x-text="brandTitulo">Cotizador de pina</h1>
+                <p>
+                    <span x-text="brandSubtituloPre"></span>
+                    <strong x-text="brandSubtituloMid"></strong>
+                    <span x-text="brandSubtituloPost"></span>
+                </p>
+                <div class="app-tabs" role="tablist" aria-label="Modo de cotizacion">
                     <button
                         type="button"
                         role="tab"
@@ -74,7 +78,7 @@
                         Precio ponderado
                     </button>
                 </div>
-                <div class="estado-tabs" role="tablist" aria-label="Estado de cotización" x-show="tabActivo === 'basico'">
+                <div class="estado-tabs" role="tablist" aria-label="Estado de cotizacion" x-show="tabActivo === 'basico'">
                     <template x-for="estado in estadosDisponibles" :key="estado.key">
                         <button
                             type="button"
@@ -91,9 +95,11 @@
 
             <div class="content">
                 <div id="cotizador-error" class="cotizador-error" role="alert" aria-live="polite"></div>
+                <div class="cotizador-warning" role="status" aria-live="polite" x-show="precioInviable" x-cloak>
+                    Cotizacion inviable: el precio neto por caja es negativo. Revisa parametros.
+                </div>
 
                 <div x-show="tabActivo === 'basico'" role="tabpanel" aria-label="Cotizador">
-                <!-- Sección principal: precio y tipo de cambio -->
                 <div class="section">
                     <div class="section-title">Datos principales</div>
                     <div class="input-group">
@@ -101,32 +107,35 @@
                             <label for="precio_venta">Precio de venta</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">USD $</span>
-                            <input 
-                                    type="text" 
-                                id="precio_venta" 
+                                <input
+                                    type="text"
+                                    id="precio_venta"
                                     x-model="precio_venta"
-                                placeholder="Ingrese precio de venta"
+                                    placeholder="Ingrese precio de venta"
                                     inputmode="decimal"
-                            >
+                                    autocomplete="off"
+                                    maxlength="32"
+                                    data-format-numeric>
                             </div>
                         </div>
                         <div class="input-wrapper">
                             <label for="tipo_cambio">Tipo de cambio</label>
                             <div class="input-with-prefix">
                                 <span class="input-prefix">MXN $</span>
-                                <input 
-                                    type="text" 
-                                    id="tipo_cambio" 
+                                <input
+                                    type="text"
+                                    id="tipo_cambio"
                                     x-model="tipo_cambio"
                                     placeholder="Ingrese tipo de cambio"
                                     inputmode="decimal"
-                                >
+                                    autocomplete="off"
+                                    maxlength="32"
+                                    data-format-numeric>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Resultados -->
                 <div class="section">
                     <div class="section-title">Precio por kilogramo</div>
                     <div class="results-grid">
@@ -143,214 +152,227 @@
                     </div>
                 </div>
 
-                <!-- Parámetros Configurables -->
                 <div class="section">
-                    <div
-                        class="accordion-header"
-                        role="button"
-                        tabindex="0"
+                    <button
+                        type="button"
+                        class="accordion-header accordion-button"
                         :aria-expanded="mostrarParametros ? 'true' : 'false'"
-                        @click="mostrarParametros = !mostrarParametros"
-                        @keydown.enter.prevent="mostrarParametros = !mostrarParametros"
-                        @keydown.space.prevent="mostrarParametros = !mostrarParametros"
-                    >
-                        <span>Parámetros de configuración</span>
-                        <span class="accordion-icon" :class="{ 'open': mostrarParametros }">▼</span>
-                    </div>
+                        @click="mostrarParametros = !mostrarParametros">
+                        <span>Parametros de configuracion</span>
+                        <span class="accordion-icon" :class="{ 'open': mostrarParametros }" aria-hidden="true">&#9660;</span>
+                    </button>
                     <div class="accordion-content" :class="{ 'is-hidden': !mostrarParametros }">
                     <div class="params-section">
-                        
-                        <!-- Grupo 1: parámetros básicos -->
+
                         <div class="param-group">
                             <div class="param-group-title">
-                                <span>Parámetros básicos</span>
+                                <span>Parametros basicos</span>
                             </div>
                             <div class="params-grid">
                         <div class="param-item">
-                            <div class="param-label">Comisión de venta</div>
+                            <label class="param-label" for="comision_venta">Comision de venta</label>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">%</span>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
+                                        id="comision_venta"
                                         x-model="comision_venta"
                                         inputmode="decimal"
-                                        pattern="[0-9.,]*"
-                                    >
+                                        autocomplete="off"
+                                        maxlength="32"
+                                        data-format-numeric>
                                 </div>
                             </div>
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Peso por caja</div>
+                            <label class="param-label" for="peso_caja">Peso por caja</label>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">kg</span>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
+                                        id="peso_caja"
                                         x-model="peso_caja"
                                         inputmode="decimal"
-                                        pattern="[0-9.,]*"
-                                    >
+                                        autocomplete="off"
+                                        maxlength="32"
+                                        data-format-numeric>
                                 </div>
                             </div>
                         </div>
                             </div>
                         </div>
 
-                        <!-- Grupo 2: transporte y logística -->
                         <div class="param-group">
                             <div class="param-group-title">
-                                <span>Transporte y logística</span>
+                                <span>Transporte y logistica</span>
                             </div>
                             <div class="params-grid">
                         <div class="param-item">
-                            <div class="param-label">Costo flete corto</div>
+                            <label class="param-label" for="costo_flete_corto_mxn">Costo flete corto</label>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">MXN $</span>
-                                <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
+                                        id="costo_flete_corto_mxn"
                                         x-model="costo_flete_corto_mxn"
                                         inputmode="decimal"
-                                        pattern="[0-9.,]*"
-                                    >
+                                        autocomplete="off"
+                                        maxlength="32"
+                                        data-format-numeric>
                                 </div>
                             </div>
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Costo flete largo</div>
+                            <label class="param-label" for="costo_flete_largo_mxn">Costo flete largo</label>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">MXN $</span>
-                                <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
+                                        id="costo_flete_largo_mxn"
                                         x-model="costo_flete_largo_mxn"
                                         inputmode="decimal"
-                                        pattern="[0-9.,]*"
-                                    >
+                                        autocomplete="off"
+                                        maxlength="32"
+                                        data-format-numeric>
                                 </div>
                             </div>
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Cajas flete corto</div>
+                            <label class="param-label" for="cajas_flete_corto">Cajas flete corto</label>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">cajas</span>
-                                <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
+                                        id="cajas_flete_corto"
                                         x-model="cajas_flete_corto"
                                         inputmode="numeric"
-                                        pattern="[0-9.,]*"
-                                    >
+                                        autocomplete="off"
+                                        maxlength="32"
+                                        data-format-numeric>
                                 </div>
                             </div>
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Cajas flete largo</div>
+                            <label class="param-label" for="cajas_flete_largo">Cajas flete largo</label>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">cajas</span>
-                                <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
+                                        id="cajas_flete_largo"
                                         x-model="cajas_flete_largo"
                                         inputmode="numeric"
-                                        pattern="[0-9.,]*"
-                                    >
+                                        autocomplete="off"
+                                        maxlength="32"
+                                        data-format-numeric>
                                 </div>
                             </div>
                         </div>
                             </div>
                         </div>
 
-                        <!-- Grupo 3: costos de embarque (USD) -->
                         <div class="param-group">
                             <div class="param-group-title">
                                 <span>Costos de embarque (USD)</span>
                             </div>
                             <div class="params-grid">
                         <div class="param-item">
-                            <div class="param-label">Costo aduana embarque</div>
+                            <label class="param-label" for="costo_aduana_embarque">Costo aduana embarque</label>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">USD $</span>
-                                <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
+                                        id="costo_aduana_embarque"
                                         x-model="costo_aduana_embarque"
                                         inputmode="decimal"
-                                        pattern="[0-9.,]*"
-                                    >
+                                        autocomplete="off"
+                                        maxlength="32"
+                                        data-format-numeric>
                                 </div>
                             </div>
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Costo manejo por caja</div>
+                            <label class="param-label" for="costo_manejo_caja">Costo manejo por caja</label>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">USD $</span>
-                                <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
+                                        id="costo_manejo_caja"
                                         x-model="costo_manejo_caja"
                                         inputmode="decimal"
-                                        pattern="[0-9.,]*"
-                                    >
+                                        autocomplete="off"
+                                        maxlength="32"
+                                        data-format-numeric>
                                 </div>
                             </div>
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Costo sobrepeso embarque</div>
+                            <label class="param-label" for="costo_sobrepeso_embarque">Costo sobrepeso embarque</label>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">USD $</span>
-                                <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
+                                        id="costo_sobrepeso_embarque"
                                         x-model="costo_sobrepeso_embarque"
                                         inputmode="decimal"
-                                        pattern="[0-9.,]*"
-                                    >
+                                        autocomplete="off"
+                                        maxlength="32"
+                                        data-format-numeric>
                                 </div>
                             </div>
                         </div>
                             </div>
                         </div>
 
-                        <!-- Grupo 4: costos de empaque -->
                         <div class="param-group">
                             <div class="param-group-title">
                                 <span>Costos de empaque</span>
                             </div>
                             <div class="params-grid">
                         <div class="param-item">
-                            <div class="param-label">Costo cartón por caja</div>
+                            <label class="param-label" for="costo_carton_caja">Costo carton por caja</label>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">USD $</span>
-                                <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
+                                        id="costo_carton_caja"
                                         x-model="costo_carton_caja"
                                         inputmode="decimal"
-                                        pattern="[0-9.,]*"
-                                    >
+                                        autocomplete="off"
+                                        maxlength="32"
+                                        data-format-numeric>
                                 </div>
                             </div>
                         </div>
 
                         <div class="param-item">
-                            <div class="param-label">Costo empaque por caja</div>
+                            <label class="param-label" for="costo_empaque_caja_mxn">Costo empaque por caja</label>
                             <div class="param-input-wrapper">
                                 <div class="input-with-prefix">
                                     <span class="input-prefix">MXN $</span>
-                                <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
+                                        id="costo_empaque_caja_mxn"
                                         x-model="costo_empaque_caja_mxn"
                                         inputmode="decimal"
-                                        pattern="[0-9.,]*"
-                                    >
+                                        autocomplete="off"
+                                        maxlength="32"
+                                        data-format-numeric>
                                 </div>
                             </div>
                         </div>
@@ -359,7 +381,7 @@
 
                         <div class="button-group">
                             <button type="button" class="btn-save" @click="guardarConfiguracion()" :class="{ 'saved': configuracionGuardada }">
-                                <span x-text="configuracionGuardada ? 'Configuración guardada' : 'Guardar configuración'"></span>
+                                <span x-text="configuracionGuardada ? 'Configuracion guardada' : 'Guardar configuracion'"></span>
                             </button>
                             <button type="button" class="btn-reset" @click="resetearValores()">
                                 Restaurar valores
@@ -370,13 +392,12 @@
                             <button type="button" class="btn-import-backup" @click="$refs.importBackupInput.click()">
                                 Importar respaldo
                             </button>
-                            <input type="file" class="is-hidden" accept="application/json,.json" x-ref="importBackupInput" @change="importarRespaldoSeleccionado($event)">
+                            <input type="file" class="is-hidden" accept="application/json,.json" aria-hidden="true" tabindex="-1" x-ref="importBackupInput" @change="importarRespaldoSeleccionado($event)">
                         </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Botón Compartir Cotización -->
                 <button type="button" class="btn-compartir" @click="generarCotizacionHTML()">
                     <span>Generar informe</span>
                 </button>
@@ -410,7 +431,9 @@
                                                 type="text"
                                                 x-model="cal.porcentaje"
                                                 inputmode="decimal"
-                                                pattern="[0-9.,]*"
+                                                autocomplete="off"
+                                                maxlength="32"
+                                                data-format-numeric
                                                 :aria-label="'Porcentaje calibre ' + cal.size"
                                                 placeholder="0">
                                         </div>
@@ -422,7 +445,9 @@
                                                 type="text"
                                                 x-model="cal.precio"
                                                 inputmode="decimal"
-                                                pattern="[0-9.,]*"
+                                                autocomplete="off"
+                                                maxlength="32"
+                                                data-format-numeric
                                                 :aria-label="'Precio USD calibre ' + cal.size"
                                                 placeholder="0.00">
                                         </div>
@@ -440,14 +465,15 @@
                                     <div class="result-label">Precio promedio ponderado</div>
                                     <div class="result-value">
                                         <span x-show="ponderadoSumaValida()">$<span x-text="formatNumber(totalPonderado)"></span></span>
-                                        <span x-show="!ponderadoSumaValida()" class="ponderado-total-placeholder" aria-label="Pendiente: completa el 100%">—</span>
+                                        <span x-show="!ponderadoSumaValida()" class="ponderado-total-placeholder" aria-label="Pendiente: completa el 100%">-</span>
                                     </div>
                                     <div class="result-unit">USD</div>
                                 </div>
                                 <button
                                     type="button"
                                     class="ponderado-limpiar"
-                                    @click="solicitarLimpiarPonderado()"
+                                    aria-haspopup="dialog"
+                                    @click="solicitarLimpiarPonderado($event)"
                                     aria-label="Limpiar tabla de precios ponderados">
                                     Limpiar
                                 </button>
@@ -486,7 +512,6 @@
             </div>
         </div>
 
-        <!-- Modal: confirmar limpiar tabla ponderado -->
         <div
             class="modal-backdrop"
             x-show="mostrarModalLimpiar"
@@ -500,8 +525,8 @@
             <div class="modal" @click.stop>
                 <div class="modal-title" id="modal-limpiar-title">Limpiar tabla de precios</div>
                 <div class="modal-message">
-                    ¿Seguro que quieres poner en cero todos los porcentajes y precios de la tabla?
-                    Esta acción no se puede deshacer.
+                    Seguro que quieres poner en blanco todos los porcentajes y precios de la tabla?
+                    Esta accion no se puede deshacer.
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="modal-btn-cancel" @click="cancelarLimpiarPonderado()">
@@ -513,7 +538,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
 </body>
 </html>

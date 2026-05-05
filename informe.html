@@ -3,25 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
-    <title>Informe de cotización - Piña</title>
-    <meta name="description" content="Informe de cotización de piña">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
+    <title>Informe de cotizacion</title>
+    <meta name="description" content="Informe de cotizacion">
     <meta name="theme-color" content="#0a0a0a">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=19">
-    
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=21">
+
     <link rel="stylesheet" href="styles.css">
-    
-    <script src="js/app-config.js"></script>
-    <script src="js/theme-meta.js"></script>
-    <script src="js/format-number.js"></script>
-    <script src="js/informe-validate.js"></script>
-    <script src="js/vendor/html2canvas.min.js"></script>
+
+    <noscript>
+        <style>.requires-js{display:block;padding:24px;background:#fffaf0;color:#0a0a0a;font-family:system-ui,sans-serif}</style>
+        <div class="requires-js">Esta aplicacion requiere JavaScript habilitado.</div>
+    </noscript>
+
+    <script defer src="js/app-config.js"></script>
+    <script defer src="js/theme-meta.js"></script>
+    <script defer src="js/numeric.js"></script>
+    <script defer src="js/format-number.js"></script>
+    <script defer src="js/informe-validate.js"></script>
     <script defer src="js/informe-app.js"></script>
 </head>
 <body class="informe">
