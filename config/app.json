@@ -6,10 +6,21 @@
     "cotizacionInforme": "cotizacion_informe",
     "cotizadorPonderadoV1": "cotizador_ponderado_v1"
   },
+  "storageLimits": {
+    "maxBackupBytes": 262144,
+    "maxDataBytes": 524288,
+    "debounceMs": 250
+  },
   "estadoDefault": "veracruz",
   "estadosDisponibles": [
-    { "key": "veracruz", "nombre": "Veracruz" },
-    { "key": "colima", "nombre": "Colima" }
+    {
+      "key": "veracruz",
+      "nombre": "Veracruz"
+    },
+    {
+      "key": "colima",
+      "nombre": "Colima"
+    }
   ],
   "camposPersistibles": [
     "precio_venta",
@@ -42,19 +53,44 @@
     "precio_venta": ""
   },
   "ponderado": {
-    "calibres": ["4s", "5s", "6s", "7s", "8s", "9s"],
+    "calibres": [
+      "4s",
+      "5s",
+      "6s",
+      "7s",
+      "8s",
+      "9s"
+    ],
     "valoresPredeterminados": {
-      "4s": { "porcentaje": "", "precio": "" },
-      "5s": { "porcentaje": "", "precio": "" },
-      "6s": { "porcentaje": "", "precio": "" },
-      "7s": { "porcentaje": "", "precio": "" },
-      "8s": { "porcentaje": "", "precio": "" },
-      "9s": { "porcentaje": "", "precio": "" }
+      "4s": {
+        "porcentaje": "",
+        "precio": ""
+      },
+      "5s": {
+        "porcentaje": "",
+        "precio": ""
+      },
+      "6s": {
+        "porcentaje": "",
+        "precio": ""
+      },
+      "7s": {
+        "porcentaje": "",
+        "precio": ""
+      },
+      "8s": {
+        "porcentaje": "",
+        "precio": ""
+      },
+      "9s": {
+        "porcentaje": "",
+        "precio": ""
+      }
     },
     "tolerancia_suma_pct": 0.01
   },
   "informe": {
-    "maxHashUrlChars": 48000,
+    "maxHashUrlChars": 32000,
     "informeJsonSchemaVersion": 2
   },
   "theme": {
@@ -63,18 +99,25 @@
     "colorSuccess": "#22c55e",
     "colorDanger": "#ef4444"
   },
+  "brand": {
+    "titulo": "Cotizador de pina",
+    "tituloInforme": "Cotizacion de pina",
+    "subtituloPre": "ARU → ",
+    "subtituloMid": "Sunrise",
+    "subtituloPost": " ← CBP"
+  },
   "cdn": {
     "alpine": {
       "src": "./js/vendor/alpine.min.js",
-      "integrity": null,
+      "integrity": "sha384-iZD2X8o1Zdq0HR5H/7oa8W30WS4No+zWCKUPD7fHRay9I1Gf+C4F8sVmw7zec1wW",
       "crossorigin": "anonymous",
-      "note": "Vendoreado en repo; sin CDN en runtime."
+      "note": "Vendoreado en repo; integrity SHA-384 calculado por scripts/build.cjs."
     },
     "html2canvas": {
       "src": "./js/vendor/html2canvas.min.js",
-      "integrity": null,
+      "integrity": "sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H",
       "crossorigin": "anonymous",
-      "note": "Vendoreado en repo; sin CDN en runtime."
+      "note": "Vendoreado en repo; integrity SHA-384 calculado por scripts/build.cjs."
     }
   },
   "debug": false

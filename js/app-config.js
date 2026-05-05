@@ -1,82 +1,125 @@
-/* Configuración embebida (espejo de config/app.json) para soporte file:// sin fetch. */
+/* AUTO-GENERADO por scripts/build.cjs desde config/app.json. NO editar a mano. */
 window.__APP_CONFIG__ = {
-    "schemaVersion": 1,
-    "storage": {
-        "cotizadorDataV2": "cotizador_data_v2",
-        "legacyCotizadorConfig": "cotizador_config",
-        "cotizacionInforme": "cotizacion_informe",
-        "cotizadorPonderadoV1": "cotizador_ponderado_v1"
-    },
-    "estadoDefault": "veracruz",
-    "estadosDisponibles": [
-        { "key": "veracruz", "nombre": "Veracruz" },
-        { "key": "colima", "nombre": "Colima" }
-    ],
-    "camposPersistibles": [
-        "precio_venta",
-        "tipo_cambio",
-        "comision_venta",
-        "peso_caja",
-        "costo_flete_corto_mxn",
-        "costo_flete_largo_mxn",
-        "costo_aduana_embarque",
-        "costo_carton_caja",
-        "costo_empaque_caja_mxn",
-        "costo_manejo_caja",
-        "costo_sobrepeso_embarque",
-        "cajas_flete_corto",
-        "cajas_flete_largo"
-    ],
-    "valoresPredeterminados": {
-        "tipo_cambio": 18.5,
-        "comision_venta": 10,
-        "peso_caja": 11.4,
-        "costo_flete_corto_mxn": 38000,
-        "costo_flete_largo_mxn": 42000,
-        "costo_aduana_embarque": 103,
-        "costo_carton_caja": 1.25,
-        "costo_empaque_caja_mxn": 26,
-        "costo_manejo_caja": 0.22,
-        "costo_sobrepeso_embarque": 250,
-        "cajas_flete_corto": 1650,
-        "cajas_flete_largo": 2250,
-        "precio_venta": ""
-    },
-    "ponderado": {
-        "calibres": ["4s", "5s", "6s", "7s", "8s", "9s"],
+        "schemaVersion": 1,
+        "storage": {
+            "cotizadorDataV2": "cotizador_data_v2",
+            "legacyCotizadorConfig": "cotizador_config",
+            "cotizacionInforme": "cotizacion_informe",
+            "cotizadorPonderadoV1": "cotizador_ponderado_v1"
+        },
+        "storageLimits": {
+            "maxBackupBytes": 262144,
+            "maxDataBytes": 524288,
+            "debounceMs": 250
+        },
+        "estadoDefault": "veracruz",
+        "estadosDisponibles": [
+            {
+                "key": "veracruz",
+                "nombre": "Veracruz"
+            },
+            {
+                "key": "colima",
+                "nombre": "Colima"
+            }
+        ],
+        "camposPersistibles": [
+            "precio_venta",
+            "tipo_cambio",
+            "comision_venta",
+            "peso_caja",
+            "costo_flete_corto_mxn",
+            "costo_flete_largo_mxn",
+            "costo_aduana_embarque",
+            "costo_carton_caja",
+            "costo_empaque_caja_mxn",
+            "costo_manejo_caja",
+            "costo_sobrepeso_embarque",
+            "cajas_flete_corto",
+            "cajas_flete_largo"
+        ],
         "valoresPredeterminados": {
-            "4s": { "porcentaje": "", "precio": "" },
-            "5s": { "porcentaje": "", "precio": "" },
-            "6s": { "porcentaje": "", "precio": "" },
-            "7s": { "porcentaje": "", "precio": "" },
-            "8s": { "porcentaje": "", "precio": "" },
-            "9s": { "porcentaje": "", "precio": "" }
+            "tipo_cambio": 18.5,
+            "comision_venta": 10,
+            "peso_caja": 11.4,
+            "costo_flete_corto_mxn": 38000,
+            "costo_flete_largo_mxn": 42000,
+            "costo_aduana_embarque": 103,
+            "costo_carton_caja": 1.25,
+            "costo_empaque_caja_mxn": 26,
+            "costo_manejo_caja": 0.22,
+            "costo_sobrepeso_embarque": 250,
+            "cajas_flete_corto": 1650,
+            "cajas_flete_largo": 2250,
+            "precio_venta": ""
         },
-        "tolerancia_suma_pct": 0.01
-    },
-    "informe": {
-        "maxHashUrlChars": 48000,
-        "informeJsonSchemaVersion": 2
-    },
-    "theme": {
-        "colorPrimary": "#0a0a0a",
-        "colorSecondary": "#3a3a3a",
-        "colorSuccess": "#22c55e",
-        "colorDanger": "#ef4444"
-    },
-    "cdn": {
-        "alpine": {
-            "src": "./js/vendor/alpine.min.js",
-            "integrity": null,
-            "crossorigin": "anonymous",
-            "note": "Vendoreado en repo; sin CDN en runtime."
+        "ponderado": {
+            "calibres": [
+                "4s",
+                "5s",
+                "6s",
+                "7s",
+                "8s",
+                "9s"
+            ],
+            "valoresPredeterminados": {
+                "4s": {
+                    "porcentaje": "",
+                    "precio": ""
+                },
+                "5s": {
+                    "porcentaje": "",
+                    "precio": ""
+                },
+                "6s": {
+                    "porcentaje": "",
+                    "precio": ""
+                },
+                "7s": {
+                    "porcentaje": "",
+                    "precio": ""
+                },
+                "8s": {
+                    "porcentaje": "",
+                    "precio": ""
+                },
+                "9s": {
+                    "porcentaje": "",
+                    "precio": ""
+                }
+            },
+            "tolerancia_suma_pct": 0.01
         },
-        "html2canvas": {
-            "src": "./js/vendor/html2canvas.min.js",
-            "integrity": null,
-            "crossorigin": "anonymous",
-            "note": "Vendoreado en repo; sin CDN en runtime."
-        }
-    },
-    "debug": false
-};
+        "informe": {
+            "maxHashUrlChars": 32000,
+            "informeJsonSchemaVersion": 2
+        },
+        "theme": {
+            "colorPrimary": "#0a0a0a",
+            "colorSecondary": "#3a3a3a",
+            "colorSuccess": "#22c55e",
+            "colorDanger": "#ef4444"
+        },
+        "brand": {
+            "titulo": "Cotizador de pina",
+            "tituloInforme": "Cotizacion de pina",
+            "subtituloPre": "ARU → ",
+            "subtituloMid": "Sunrise",
+            "subtituloPost": " ← CBP"
+        },
+        "cdn": {
+            "alpine": {
+                "src": "./js/vendor/alpine.min.js",
+                "integrity": "sha384-iZD2X8o1Zdq0HR5H/7oa8W30WS4No+zWCKUPD7fHRay9I1Gf+C4F8sVmw7zec1wW",
+                "crossorigin": "anonymous",
+                "note": "Vendoreado en repo; integrity SHA-384 calculado por scripts/build.cjs."
+            },
+            "html2canvas": {
+                "src": "./js/vendor/html2canvas.min.js",
+                "integrity": "sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H",
+                "crossorigin": "anonymous",
+                "note": "Vendoreado en repo; integrity SHA-384 calculado por scripts/build.cjs."
+            }
+        },
+        "debug": false
+    };
