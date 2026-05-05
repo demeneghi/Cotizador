@@ -69,10 +69,7 @@
         container.appendChild(wrap);
     }
 
-    function appendCalcSteps(column, titleText, pasos) {
-        var h3 = document.createElement('h3');
-        setText(h3, titleText);
-        column.appendChild(h3);
+    function appendCalcSteps(column, pasos) {
         for (var i = 0; i < pasos.length; i++) {
             var paso = pasos[i];
             var step = document.createElement('div');
@@ -287,14 +284,16 @@
         colC.id = 'flujo-panel-corto';
         colC.setAttribute('role', 'tabpanel');
         colC.setAttribute('aria-labelledby', 'flujo-tab-corto');
-        appendCalcSteps(colC, 'Flete corto', informe.calcCorto);
+        colC.setAttribute('data-flujo', 'Flete corto');
+        appendCalcSteps(colC, informe.calcCorto);
         var colL = document.createElement('div');
         colL.className = 'flujo-columna flujo-columna--inactive';
         colL.id = 'flujo-panel-largo';
         colL.setAttribute('role', 'tabpanel');
         colL.setAttribute('aria-labelledby', 'flujo-tab-largo');
+        colL.setAttribute('data-flujo', 'Flete largo');
         colL.hidden = true;
-        appendCalcSteps(colL, 'Flete largo', informe.calcLargo);
+        appendCalcSteps(colL, informe.calcLargo);
         fg.appendChild(colC);
         fg.appendChild(colL);
         sec3.appendChild(fg);

@@ -245,15 +245,17 @@ body.informe .resultados-grid .resultado-card:nth-child(2) .resultado-unit {
     color: var(--clay-on-dark-soft);
 }
 
-/* Tabs para alternar Flete corto / Flete largo — Clay category-tab + category-tab-active */
+/* Selector de flujo a ancho completo (sustituye al h3 de cada columna en pantalla) */
 body.informe .flujo-tabs {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 4px;
+    width: 100%;
+    box-sizing: border-box;
     margin-bottom: 24px;
     padding: 4px;
     background: var(--clay-surface-card);
-    border-radius: var(--radius-pill);
-    width: fit-content;
+    border-radius: var(--radius-lg);
 }
 
 body.informe .flujo-tab {
@@ -262,14 +264,20 @@ body.informe .flujo-tab {
     background: transparent;
     color: var(--clay-ink-muted);
     font-family: var(--font-sans);
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
     line-height: 1.4;
     letter-spacing: 0;
-    padding: 8px 16px;
-    border-radius: var(--radius-pill);
+    padding: 10px 12px;
+    min-height: 44px;
+    width: 100%;
+    border-radius: var(--radius-md);
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 body.informe .flujo-tab:hover {
@@ -338,8 +346,10 @@ body.informe-export .flujo-columna[hidden] {
     gap: 32px;
 }
 
-/* Encabezado de columna del flujo — Clay caption-uppercase (12px / 600 / 1.5px) */
-.flujo-columna h3 {
+/* Rotulo de columna cuando los tabs estan ocultos (HTML exportado): mismo aspecto que el antiguo h3 */
+body.informe-export .flujo-columna[data-flujo]::before {
+    content: attr(data-flujo);
+    display: block;
     background: var(--clay-surface-soft);
     color: var(--clay-ink);
     padding: 12px 16px;
@@ -536,10 +546,22 @@ body.informe .footer {
         gap: 24px;
     }
 
-    body.informe .flujo-columna h3 {
-        font-size: 12px;
+    body.informe .flujo-columna[data-flujo]::before {
+        content: attr(data-flujo);
+        display: block;
+        background: var(--clay-surface-soft);
+        color: var(--clay-ink);
         padding: 8px;
+        border-radius: var(--radius-lg);
+        font-size: 12px;
+        line-height: 1.4;
+        text-align: center;
         margin-bottom: 12px;
+        border: 1px solid var(--clay-hairline);
+        border-bottom: 3px solid var(--clay-brand-teal);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
     }
 
     body.informe .calc-step {
