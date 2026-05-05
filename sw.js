@@ -1,12 +1,16 @@
-const CACHE_NAME = 'cotizador-pina-v20';
+/* Service worker. CACHE_NAME se sustituye automaticamente por scripts/build.cjs en cada release. */
+const CACHE_NAME = 'cotizador-pina-a5d38953ae7f';
 
 const urlsToCache = [
   './index.html',
   './js/app-config.js',
   './js/theme-meta.js',
+  './js/numeric.js',
   './js/format-number.js',
   './js/informe-validate.js',
   './js/calc-core.js',
+  './js/storage.js',
+  './js/inputs-format.js',
   './js/cotizador-main.js',
   './js/sw-register.js',
   './js/informe-app.js',
@@ -21,6 +25,12 @@ const urlsToCache = [
   './manifest.json'
 ];
 
+const NAVIGATION_FALLBACK = './index.html';
+
+function isHttpRequest(url) {
+  return url.protocol === 'http:' || url.protocol === 'https:';
+}
+
 function isNetworkFirstRequest(url) {
   const pathname = url.pathname || '';
   const name = pathname.split('/').pop() || '';
@@ -30,12 +40,13 @@ function isNetworkFirstRequest(url) {
     'manifest.json',
     'sw.js',
     'styles.css',
+    'app.json',
     ''
   ]);
   if (networkFirstNames.has(name)) return true;
   if (pathname === '/' || pathname === '') return true;
-  /* Iconos: cache-first dejaba touch icon viejo en iOS; red primero y bust en HTML (?v=) */
   if (/^icon-.*\.png$/i.test(name)) return true;
+  if (name.endsWith('.js') && pathname.indexOf('/js/vendor/') === -1) return true;
   return false;
 }
 
@@ -59,66 +70,70 @@ self.addEventListener('activate', event => {
       Promise.all(
         cacheNames.map(cache => {
           if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
+            return caches.delete(cache).catch(err => {
+              console.warn('No se pudo borrar cache antiguo:', cache, err && err.message);
+              return null;
+            });
           }
+          return null;
         })
       )
     ).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  const isNetworkFirst = isNetworkFirstRequest(url);
-
-  if (isNetworkFirst) {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          if (response && response.status === 200) {
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, responseToCache).catch(() => {});
-            });
-          }
-          return response;
-        })
-        .catch(() =>
-          caches.match(event.request).then(cachedResponse => {
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            return caches.match('./index.html');
-          })
-        )
-    );
-  } else {
-    event.respondWith(
-      caches.match(event.request).then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request).then(response => {
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseToCache).catch(() => {});
-          });
-          return response;
+function networkFirstHandler(event) {
+  return fetch(event.request)
+    .then(response => {
+      if (response && response.status === 200 && response.type === 'basic') {
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, responseToCache).catch(() => {});
         });
+      }
+      return response;
+    })
+    .catch(() =>
+      caches.match(event.request).then(cachedResponse => {
+        if (cachedResponse) return cachedResponse;
+        if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+          return caches.match(NAVIGATION_FALLBACK);
+        }
+        return new Response('', { status: 504, statusText: 'Gateway Timeout' });
       })
     );
+}
+
+function staleWhileRevalidate(event) {
+  return caches.match(event.request).then(cachedResponse => {
+    const networkFetch = fetch(event.request).then(response => {
+      if (response && response.status === 200 && response.type === 'basic') {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, clone).catch(() => {});
+        });
+      }
+      return response;
+    }).catch(() => null);
+    return cachedResponse || networkFetch.then(r => r || new Response('', { status: 504 }));
+  });
+}
+
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  let url;
+  try { url = new URL(event.request.url); } catch (e) { return; }
+  if (!isHttpRequest(url)) return;
+
+  if (isNetworkFirstRequest(url)) {
+    event.respondWith(networkFirstHandler(event));
+  } else {
+    event.respondWith(staleWhileRevalidate(event));
   }
 });
 
 self.addEventListener('message', event => {
-  if (!event.data || event.data.action !== 'skipWaiting') {
-    return;
-  }
-  if (!event.source) {
-    return;
-  }
+  if (!event.data || event.data.action !== 'skipWaiting') return;
+  if (!event.source) return;
   self.skipWaiting();
 });

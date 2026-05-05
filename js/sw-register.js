@@ -3,31 +3,32 @@
 
     var newServiceWorker = null;
     var swRegistration = null;
+    var lastUpdateAt = 0;
+    var UPDATE_THROTTLE_MS = 5 * 60 * 1000;
 
     function mostrarToastActualizacion() {
         var toast = document.getElementById('updateToast');
         if (toast) {
             toast.classList.add('is-visible');
         } else {
-            console.error('No se encontró el elemento updateToast');
+            console.error('No se encontro el elemento updateToast');
         }
     }
 
     function actualizarApp() {
         var toast = document.getElementById('updateToast');
-        if (toast) {
-            toast.classList.remove('is-visible');
-        }
+        if (toast) toast.classList.remove('is-visible');
 
         if (newServiceWorker) {
-            newServiceWorker.postMessage({ action: 'skipWaiting' });
-        } else {
-            console.error('No hay newServiceWorker disponible');
-            if (swRegistration) {
-                swRegistration.update().then(function () {
-                    window.location.reload();
-                });
-            }
+            try { newServiceWorker.postMessage({ action: 'skipWaiting' }); }
+            catch (e) { console.error('postMessage skipWaiting:', e); }
+        } else if (swRegistration) {
+            swRegistration.update().then(function () {
+                if (swRegistration.waiting) {
+                    try { swRegistration.waiting.postMessage({ action: 'skipWaiting' }); }
+                    catch (e) { /* ignore */ }
+                }
+            }).catch(function (e) { console.error('update fallo:', e); });
         }
     }
 
@@ -38,8 +39,8 @@
             var root = document.querySelector('[x-data]');
             if (!root) return;
             var d = Alpine.$data(root);
-            if (d && typeof d.guardarEnLocalStorage === 'function') {
-                d.guardarEnLocalStorage();
+            if (d && typeof d.scheduleGuardar === 'function') {
+                d.scheduleGuardar();
             }
         } catch (e) {
             console.warn('Volcado previo a recarga SW omitido:', e && e.message);
@@ -51,13 +52,12 @@
             navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
                 .then(function (registration) {
                     swRegistration = registration;
-                    registration.update();
+                    registration.update().catch(function () { /* ignore */ });
+                    lastUpdateAt = Date.now();
 
                     registration.addEventListener('updatefound', function () {
                         var sw = registration.installing;
-                        if (!sw) {
-                            return;
-                        }
+                        if (!sw) return;
                         newServiceWorker = sw;
                         sw.addEventListener('statechange', function () {
                             if (sw.state === 'installed' && navigator.serviceWorker.controller) {
@@ -69,9 +69,7 @@
                     if (registration.waiting) {
                         newServiceWorker = registration.waiting;
                         mostrarToastActualizacion();
-                    }
-
-                    if (registration.installing) {
+                    } else if (registration.installing) {
                         newServiceWorker = registration.installing;
                     }
                 })
@@ -90,53 +88,18 @@
         });
 
         document.addEventListener('visibilitychange', function () {
-            if (!document.hidden && swRegistration) {
-                swRegistration.update();
-            }
+            if (document.hidden || !swRegistration) return;
+            var now = Date.now();
+            if (now - lastUpdateAt < UPDATE_THROTTLE_MS) return;
+            lastUpdateAt = now;
+            swRegistration.update().catch(function () { /* ignore */ });
         });
     } else {
         console.error('Service Worker no soportado en este navegador');
     }
 
-    window.addEventListener('beforeinstallprompt', function (e) {
-        e.preventDefault();
-        window.deferredInstallPrompt = e;
-    });
-
     document.addEventListener('DOMContentLoaded', function () {
         var btn = document.getElementById('toastUpdateButton') || document.querySelector('.toast-update-button');
-        if (btn) {
-            btn.addEventListener('click', actualizarApp);
-        }
-
-        function formatearConSeparadores(valor) {
-            var limpio = valor.replace(/[^\d.,]/g, '');
-            limpio = limpio.replace(',', '.');
-            if (!limpio) return '';
-            var partes = limpio.split('.');
-            var parteEntera = partes[0];
-            var parteDecimal = partes[1];
-            parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            return parteDecimal !== undefined ? parteEntera + '.' + parteDecimal : parteEntera;
-        }
-
-        setTimeout(function () {
-            var paramInputs = document.querySelectorAll('.param-input-wrapper input');
-            paramInputs.forEach(function (input) {
-                input.addEventListener('input', function () {
-                    var cursorPos = this.selectionStart;
-                    var valorAnterior = this.value;
-                    var valorFormateado = formatearConSeparadores(valorAnterior);
-                    if (valorFormateado !== valorAnterior) {
-                        this.value = valorFormateado;
-                        var diff = valorFormateado.length - valorAnterior.length;
-                        this.setSelectionRange(cursorPos + diff, cursorPos + diff);
-                    }
-                });
-                if (input.value) {
-                    input.value = formatearConSeparadores(input.value);
-                }
-            });
-        }, 500);
+        if (btn) btn.addEventListener('click', actualizarApp);
     });
 })();
