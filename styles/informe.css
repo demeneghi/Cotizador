@@ -138,18 +138,21 @@ body.informe .calc-result.calc-result--final .calc-result-value {
 
 .datos-principales {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
     margin-bottom: 32px;
+    align-items: stretch;
 }
 
-/* dato-box — Clay testimonial-card: surface-card, radius-lg, padding lg (24px) */
+/* dato-box — Clay testimonial-card: crema, borde hairline uniforme (sin franja superior) */
 .dato-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     background: var(--clay-surface-card);
     padding: 24px;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-xl);
     border: 1px solid var(--clay-hairline);
-    border-top: 3px solid var(--clay-brand-peach);
 }
 
 /* dato-label — Clay caption-uppercase (12px / 600 / 1.5px) */
@@ -159,7 +162,7 @@ body.informe .calc-result.calc-result--final .calc-result-value {
     font-weight: 600;
     line-height: 1.4;
     text-transform: uppercase;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     letter-spacing: 1.5px;
 }
 
@@ -630,10 +633,24 @@ body.informe .footer {
         padding: 32px 24px;
     }
 
-    body.informe .datos-principales,
     body.informe .flujo-grid,
     body.informe .parametros-grid {
         grid-template-columns: 1fr;
+    }
+
+    /* Precio de venta y tipo de cambio: siempre dos columnas en la misma fila */
+    body.informe .datos-principales {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    body.informe .dato-box {
+        padding: 16px 12px;
+    }
+
+    body.informe .dato-value {
+        font-size: clamp(1.125rem, 4.2vw, 2rem);
+        line-height: 1.12;
     }
 
     body.informe .resultados-grid {
