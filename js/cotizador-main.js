@@ -694,6 +694,39 @@
                 if (tab === 'avanzado') this.ponderadoAplicadoOk = false;
             },
 
+            /**
+             * Selecciona todo el valor para sustituirlo al escribir. En iOS/Safari hay que
+             * diferir el select; tap en bordes a veces no deja el foco listo en el mismo tick.
+             */
+            seleccionarPonderadoInputSiHayValor: function (ev) {
+                var el = ev && ev.target;
+                if (!el || el.tagName !== 'INPUT') return;
+                if (!String(el.value || '').trim()) return;
+
+                function aplicar() {
+                    try {
+                        el.select();
+                        if (typeof el.setSelectionRange === 'function' && el.value.length > 0) {
+                            el.setSelectionRange(0, el.value.length);
+                        }
+                    } catch (e) { /* ignore */ }
+                }
+
+                var raf = typeof window !== 'undefined' ? window.requestAnimationFrame : null;
+                if (typeof raf === 'function') {
+                    raf(function () {
+                        raf(function () {
+                            aplicar();
+                            window.setTimeout(aplicar, 0);
+                            window.setTimeout(aplicar, 48);
+                        });
+                    });
+                } else {
+                    window.setTimeout(aplicar, 0);
+                    window.setTimeout(aplicar, 48);
+                }
+            },
+
             calcularPonderado: function () {
                 try {
                     var r = Calc.calcularPrecioPonderado(this.calibres);

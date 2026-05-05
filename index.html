@@ -436,6 +436,8 @@
                                                 autocomplete="off"
                                                 maxlength="32"
                                                 data-format-numeric
+                                                @focus="seleccionarPonderadoInputSiHayValor($event)"
+                                                @click="seleccionarPonderadoInputSiHayValor($event)"
                                                 :aria-label="'Porcentaje calibre ' + cal.size"
                                                 placeholder="0">
                                         </div>
@@ -450,6 +452,8 @@
                                                 autocomplete="off"
                                                 maxlength="32"
                                                 data-format-numeric
+                                                @focus="seleccionarPonderadoInputSiHayValor($event)"
+                                                @click="seleccionarPonderadoInputSiHayValor($event)"
                                                 :aria-label="'Precio USD calibre ' + cal.size"
                                                 placeholder="0.00">
                                         </div>

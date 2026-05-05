@@ -140,6 +140,9 @@
     text-align: right;
     flex: 1;
     min-width: 0;
+    align-self: stretch;
+    min-height: 44px;
+    box-sizing: border-box;
     outline: none;
 }
 
