@@ -42,13 +42,20 @@
     <script defer src="js/sw-register.js"></script>
 </head>
 <body>
-    <div id="updateToast" class="toast-update">
-        <div class="toast-update-message">
-            Nueva version disponible
+    <div
+        id="updateToast"
+        class="toast-update-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="toastUpdateTitle"
+        aria-hidden="true">
+        <div class="toast-update-panel">
+            <p class="toast-update-message" id="toastUpdateTitle">Nueva versión disponible</p>
+            <p class="toast-update-hint">Actualiza para cargar la última versión de la aplicación.</p>
+            <button type="button" class="toast-update-button" id="toastUpdateButton">
+                Actualizar ahora
+            </button>
         </div>
-        <button type="button" class="toast-update-button" id="toastUpdateButton">
-            Actualizar ahora
-        </button>
     </div>
 
     <main class="container" x-data="cotizador()">

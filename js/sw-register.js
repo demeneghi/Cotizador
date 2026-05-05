@@ -10,6 +10,12 @@
         var toast = document.getElementById('updateToast');
         if (toast) {
             toast.classList.add('is-visible');
+            toast.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('update-modal-open');
+            var btn = document.getElementById('toastUpdateButton');
+            if (btn) {
+                try { btn.focus(); } catch (e) { /* ignore */ }
+            }
         } else {
             console.error('No se encontro el elemento updateToast');
         }
@@ -17,7 +23,11 @@
 
     function actualizarApp() {
         var toast = document.getElementById('updateToast');
-        if (toast) toast.classList.remove('is-visible');
+        if (toast) {
+            toast.classList.remove('is-visible');
+            toast.setAttribute('aria-hidden', 'true');
+        }
+        document.body.classList.remove('update-modal-open');
 
         if (newServiceWorker) {
             try { newServiceWorker.postMessage({ action: 'skipWaiting' }); }
