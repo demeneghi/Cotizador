@@ -173,6 +173,77 @@ body.informe .calc-result.calc-result--final {
     color: var(--clay-ink);
 }
 
+/* Precios por kilogramo — destacado de alto contraste para lectura rapida */
+body.informe .resultados-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 8px;
+    margin-bottom: 32px;
+}
+
+body.informe .resultado-card {
+    position: relative;
+    padding: 28px 24px;
+    border-radius: var(--radius-xl);
+    text-align: center;
+    border: 1px solid var(--clay-hairline);
+    box-shadow: 0 10px 24px rgba(10, 10, 10, 0.08);
+    overflow: hidden;
+}
+
+body.informe .resultados-grid .resultado-card:nth-child(1) {
+    background: var(--clay-brand-pink);
+    color: var(--clay-on-primary);
+    border: none;
+}
+
+body.informe .resultados-grid .resultado-card:nth-child(2) {
+    background: var(--clay-brand-teal);
+    color: var(--clay-on-dark);
+    border: none;
+}
+
+body.informe .resultado-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 14px;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.2;
+}
+
+body.informe .resultados-grid .resultado-card:nth-child(2) .resultado-label {
+    color: var(--clay-on-dark-soft);
+}
+
+body.informe .resultado-value {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: var(--display-tracking);
+    color: var(--clay-on-primary);
+    word-break: keep-all;
+}
+
+body.informe .resultados-grid .resultado-card:nth-child(2) .resultado-value {
+    color: var(--clay-on-dark);
+}
+
+body.informe .resultado-unit {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+body.informe .resultados-grid .resultado-card:nth-child(2) .resultado-unit {
+    color: var(--clay-on-dark-soft);
+}
+
 .flujo-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -386,7 +457,9 @@ body.informe .footer {
     }
 
     body.informe .resultado-card {
-        padding: 15px;
+        padding: 18px 14px;
+        box-shadow: none;
+        border: 1px solid var(--clay-hairline);
     }
 
     body.informe .resultado-label {
@@ -395,7 +468,7 @@ body.informe .footer {
     }
 
     body.informe .resultado-value {
-        font-size: 28px;
+        font-size: 30px;
     }
 
     body.informe .resultado-unit {
@@ -513,8 +586,17 @@ body.informe .footer {
     body.informe .parametros-grid {
         grid-template-columns: 1fr;
     }
-    
+
+    body.informe .resultados-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    body.informe .resultado-card {
+        padding: 22px 16px;
+    }
+
     body.informe .resultado-value {
-        font-size: 32px;
+        font-size: 36px;
     }
 }
