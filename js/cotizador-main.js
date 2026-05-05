@@ -470,12 +470,10 @@
 
             exportarRespaldo: function () {
                 try {
+                    var snapshot = this.buildPersistedSnapshot();
+                    var raw = JSON.stringify(snapshot);
+                    dataStore.set(snapshot);
                     dataStore.flush();
-                    var raw = dataStore.getRaw();
-                    if (!raw) {
-                        var seed = this.buildPersistedSnapshot();
-                        raw = JSON.stringify(seed);
-                    }
                     var blob = new Blob([raw], { type: 'application/json;charset=utf-8' });
                     var url = URL.createObjectURL(blob);
                     var a = document.createElement('a');

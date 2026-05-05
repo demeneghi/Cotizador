@@ -79,6 +79,35 @@ test('createDebouncedStore: maneja QuotaExceededError', () => {
     assert.ok(errs.some(function (e) { return e.type === 'quota'; }));
 });
 
+test('createDebouncedStore: segundo flush tras error de escritura puede persistir', () => {
+    delete require.cache[require.resolve(path.join(__dirname, '..', 'js', 'storage.js'))];
+    var Mod = require(path.join(__dirname, '..', 'js', 'storage.js'));
+    var fake = makeFakeStorage();
+    var throwQuota = true;
+    var baseSet = fake.setItem.bind(fake);
+    fake.setItem = function (k, v) {
+        if (throwQuota) {
+            var e = new Error('quota');
+            e.name = 'QuotaExceededError';
+            throw e;
+        }
+        baseSet(k, v);
+    };
+    var s = Mod.createDebouncedStore({
+        key: 'k3b',
+        storage: fake,
+        debounceMs: 0,
+        maxBytes: 1024,
+        onError: function () {}
+    });
+    s.set({ a: 1 });
+    s.flush();
+    assert.strictEqual(fake.getItem('k3b'), null);
+    throwQuota = false;
+    s.flush();
+    assert.deepStrictEqual(JSON.parse(fake.getItem('k3b')), { a: 1 });
+});
+
 test('safeJSONParse devuelve null en JSON invalido', () => {
     var Mod = require(path.join(__dirname, '..', 'js', 'storage.js'));
     assert.strictEqual(Mod.safeJSONParse(''), null);

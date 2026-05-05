@@ -68,6 +68,7 @@
                 } else {
                     onError({ type: 'write', error: e });
                 }
+                return;
             }
             hasPending = false;
             pendingValue = null;
