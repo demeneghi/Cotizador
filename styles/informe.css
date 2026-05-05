@@ -26,13 +26,22 @@ body.informe .header {
     border-bottom: 3px solid var(--clay-brand-ochre);
 }
 
-body.informe .header h1 {
+body.informe .informe-header-row {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 2.5vw, 20px);
+    width: 100%;
+}
+
+body.informe .informe-header-row h1 {
+    flex: 1 1 0;
+    min-width: 0;
+    margin-bottom: 0;
     color: var(--clay-ink);
     font-family: var(--font-display);
     font-size: var(--type-h1-size);
     letter-spacing: var(--type-h1-tracking);
     line-height: var(--type-h1-lh);
-    margin-bottom: 8px;
 }
 
 body.informe .header p {
@@ -42,19 +51,30 @@ body.informe .header p {
 }
 
 /* Estado — acento lavender (no usado en cabecera ni tarjetas de precios del informe) */
+body.informe .informe-header-row .informe-estado-badge {
+    flex: 0 0 20%;
+    max-width: 20%;
+    align-self: center;
+}
+
 body.informe .informe-estado-badge {
-    display: inline-block;
-    margin-top: 14px;
-    padding: 7px 16px;
-    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 0;
+    padding: 7px 10px;
+    font-size: clamp(11px, 2.4vw, 13px);
     font-weight: 600;
     letter-spacing: 0.02em;
-    line-height: 1.35;
+    line-height: 1.25;
     color: var(--clay-brand-teal);
     background: var(--clay-brand-lavender);
     border: 1px solid rgba(26, 58, 58, 0.22);
     border-radius: var(--radius-pill);
     box-sizing: border-box;
+    word-break: break-word;
+    hyphens: auto;
 }
 
 .informe-actions {
@@ -485,21 +505,19 @@ body.informe .footer {
         padding: 24px;
     }
 
-    body.informe .header h1 {
+    body.informe .informe-header-row h1 {
         font-size: 24px;
         line-height: 1.3;
         letter-spacing: -0.3px;
-        margin-bottom: 4px;
     }
 
     body.informe .header p {
         font-size: 12px;
     }
 
-    body.informe .informe-estado-badge {
-        font-size: 12px;
-        padding: 6px 14px;
-        margin-top: 10px;
+    body.informe .informe-header-row .informe-estado-badge {
+        font-size: 11px;
+        padding: 6px 8px;
     }
 
     body.informe .content {
@@ -656,10 +674,15 @@ body.informe .footer {
         padding: 32px 24px;
     }
 
-    body.informe .header h1 {
+    body.informe .informe-header-row h1 {
         font-size: 32px;
         line-height: 1.15;
         letter-spacing: -0.5px;
+    }
+
+    body.informe .informe-header-row .informe-estado-badge {
+        font-size: clamp(10px, 2.8vw, 12px);
+        padding: 6px 6px;
     }
 
     body.informe .informe-actions {

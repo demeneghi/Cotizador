@@ -1,5 +1,5 @@
 /* Service worker. CACHE_NAME se sustituye automaticamente por scripts/build.cjs en cada release. */
-const CACHE_NAME = 'cotizador-pina-69961d6465f8';
+const CACHE_NAME = 'cotizador-pina-f26cc389a153';
 
 const urlsToCache = [
   './index.html',

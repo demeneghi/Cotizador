@@ -118,17 +118,20 @@
 
         var header = document.createElement('div');
         header.className = 'header';
+        var titleRow = document.createElement('div');
+        titleRow.className = 'informe-header-row';
         var h1 = document.createElement('h1');
-        setText(h1, BRAND.tituloInforme || 'Cotizacion de pina');
-        header.appendChild(h1);
+        setText(h1, BRAND.tituloInforme || 'Cotización de piña');
+        titleRow.appendChild(h1);
         if (informe.estado) {
             var badge = document.createElement('span');
             badge.className = 'informe-estado-badge';
             badge.setAttribute('role', 'status');
             badge.setAttribute('aria-label', 'Estado: ' + informe.estado);
             setText(badge, informe.estado);
-            header.appendChild(badge);
+            titleRow.appendChild(badge);
         }
+        header.appendChild(titleRow);
         container.appendChild(header);
 
         var actions = document.createElement('div');
@@ -345,7 +348,7 @@
         var foot = document.createElement('div');
         foot.className = 'footer';
         var strong = document.createElement('strong');
-        setText(strong, BRAND.tituloInforme || 'Cotizacion de pina');
+        setText(strong, BRAND.tituloInforme || 'Cotización de piña');
         foot.appendChild(strong);
         foot.appendChild(document.createElement('br'));
         var ft = document.createTextNode('Documento generado automaticamente el ' + informe.fecha + ' a las ' + informe.hora);
@@ -426,7 +429,7 @@
                     '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">\n' +
                     '<meta http-equiv="Content-Security-Policy" content="' + escapeHTML(DOWNLOAD_CSP) + '">\n' +
                     '<meta name="referrer" content="no-referrer">\n' +
-                    '<title>Cotizacion - Informe</title>\n' +
+                    '<title>Cotización - Informe</title>\n' +
                     '<style>' + safeCSS + '</style>\n' +
                     '</head>\n<body class="informe informe-export">\n<div class="container">\n' +
                     safeBody +

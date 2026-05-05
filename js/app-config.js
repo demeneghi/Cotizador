@@ -102,7 +102,7 @@ window.__APP_CONFIG__ = {
         },
         "brand": {
             "titulo": "Cotizador de pina",
-            "tituloInforme": "Cotizacion de pina",
+            "tituloInforme": "Cotización de piña",
             "subtituloPre": "ARU → ",
             "subtituloMid": "Sunrise",
             "subtituloPost": " ← CBP"
