@@ -1,22 +1,16 @@
 /**
- * Formato numérico compartido (cotizador, informe, tests Node).
+ * Compatibilidad: delega en CotizadorNumeric (modulo unico de formato).
  */
 (function (global) {
     'use strict';
 
-    function formatNumber(num) {
-        if (num == null || typeof num === 'boolean') return '0.00';
-        if (typeof num === 'string') {
-            num = Number(num.replace(/,/g, ''));
-        }
-        if (typeof num !== 'number' || isNaN(num) || !isFinite(num)) return '0.00';
-        return num.toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
+    var Numeric = global.CotizadorNumeric ||
+        (typeof require === 'function' ? require('./numeric.js') : null);
+    if (!Numeric) {
+        throw new Error('Falta CotizadorNumeric (cargar js/numeric.js antes)');
     }
 
-    var api = { formatNumber: formatNumber };
+    var api = { formatNumber: Numeric.formatNumber };
     global.CotizadorFormat = api;
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = api;

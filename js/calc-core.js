@@ -1,24 +1,25 @@
 /**
- * Núcleo de cálculos del cotizador (sin Alpine). Usado por la UI y por tests Node.
+ * Nucleo de calculos del cotizador (sin Alpine). Usado por la UI y por tests Node.
+ *
+ * Delega parseo numerico a CotizadorNumeric (modulo unico de parseo decimal).
  */
 (function (global) {
     'use strict';
 
+    var Numeric = global.CotizadorNumeric ||
+        (typeof require === 'function' ? require('./numeric.js') : null);
+    if (!Numeric) {
+        throw new Error('Falta CotizadorNumeric (cargar js/numeric.js antes)');
+    }
+
     function validarNumero(valor, minimo, maximo) {
-        minimo = minimo !== undefined ? minimo : 0;
-        maximo = maximo !== undefined ? maximo : Infinity;
-        var valorLimpio = typeof valor === 'string' ? valor.replace(/,/g, '') : valor;
-        var num = Number(valorLimpio);
-        if (isNaN(num) || !isFinite(num)) return minimo;
-        if (num < minimo) return minimo;
-        if (num > maximo) return maximo;
-        return num;
+        return Numeric.validarNumero(valor, minimo, maximo);
     }
 
     /**
-     * @param {object} params - tipo_cambio, costo_aduana_embarque, costo_carton_caja, costo_empaque_caja_mxn, costo_manejo_caja (mismos nombres que en UI)
+     * @param {object} params - tipo_cambio, costo_aduana_embarque, costo_carton_caja, costo_empaque_caja_mxn, costo_manejo_caja
      * @param {number|string} costoFleteMXN - flete en MXN para el tramo actual
-     * @param {number|string} cajas - número de cajas del tramo
+     * @param {number|string} cajas - numero de cajas del tramo
      */
     function calcularGastosEmbarque(params, costoFleteMXN, cajas) {
         var tipoCambio = params.tipo_cambio;
@@ -34,6 +35,10 @@
         return validarNumero(resultado, 0);
     }
 
+    /**
+     * Devuelve precio por kg en MXN. Si la cotizacion es inviable (precio neto
+     * negativo), retorna 0 para evitar mostrar valores irreales en la UI.
+     */
     function calcularPrecioKg(precioVenta, comisionVenta, gastosEmbarque, cajas, tipoCambio, pesoCaja) {
         var pv = validarNumero(precioVenta, 0);
         var cv = validarNumero(comisionVenta, 0, 100);
@@ -42,25 +47,23 @@
         var tc = validarNumero(tipoCambio, 0.01);
         var pc = validarNumero(pesoCaja, 0.01);
         var precioNeto = pv - (pv * cv / 100) - (ge / nc);
+        if (precioNeto < 0) return 0;
         var resultado = (precioNeto * tc) / pc;
         if (!isFinite(resultado) || isNaN(resultado)) return 0;
+        if (resultado < 0) return 0;
         return resultado;
     }
 
     /**
      * Promedio ponderado por calibre.
      * @param {Array<{porcentaje:(number|string), precio:(number|string)}>} calibres
-     *   El campo `size` es metadato y no se usa aqui.
      * @returns {{ total:number, sumaPct:number, ponderaciones:number[] }}
-     *   total: precio promedio ponderado.
-     *   sumaPct: suma cruda de % (sin tolerancia, para que la UI valide ~100).
-     *   ponderaciones: aporte de cada renglon ((p/100) * precio).
      */
     function calcularPrecioPonderado(calibres) {
         var ponderaciones = [];
         var total = 0;
         var sumaPct = 0;
-        if (!calibres || !calibres.length) {
+        if (!calibres || typeof calibres.length !== 'number' || calibres.length === 0) {
             return { total: 0, sumaPct: 0, ponderaciones: ponderaciones };
         }
         for (var i = 0; i < calibres.length; i++) {
