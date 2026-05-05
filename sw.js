@@ -1,5 +1,5 @@
 /* Service worker. CACHE_NAME se sustituye automaticamente por scripts/build.cjs en cada release. */
-const CACHE_NAME = 'cotizador-pina-4d4b01fb3dec';
+const CACHE_NAME = 'cotizador-pina-e404c601e986';
 
 const urlsToCache = [
   './index.html',
@@ -15,6 +15,7 @@ const urlsToCache = [
   './js/cotizador-main.js',
   './js/sw-register.js',
   './js/easter-sunrise-joke.js',
+  './js/sunrise-pride-joke.js',
   './js/informe-app.js',
   './js/vendor/alpine.min.js',
   './js/vendor/html2canvas.min.js',
@@ -24,6 +25,7 @@ const urlsToCache = [
   './icon-512.png',
   './styles.css',
   './styles/easter-sunrise-joke.css',
+  './styles/sunrise-pride-joke.css',
   './informe.html',
   './manifest.json'
 ];

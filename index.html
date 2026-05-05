@@ -22,7 +22,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=21">
 
     <link rel="stylesheet" href="styles.css">
-    <!-- Broma tap en "Sunrise": quitar este link + bloque #easterSunriseRoot + script easter-sunrise-joke.js + archivos styles/easter-sunrise-joke.css y js/easter-sunrise-joke.js + entradas en sw.js y scripts/build.cjs (SHA_FILES). -->
+    <!-- Bromas removibles "Sunrise": (1) orgullo + fases precio/kg -> styles/sunrise-pride-joke.css + js/sunrise-pride-joke.js + delegacion sunrisePrideClass en cotizador-main + :data-sunrise-pride en index. (2) modal confeti -> easter-sunrise-joke.* + bloque #easterSunriseRoot. Quitar todo lo anterior + entradas sw.js y SHA_FILES en scripts/build.cjs. -->
+    <link rel="stylesheet" href="styles/sunrise-pride-joke.css">
     <link rel="stylesheet" href="styles/easter-sunrise-joke.css">
 
     <script src="js/disable-mobile-zoom.js"></script>
@@ -39,6 +40,7 @@
     <script defer src="js/format-number.js"></script>
     <script defer src="js/storage.js"></script>
     <script defer src="js/inputs-format.js"></script>
+    <script defer src="js/sunrise-pride-joke.js"></script>
     <script defer src="js/cotizador-main.js"></script>
     <script defer src="js/vendor/alpine.min.js" integrity="sha384-iZD2X8o1Zdq0HR5H/7oa8W30WS4No+zWCKUPD7fHRay9I1Gf+C4F8sVmw7zec1wW" crossorigin="anonymous"></script>
     <script defer src="js/sw-register.js"></script>

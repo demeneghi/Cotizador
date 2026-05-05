@@ -7,11 +7,6 @@ body.easter-sunrise-no-scroll {
     overflow: hidden;
 }
 
-/* Pista de que "Sunrise" es interactivo (solo mientras exista este CSS) */
-.header p.brand-route .brand-route-season {
-    cursor: pointer;
-}
-
 .easter-sunrise-root.is-hidden {
     display: none !important;
 }

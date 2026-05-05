@@ -61,11 +61,6 @@
         font-size: 14px;
     }
 
-    .brand-route-pride-icon svg {
-        width: 15px;
-        height: 11px;
-    }
-
     .content {
         padding: 20px 12px;
         overflow-x: hidden;
@@ -348,11 +343,6 @@
 
     .header p {
         font-size: 15px;
-    }
-
-    .brand-route-pride-icon svg {
-        width: 14px;
-        height: 10px;
     }
 
     .content {

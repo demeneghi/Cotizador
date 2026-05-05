@@ -498,21 +498,13 @@
                 return Fmt.formatNumber(num);
             },
 
-            /**
-             * Orgullo visual en "Sunrise" según max(precio/kg MXN flete corto, largo):
-             * <=9 full; (9,11] oculta bandera izq.; (11,13] ambas; (13,15) texto atenuado; >=15 modo plain (sin banderas ni arcoíris).
-             * Valor final "plain" (no "none") para evitar colisiones con Alpine/CSS.
-             */
+            /** Fases orgullo "Sunrise": logica en js/sunrise-pride-joke.js (broma removible). */
             sunrisePrideClass: function () {
-                var a = Numeric.parseFlexible(this.precio_kg_corto);
-                var b = Numeric.parseFlexible(this.precio_kg_largo);
-                if (!isFinite(a) || !isFinite(b)) return 'full';
-                var m = Math.max(a, b);
-                if (m >= 15) return 'plain';
-                if (m <= 9) return 'full';
-                if (m <= 11) return 'minus-left';
-                if (m <= 13) return 'minus-both';
-                return 'text-wane';
+                var M = window.SunrisePrideJoke;
+                if (M && typeof M.computeClass === 'function') {
+                    return M.computeClass(this.precio_kg_corto, this.precio_kg_largo);
+                }
+                return 'plain';
             },
 
             exportarRespaldo: function () {

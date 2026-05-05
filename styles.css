@@ -186,33 +186,6 @@ body.informe .header h1,
     letter-spacing: var(--body-tracking);
 }
 
-/* Agrupa mini banderas orgullo + "Sunrise" + mini banderas (mismo SVG, ids distintos) */
-.brand-route-mid-wrap {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    vertical-align: baseline;
-    margin: 0 1px;
-}
-
-.brand-route-pride-icon {
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-    line-height: 0;
-    max-width: 48px;
-    opacity: 1;
-    transition: opacity 0.45s ease, max-width 0.45s ease, margin 0.45s ease, transform 0.45s ease;
-}
-
-.brand-route-pride-icon svg {
-    width: 17px;
-    height: 12px;
-    display: block;
-    border-radius: 2px;
-    box-shadow: 0 0 0 1px rgba(10, 10, 10, 0.1);
-}
-
 /* Subtítulo de marca: realce solo tipográfico. */
 .header p.brand-route {
     margin-top: 8px;
@@ -230,151 +203,24 @@ body.informe .header h1,
     font-variant-numeric: tabular-nums;
 }
 
-/* "Sunrise": base coral; arcoíris solo en fases de orgullo (ver data-sunrise-pride en Alpine) */
+/* "Sunrise" y banderas del pack broma: styles/sunrise-pride-joke.css. Sin ese archivo: layout minimo + ocultar banderas. */
+.brand-route-mid-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    vertical-align: baseline;
+    margin: 0 1px;
+}
+
 .header p.brand-route .brand-route-season {
     display: inline-block;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    color: var(--clay-brand-coral);
-    transition: filter 0.5s ease, opacity 0.5s ease;
-}
-
-.brand-route-mid-wrap[data-sunrise-pride="minus-left"] > .brand-route-pride-icon:first-of-type {
-    opacity: 0;
-    max-width: 0;
-    margin: 0;
-    overflow: hidden;
-    pointer-events: none;
-    transform: scale(0.6);
-}
-
-.brand-route-mid-wrap[data-sunrise-pride="minus-both"] > .brand-route-pride-icon,
-.brand-route-mid-wrap[data-sunrise-pride="text-wane"] > .brand-route-pride-icon {
-    opacity: 0;
-    max-width: 0;
-    margin: 0;
-    overflow: hidden;
-    pointer-events: none;
-    transform: scale(0.6);
-}
-
-/* >=15 MXN/kg: sin banderas, texto neutro (no arcoíris); "plain" evita valor reservado "none" */
-.brand-route-mid-wrap[data-sunrise-pride="plain"] {
-    gap: 0;
-}
-
-.brand-route-mid-wrap[data-sunrise-pride="plain"] > .brand-route-pride-icon {
-    display: none !important;
-}
-
-.header p.brand-route .brand-route-mid-wrap[data-sunrise-pride="plain"] .brand-route-season {
-    color: var(--clay-ink);
-    letter-spacing: 0.02em;
     font-weight: 700;
-    background: none !important;
-    background-image: none !important;
-    -webkit-text-fill-color: var(--clay-ink);
-    animation: none !important;
-    filter: none !important;
-    -webkit-background-clip: border-box !important;
-    background-clip: border-box !important;
+    letter-spacing: 0.02em;
+    color: var(--clay-brand-coral);
 }
 
-@supports ((-webkit-background-clip: text) or (background-clip: text)) {
-    .brand-route-mid-wrap:not([data-sunrise-pride]) .brand-route-season,
-    .brand-route-mid-wrap[data-sunrise-pride="full"] .brand-route-season,
-    .brand-route-mid-wrap[data-sunrise-pride="minus-left"] .brand-route-season,
-    .brand-route-mid-wrap[data-sunrise-pride="minus-both"] .brand-route-season {
-        color: transparent;
-        -webkit-text-fill-color: transparent;
-        background-image: linear-gradient(
-            110deg,
-            #e40303 0%,
-            #ff5900 14%,
-            #ffed00 28%,
-            #00c853 42%,
-            #24408e 58%,
-            #750787 74%,
-            #ff218e 88%,
-            #e40303 100%
-        );
-        background-size: 220% 100%;
-        background-position: 0% 50%;
-        -webkit-background-clip: text;
-        background-clip: text;
-        animation: brandRoutePrideShift 14s ease-in-out infinite alternate;
-        filter: none;
-    }
-
-    .brand-route-mid-wrap[data-sunrise-pride="text-wane"] .brand-route-season {
-        color: transparent;
-        -webkit-text-fill-color: transparent;
-        background-image: linear-gradient(
-            110deg,
-            #e40303 0%,
-            #ff5900 14%,
-            #ffed00 28%,
-            #00c853 42%,
-            #24408e 58%,
-            #750787 74%,
-            #ff218e 88%,
-            #e40303 100%
-        );
-        background-size: 220% 100%;
-        background-position: 0% 50%;
-        -webkit-background-clip: text;
-        background-clip: text;
-        animation: brandRoutePrideShift 22s ease-in-out infinite alternate;
-        filter: saturate(0.42) brightness(1.05);
-    }
-
-    .brand-route-mid-wrap[data-sunrise-pride="plain"] .brand-route-season {
-        color: var(--clay-ink) !important;
-        -webkit-text-fill-color: var(--clay-ink) !important;
-        background: none !important;
-        background-image: none !important;
-        -webkit-background-clip: border-box !important;
-        background-clip: border-box !important;
-        animation: none !important;
-        filter: none !important;
-    }
-}
-
-@keyframes brandRoutePrideShift {
-    0% {
-        background-position: 0% 50%;
-    }
-
-    100% {
-        background-position: 100% 50%;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .brand-route-mid-wrap:not([data-sunrise-pride]) .brand-route-season,
-    .brand-route-mid-wrap[data-sunrise-pride="full"] .brand-route-season,
-    .brand-route-mid-wrap[data-sunrise-pride="minus-left"] .brand-route-season,
-    .brand-route-mid-wrap[data-sunrise-pride="minus-both"] .brand-route-season,
-    .brand-route-mid-wrap[data-sunrise-pride="text-wane"] .brand-route-season {
-        animation: none;
-        background-size: 100% 100%;
-        background-position: 0% 50%;
-    }
-}
-
-@media print {
-    .header p.brand-route .brand-route-season {
-        color: var(--clay-ink);
-        -webkit-text-fill-color: var(--clay-ink);
-        background: none;
-        background-image: none;
-        animation: none;
-        filter: none;
-    }
-
-    .brand-route-mid-wrap > .brand-route-pride-icon {
-        display: none;
-    }
+.brand-route-pride-icon {
+    display: none;
 }
 
 /* Header centrado (solo aplica con la clase modificadora; preserva informe.html). */
@@ -1248,11 +1094,6 @@ body.update-modal-open {
         font-size: 14px;
     }
 
-    .brand-route-pride-icon svg {
-        width: 15px;
-        height: 11px;
-    }
-
     .content {
         padding: 20px 12px;
         overflow-x: hidden;
@@ -1535,11 +1376,6 @@ body.update-modal-open {
 
     .header p {
         font-size: 15px;
-    }
-
-    .brand-route-pride-icon svg {
-        width: 14px;
-        height: 10px;
     }
 
     .content {
