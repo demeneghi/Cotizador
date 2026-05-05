@@ -186,50 +186,27 @@ body.informe .header h1,
     letter-spacing: var(--body-tracking);
 }
 
-/* Subtítulo de marca tipo "boarding pass": chip cálido y vivo. */
+/* Subtítulo de marca: realce solo tipográfico. */
 .header p.brand-route {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 6px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background:
-        linear-gradient(135deg,
-            rgba(255, 176, 132, 0.30) 0%,
-            rgba(255, 77, 139, 0.18) 50%,
-            rgba(232, 185, 74, 0.30) 100%);
-    border: 1px solid rgba(255, 107, 90, 0.35);
-    box-shadow:
-        0 1px 0 rgba(10, 10, 10, 0.04),
-        inset 0 1px 0 rgba(255, 255, 255, 0.45);
-    color: var(--clay-brand-teal);
+    margin-top: 8px;
+    font-size: 17px;
     font-weight: 600;
-    font-size: 14px;
-    letter-spacing: 0.01em;
-    line-height: 1.2;
-    white-space: nowrap;
+    color: var(--clay-ink);
+    letter-spacing: 0.02em;
+    line-height: 1.35;
 }
 
 .header p.brand-route .brand-route-code {
-    color: var(--clay-brand-teal);
-    font-weight: 700;
+    color: var(--clay-ink);
+    font-weight: 600;
     letter-spacing: 0.06em;
     font-variant-numeric: tabular-nums;
 }
 
 .header p.brand-route .brand-route-season {
-    background: linear-gradient(
-        90deg,
-        var(--clay-brand-coral) 0%,
-        var(--clay-brand-pink) 55%,
-        var(--clay-brand-ochre) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--clay-brand-coral);
     font-weight: 800;
-    letter-spacing: 0.02em;
-    padding: 0 2px;
+    letter-spacing: 0.01em;
 }
 
 /* Header centrado (solo aplica con la clase modificadora; preserva informe.html). */
