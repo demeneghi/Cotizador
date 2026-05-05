@@ -183,14 +183,19 @@ body.informe .header h1,
 .estado-tabs {
     display: flex;
     justify-content: flex-start;
+    align-items: stretch;
     gap: 8px;
     margin-top: 24px;
-    flex-wrap: wrap;
+    width: 100%;
+    flex-wrap: nowrap;
     border-bottom: none;
+    box-sizing: border-box;
 }
 
 .estado-tab {
-    padding: 8px 16px;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 8px 12px;
     border: 1px solid var(--clay-hairline);
     margin-bottom: 0;
     background: transparent;
@@ -203,6 +208,7 @@ body.informe .header h1,
     letter-spacing: var(--body-tracking);
     transition: color 0.15s, background 0.15s, border-color 0.15s;
     min-height: 44px;
+    text-align: center;
     -webkit-appearance: none;
     appearance: none;
     -webkit-tap-highlight-color: transparent;
