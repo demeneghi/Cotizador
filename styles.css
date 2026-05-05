@@ -1728,6 +1728,92 @@ body.informe .resultados-grid .resultado-card:nth-child(2) .resultado-unit {
     color: var(--clay-on-dark-soft);
 }
 
+/* Tabs para alternar entre Flete corto y Flete largo (solo pantalla) */
+body.informe .flujo-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 4px;
+    background: var(--clay-surface-soft);
+    border: 1px solid var(--clay-hairline);
+    border-radius: var(--radius-pill);
+    width: fit-content;
+}
+
+body.informe .flujo-tab {
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: var(--clay-ink-muted);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    padding: 8px 18px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+body.informe .flujo-tab:hover {
+    color: var(--clay-ink);
+}
+
+body.informe .flujo-tab.is-active {
+    background: var(--clay-ink);
+    color: var(--clay-on-primary);
+}
+
+body.informe .flujo-tab:focus-visible {
+    outline: 2px solid var(--clay-brand-ochre);
+    outline-offset: 2px;
+}
+
+/* Cuando hay tabs, una sola columna ocupa el ancho completo */
+body.informe .flujo-grid {
+    display: block;
+}
+
+body.informe .flujo-columna--inactive {
+    display: none;
+}
+
+/* Modo exportacion (print + descargas): muestra ambos flujos, oculta tabs */
+@media print {
+    body.informe .flujo-tabs {
+        display: none !important;
+    }
+
+    body.informe .flujo-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    body.informe .flujo-columna--inactive {
+        display: block !important;
+    }
+
+    body.informe .flujo-columna[hidden] {
+        display: block !important;
+    }
+}
+
+body.informe-export .flujo-tabs {
+    display: none !important;
+}
+
+body.informe-export .flujo-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+body.informe-export .flujo-columna--inactive,
+body.informe-export .flujo-columna[hidden] {
+    display: block !important;
+}
+
 .flujo-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;

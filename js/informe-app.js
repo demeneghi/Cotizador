@@ -253,18 +253,82 @@
         st3.className = 'section-title';
         setText(st3, 'Flujo de calculos detallado');
         sec3.appendChild(st3);
+
+        var tabs = document.createElement('div');
+        tabs.className = 'flujo-tabs';
+        tabs.setAttribute('role', 'tablist');
+        tabs.setAttribute('aria-label', 'Flujo de calculos');
+        var tabCorto = document.createElement('button');
+        tabCorto.type = 'button';
+        tabCorto.className = 'flujo-tab is-active';
+        tabCorto.id = 'flujo-tab-corto';
+        tabCorto.setAttribute('role', 'tab');
+        tabCorto.setAttribute('aria-controls', 'flujo-panel-corto');
+        tabCorto.setAttribute('aria-selected', 'true');
+        tabCorto.tabIndex = 0;
+        setText(tabCorto, 'Flete corto');
+        var tabLargo = document.createElement('button');
+        tabLargo.type = 'button';
+        tabLargo.className = 'flujo-tab';
+        tabLargo.id = 'flujo-tab-largo';
+        tabLargo.setAttribute('role', 'tab');
+        tabLargo.setAttribute('aria-controls', 'flujo-panel-largo');
+        tabLargo.setAttribute('aria-selected', 'false');
+        tabLargo.tabIndex = -1;
+        setText(tabLargo, 'Flete largo');
+        tabs.appendChild(tabCorto);
+        tabs.appendChild(tabLargo);
+        sec3.appendChild(tabs);
+
         var fg = document.createElement('div');
         fg.className = 'flujo-grid';
         var colC = document.createElement('div');
         colC.className = 'flujo-columna';
+        colC.id = 'flujo-panel-corto';
+        colC.setAttribute('role', 'tabpanel');
+        colC.setAttribute('aria-labelledby', 'flujo-tab-corto');
         appendCalcSteps(colC, 'Flete corto', informe.calcCorto);
         var colL = document.createElement('div');
-        colL.className = 'flujo-columna';
+        colL.className = 'flujo-columna flujo-columna--inactive';
+        colL.id = 'flujo-panel-largo';
+        colL.setAttribute('role', 'tabpanel');
+        colL.setAttribute('aria-labelledby', 'flujo-tab-largo');
+        colL.hidden = true;
         appendCalcSteps(colL, 'Flete largo', informe.calcLargo);
         fg.appendChild(colC);
         fg.appendChild(colL);
         sec3.appendChild(fg);
         content.appendChild(sec3);
+
+        function activarTab(activeBtn, inactiveBtn, activePanel, inactivePanel, focus) {
+            activeBtn.classList.add('is-active');
+            activeBtn.setAttribute('aria-selected', 'true');
+            activeBtn.tabIndex = 0;
+            inactiveBtn.classList.remove('is-active');
+            inactiveBtn.setAttribute('aria-selected', 'false');
+            inactiveBtn.tabIndex = -1;
+            activePanel.classList.remove('flujo-columna--inactive');
+            activePanel.hidden = false;
+            inactivePanel.classList.add('flujo-columna--inactive');
+            inactivePanel.hidden = true;
+            if (focus) activeBtn.focus();
+        }
+
+        tabCorto.addEventListener('click', function () {
+            activarTab(tabCorto, tabLargo, colC, colL, false);
+        });
+        tabLargo.addEventListener('click', function () {
+            activarTab(tabLargo, tabCorto, colL, colC, false);
+        });
+        function onTabKeydown(e) {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Home' && e.key !== 'End') return;
+            e.preventDefault();
+            var goCorto = e.key === 'ArrowLeft' || e.key === 'Home';
+            if (goCorto) activarTab(tabCorto, tabLargo, colC, colL, true);
+            else activarTab(tabLargo, tabCorto, colL, colC, true);
+        }
+        tabCorto.addEventListener('keydown', onTabKeydown);
+        tabLargo.addEventListener('keydown', onTabKeydown);
 
         var sec4 = document.createElement('div');
         sec4.className = 'section';
@@ -379,7 +443,7 @@
                     '<meta name="referrer" content="no-referrer">\n' +
                     '<title>Cotizacion - Informe</title>\n' +
                     '<style>' + safeCSS + '</style>\n' +
-                    '</head>\n<body class="informe">\n<div class="container">\n' +
+                    '</head>\n<body class="informe informe-export">\n<div class="container">\n' +
                     safeBody +
                     '\n</div>\n</body>\n</html>';
 
@@ -431,6 +495,7 @@
         }
         ensureHtml2canvas().then(function (h2c) {
             if (botones) botones.classList.add('informe-actions--hidden');
+            document.body.classList.add('informe-export');
             var devMem = (typeof navigator !== 'undefined' && typeof navigator.deviceMemory === 'number') ? navigator.deviceMemory : 4;
             var scale = devMem < 4 ? 1 : 2;
             var width = container.offsetWidth || 900;
@@ -443,6 +508,7 @@
             });
         }).then(function (canvas) {
             if (botones) botones.classList.remove('informe-actions--hidden');
+            document.body.classList.remove('informe-export');
             canvas.toBlob(function (blob) {
                 if (!blob) {
                     window.alert('No se pudo generar la imagen (blob vacio).');
@@ -461,6 +527,7 @@
             });
         }).catch(function (err) {
             if (botones) botones.classList.remove('informe-actions--hidden');
+            document.body.classList.remove('informe-export');
             console.error('Error generando imagen:', err);
             window.alert('Error al generar la imagen: ' + (err && err.message ? err.message : 'desconocido'));
         });
