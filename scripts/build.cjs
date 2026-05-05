@@ -29,6 +29,7 @@ const SW_PATH = path.join(ROOT, 'sw.js');
 const SHA_PATH = path.join(ROOT, 'SHA256SUMS');
 const STYLES_PATH = path.join(ROOT, 'styles.css');
 const INDEX_HTML_PATH = path.join(ROOT, 'index.html');
+const INFORME_HTML_PATH = path.join(ROOT, 'informe.html');
 const STYLE_PARTIALS = [
     'styles/tokens-and-base.css',
     'styles/responsive.css',
@@ -141,6 +142,24 @@ function updateSwCacheName(swText, version) {
     return swText.replace(re, '$1cotizador-pina-' + version + '$3');
 }
 
+/** Evita que el SW o el cache HTTP sirvan informe-app.js / styles.css viejos al abrir informe.html */
+function applyInformeHtmlCacheBust(htmlText, version) {
+    const q = '?v=' + version;
+    return htmlText
+        .replace(/href="styles\.css(\?v=[^"]*)?"/, 'href="styles.css' + q + '"')
+        .replace(/src="js\/app-config\.js(\?v=[^"]*)?"/, 'src="js/app-config.js' + q + '"')
+        .replace(/src="js\/theme-meta\.js(\?v=[^"]*)?"/, 'src="js/theme-meta.js' + q + '"')
+        .replace(/src="js\/numeric\.js(\?v=[^"]*)?"/, 'src="js/numeric.js' + q + '"')
+        .replace(/src="js\/format-number\.js(\?v=[^"]*)?"/, 'src="js/format-number.js' + q + '"')
+        .replace(/src="js\/informe-validate\.js(\?v=[^"]*)?"/, 'src="js/informe-validate.js' + q + '"')
+        .replace(/src="js\/informe-app\.js(\?v=[^"]*)?"/, 'src="js/informe-app.js' + q + '"');
+}
+
+/** El hash agregado no debe depender del ?v= de informe.html (evita oscilacion al escribir el archivo). */
+function stripInformeHtmlCacheQuery(htmlText) {
+    return String(htmlText).replace(/\?v=[a-f0-9]+/gi, '');
+}
+
 function generateShaSums() {
     const lines = [];
     for (const rel of SHA_FILES) {
@@ -189,12 +208,20 @@ function main() {
     ];
     for (const rel of otherForHash) {
         const abs = path.join(ROOT, rel);
-        if (fs.existsSync(abs)) aggregate[rel] = fs.readFileSync(abs);
+        if (!fs.existsSync(abs)) continue;
+        if (rel === 'informe.html') {
+            aggregate[rel] = Buffer.from(stripInformeHtmlCacheQuery(read(abs)), 'utf8');
+        } else {
+            aggregate[rel] = fs.readFileSync(abs);
+        }
     }
     const cacheVersion = aggregateHashFromMap(aggregate);
 
     const swCurrent = read(SW_PATH);
     const swDesired = updateSwCacheName(swCurrent, cacheVersion);
+
+    const informeHtmlCurrent = read(INFORME_HTML_PATH);
+    const informeHtmlDesired = applyInformeHtmlCacheBust(informeHtmlCurrent, cacheVersion);
 
     if (CHECK_MODE) {
         if (appJsonRaw !== appJsonText) {
@@ -215,6 +242,10 @@ function main() {
             console.error('CACHE_NAME desactualizado en sw.js (esperado cotizador-pina-' + cacheVersion + ')');
             process.exit(1);
         }
+        if (informeHtmlCurrent !== informeHtmlDesired) {
+            console.error('informe.html desactualizado (parametro ?v= para bust de cache)');
+            process.exit(1);
+        }
         const desiredSha = generateShaSums();
         const currentSha = fs.existsSync(SHA_PATH) ? read(SHA_PATH) : '';
         if (desiredSha !== currentSha) {
@@ -230,6 +261,7 @@ function main() {
     write(INDEX_HTML_PATH, indexDesired);
     write(STYLES_PATH, desiredStyles);
     write(SW_PATH, swDesired);
+    write(INFORME_HTML_PATH, informeHtmlDesired);
     write(SHA_PATH, generateShaSums());
     console.log('Build aplicado. CACHE_NAME=cotizador-pina-' + cacheVersion);
 }
