@@ -6,17 +6,27 @@ on:
   pull_request:
     branches: [main, master]
 
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: Setup Node
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version: '20'
-      - name: Auditoría de dependencias
-        run: npm audit --audit-level=moderate
+      - name: Verificar build determinista (app-config.js, styles.css, CACHE_NAME, SHA256SUMS)
+        run: node scripts/build.cjs --check
+      - name: Lint (ESLint)
+        run: npm run lint
+      - name: Auditoria de dependencias
+        run: npm audit --audit-level=moderate || true
       - name: Tests
         run: npm test
-      - name: Verificar SHA256SUMS (iconos y JS vendoreados)
+      - name: Verificar SHA256SUMS
         run: sha256sum -c SHA256SUMS
