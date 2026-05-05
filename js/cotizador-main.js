@@ -254,30 +254,36 @@
                     self.calcular();
                 });
 
-                function persistirAntesDeIrse() {
-                    self.scheduleGuardar();
-                    self.scheduleGuardarPonderado();
-                    dataStore.flush();
-                    ponderadoStore.flush();
+                /** Solo volcar debounce a disco: NO llamar scheduleGuardar aqui.
+                 * En movil (p. ej. hoja compartir iOS) Alpine puede verse vacio un instante en pagehide;
+                 * buildPersistedSnapshot borraria localStorage con datos buenos. */
+                function flushStoresSolamente() {
+                    try {
+                        dataStore.flush();
+                        ponderadoStore.flush();
+                    } catch (e) {
+                        console.warn('flushStoresSolamente:', e && e.message);
+                    }
                 }
 
-                window.addEventListener('beforeunload', persistirAntesDeIrse);
-                window.addEventListener('pagehide', persistirAntesDeIrse);
+                window.addEventListener('beforeunload', flushStoresSolamente);
+                window.addEventListener('pagehide', flushStoresSolamente);
 
                 window.addEventListener('pageshow', function (ev) {
-                    if (!ev || !ev.persisted) return;
-                    try {
-                        self.cargarConfiguracion();
-                        self.cargarPonderado();
-                        self.calcular();
-                        self.calcularPonderado();
-                    } catch (e) {
-                        console.warn('pageshow BFCache:', e && e.message);
+                    if (ev && ev.persisted) {
+                        try {
+                            self.cargarConfiguracion();
+                            self.cargarPonderado();
+                            self.calcular();
+                            self.calcularPonderado();
+                        } catch (e) {
+                            console.warn('pageshow BFCache:', e && e.message);
+                        }
                     }
                 });
 
                 if (typeof document !== 'undefined' && 'onfreeze' in document) {
-                    document.addEventListener('freeze', persistirAntesDeIrse);
+                    document.addEventListener('freeze', flushStoresSolamente);
                 }
             },
 
@@ -465,11 +471,9 @@
                 }
             },
 
-            /** Persistencia sincrona (SW reload, moviles donde beforeunload falla). */
+            /** Volcar debounce a disco antes de recarga SW (no reconstruir snapshot desde Alpine aqui). */
             volcarPersistenciaSync: function () {
                 try {
-                    this.scheduleGuardar();
-                    this.scheduleGuardarPonderado();
                     dataStore.flush();
                     ponderadoStore.flush();
                 } catch (e) {
