@@ -18,33 +18,40 @@
     var PONDERADO_CALIBRES = PONDERADO_CFG.calibres || [];
     var PONDERADO_DEFAULTS = PONDERADO_CFG.valoresPredeterminados || {};
     var PONDERADO_TOL = typeof PONDERADO_CFG.tolerancia_suma_pct === 'number' ? PONDERADO_CFG.tolerancia_suma_pct : 0.01;
+    var INFORME_CFG = CFG.informe || {};
+    var MAX_HASH_URL_CHARS = typeof INFORME_CFG.maxHashUrlChars === 'number' ? INFORME_CFG.maxHashUrlChars : 48000;
+    var INFORME_SCHEMA = typeof INFORME_CFG.informeJsonSchemaVersion === 'number' ? INFORME_CFG.informeJsonSchemaVersion : 2;
+    var STORAGE_LIMITS = CFG.storageLimits || {};
+    var MAX_BACKUP_BYTES = typeof STORAGE_LIMITS.maxBackupBytes === 'number' ? STORAGE_LIMITS.maxBackupBytes : 256 * 1024;
+    var MAX_DATA_BYTES = typeof STORAGE_LIMITS.maxDataBytes === 'number' ? STORAGE_LIMITS.maxDataBytes : 512 * 1024;
+    var DEBOUNCE_MS = typeof STORAGE_LIMITS.debounceMs === 'number' ? STORAGE_LIMITS.debounceMs : 250;
+    var BRAND = CFG.brand || {};
 
-    function crearCalibresDesdeDefaults() {
-        var arr = [];
-        for (var i = 0; i < PONDERADO_CALIBRES.length; i++) {
-            var size = PONDERADO_CALIBRES[i];
-            var def = PONDERADO_DEFAULTS[size] || { porcentaje: '', precio: '' };
-            arr.push({
-                size: size,
-                porcentaje: def.porcentaje !== undefined && def.porcentaje !== null ? def.porcentaje : '',
-                precio: def.precio !== undefined && def.precio !== null ? def.precio : ''
-            });
-        }
-        return arr;
-    }
     var Calc = window.CotizadorCalc;
-    if (!Calc) {
-        throw new Error('Falta CotizadorCalc (cargar js/calc-core.js antes)');
-    }
+    if (!Calc) throw new Error('Falta CotizadorCalc (cargar js/calc-core.js antes)');
+    var Numeric = window.CotizadorNumeric;
+    if (!Numeric) throw new Error('Falta CotizadorNumeric (cargar js/numeric.js antes)');
     var Fmt = window.CotizadorFormat;
-    if (!Fmt) {
-        throw new Error('Falta CotizadorFormat (cargar js/format-number.js antes)');
-    }
+    if (!Fmt) throw new Error('Falta CotizadorFormat (cargar js/format-number.js antes)');
+    var StorageMod = window.CotizadorStorage;
+    if (!StorageMod) throw new Error('Falta CotizadorStorage (cargar js/storage.js antes)');
 
     function dbg() {
         if (CFG.debug) {
             console.log.apply(console, arguments);
         }
+    }
+
+    /**
+     * No mostrar "cotizacion inviable" por precio neto negativo mientras el
+     * usuario parece seguir escribiendo el precio (un solo digito o decimal en curso).
+     */
+    function precioVentaParcialParaAdvertencia(precioStr) {
+        var t = String(precioStr == null ? '' : precioStr).trim();
+        if (!t) return false;
+        if (/^\d$/.test(t)) return true;
+        if (/[.,]$/.test(t)) return true;
+        return false;
     }
 
     function mostrarErrorCotizador(mensaje) {
@@ -61,11 +68,34 @@
         }
     }
 
+    function crearCalibresDesdeDefaults() {
+        var arr = [];
+        for (var i = 0; i < PONDERADO_CALIBRES.length; i++) {
+            var size = PONDERADO_CALIBRES[i];
+            var def = PONDERADO_DEFAULTS[size] || { porcentaje: '', precio: '' };
+            arr.push({
+                size: size,
+                porcentaje: def.porcentaje !== undefined && def.porcentaje !== null ? def.porcentaje : '',
+                precio: def.precio !== undefined && def.precio !== null ? def.precio : ''
+            });
+        }
+        return arr;
+    }
+
     function crearValoresEstadoDesdeDefaults() {
         var o = {};
         for (var i = 0; i < CAMPOS_PERSISTIBLES.length; i++) {
             var k = CAMPOS_PERSISTIBLES[i];
             o[k] = VALORES_PREDETERMINADOS[k];
+        }
+        return o;
+    }
+
+    function copiarEstado(src) {
+        var o = {};
+        for (var i = 0; i < CAMPOS_PERSISTIBLES.length; i++) {
+            var k = CAMPOS_PERSISTIBLES[i];
+            o[k] = src[k];
         }
         return o;
     }
@@ -95,21 +125,18 @@
         return out;
     }
 
+    function buildDefaultEstadosObj() {
+        var def = crearValoresEstadoDesdeDefaults();
+        var est = {};
+        for (var i = 0; i < ESTADOS_DISPONIBLES.length; i++) {
+            est[ESTADOS_DISPONIBLES[i].key] = copiarEstado(def);
+        }
+        return est;
+    }
+
     function normalizarDatosV2(parsed) {
         if (!parsed || typeof parsed !== 'object') {
-            var def0 = crearValoresEstadoDesdeDefaults();
-            var est0 = {};
-            for (var j = 0; j < ESTADOS_DISPONIBLES.length; j++) {
-                var ek = ESTADOS_DISPONIBLES[j].key;
-                var copy = {};
-                for (var ck in def0) {
-                    if (Object.prototype.hasOwnProperty.call(def0, ck)) {
-                        copy[ck] = def0[ck];
-                    }
-                }
-                est0[ek] = copy;
-            }
-            return { version: 2, estado_activo: ESTADO_DEFAULT, estados: est0 };
+            return { version: 2, estado_activo: ESTADO_DEFAULT, estados: buildDefaultEstadosObj() };
         }
         var def = crearValoresEstadoDesdeDefaults();
         var estados = {};
@@ -121,45 +148,55 @@
         var activo = parsed.estado_activo;
         var valido = false;
         for (var v = 0; v < ESTADOS_DISPONIBLES.length; v++) {
-            if (ESTADOS_DISPONIBLES[v].key === activo) {
-                valido = true;
-                break;
-            }
+            if (ESTADOS_DISPONIBLES[v].key === activo) { valido = true; break; }
         }
         if (!valido) activo = ESTADO_DEFAULT;
         return { version: 2, estado_activo: activo, estados: estados };
     }
 
+    var dataStore = StorageMod.createDebouncedStore({
+        key: STORAGE_KEY,
+        debounceMs: DEBOUNCE_MS,
+        maxBytes: MAX_DATA_BYTES,
+        onError: function (info) {
+            console.error('storage data', info);
+            if (info && info.type === 'quota') {
+                mostrarErrorCotizador('Almacenamiento lleno. Libera espacio del navegador o borra datos del sitio.');
+            } else if (info && info.type === 'too_large') {
+                mostrarErrorCotizador('Configuracion demasiado grande para almacenar.');
+            }
+        }
+    });
+
+    var ponderadoStore = StorageMod.createDebouncedStore({
+        key: STORAGE_PONDERADO,
+        debounceMs: DEBOUNCE_MS,
+        maxBytes: MAX_DATA_BYTES,
+        onError: function (info) {
+            if (info && info.type === 'quota') {
+                mostrarErrorCotizador('Almacenamiento lleno. Libera espacio del navegador o borra datos del sitio.');
+            }
+        }
+    });
+
     function cotizador() {
-        return {
+        var initialEstado = crearValoresEstadoDesdeDefaults();
+        var base = {
             estadosDisponibles: ESTADOS_DISPONIBLES,
             estadoActivo: ESTADO_DEFAULT,
-
-            precio_venta: '',
-            tipo_cambio: VALORES_PREDETERMINADOS.tipo_cambio,
-            comision_venta: VALORES_PREDETERMINADOS.comision_venta,
-            peso_caja: VALORES_PREDETERMINADOS.peso_caja,
-
-            costo_flete_corto_mxn: VALORES_PREDETERMINADOS.costo_flete_corto_mxn,
-            costo_flete_largo_mxn: VALORES_PREDETERMINADOS.costo_flete_largo_mxn,
-
-            costo_aduana_embarque: VALORES_PREDETERMINADOS.costo_aduana_embarque,
-            costo_carton_caja: VALORES_PREDETERMINADOS.costo_carton_caja,
-            costo_empaque_caja_mxn: VALORES_PREDETERMINADOS.costo_empaque_caja_mxn,
-            costo_manejo_caja: VALORES_PREDETERMINADOS.costo_manejo_caja,
-            costo_sobrepeso_embarque: VALORES_PREDETERMINADOS.costo_sobrepeso_embarque,
-
-            cajas_flete_corto: VALORES_PREDETERMINADOS.cajas_flete_corto,
-            cajas_flete_largo: VALORES_PREDETERMINADOS.cajas_flete_largo,
+            brandTitulo: BRAND.titulo || 'Cotizador de pina',
+            brandSubtituloPre: BRAND.subtituloPre || '',
+            brandSubtituloMid: BRAND.subtituloMid || '',
+            brandSubtituloPost: BRAND.subtituloPost || '',
 
             precio_kg_corto: 0,
             precio_kg_largo: 0,
+            precioInviable: false,
 
             mostrarParametros: false,
 
             configuracionGuardada: false,
-
-            tabActivo: 'basico', // 'basico' | 'avanzado'
+            tabActivo: 'basico',
 
             calibres: crearCalibresDesdeDefaults(),
             ponderaciones: (function () {
@@ -173,6 +210,20 @@
             ponderadoAplicadoOk: false,
             mostrarModalLimpiar: false,
 
+            _saveTimer: null,
+            _ponderadoSaveTimer: null,
+            _toastTimers: [],
+            _modalTriggerEl: null,
+            _modalKeydownHandler: null,
+            _externalUnsubscribe: null
+        };
+        for (var i = 0; i < CAMPOS_PERSISTIBLES.length; i++) {
+            var k = CAMPOS_PERSISTIBLES[i];
+            base[k] = initialEstado[k];
+        }
+        base.precio_venta = '';
+
+        return Object.assign(base, {
             init: function () {
                 this.cargarConfiguracion();
                 this.cargarPonderado();
@@ -180,34 +231,67 @@
                 this.calcularPonderado();
                 if (!this.estadoDestinoPonderado) this.estadoDestinoPonderado = this.estadoActivo;
 
+                var self = this;
                 this.$nextTick(function () {
                     CAMPOS_PERSISTIBLES.forEach(function (campo) {
-                        this.$watch(campo, function () {
-                            this.guardarEnLocalStorage();
-                            this.configuracionGuardada = false;
-                            this.calcular();
-                        }.bind(this));
-                    }.bind(this));
+                        self.$watch(campo, function () {
+                            self.scheduleGuardar();
+                            self.configuracionGuardada = false;
+                            self.calcular();
+                        });
+                    });
+                    self.$watch('calibres', function () {
+                        self.calcularPonderado();
+                        self.scheduleGuardarPonderado();
+                    }, { deep: true });
+                });
 
-                    /* Watcher profundo del array de calibres: recalcula y persiste. */
-                    this.$watch('calibres', function () {
-                        this.calcularPonderado();
-                        this.guardarPonderadoEnLocalStorage();
-                    }.bind(this), { deep: true });
-                }.bind(this));
+                this._externalUnsubscribe = dataStore.onExternalChange(function (parsed) {
+                    if (!parsed) return;
+                    var data = normalizarDatosV2(parsed);
+                    self.estadoActivo = data.estado_activo;
+                    self.aplicarDatos(data.estados[self.estadoActivo], false);
+                    self.calcular();
+                });
+
+                window.addEventListener('beforeunload', function () {
+                    dataStore.flush();
+                    ponderadoStore.flush();
+                });
+                window.addEventListener('pagehide', function () {
+                    dataStore.flush();
+                    ponderadoStore.flush();
+                });
+            },
+
+            scheduleGuardar: function () {
+                dataStore.set(this.buildPersistedSnapshot());
+            },
+
+            scheduleGuardarPonderado: function () {
+                ponderadoStore.set({ version: 1, calibres: this.calibres });
+            },
+
+            buildPersistedSnapshot: function () {
+                var raw = dataStore.getRaw();
+                var parsed = StorageMod.safeJSONParse(raw);
+                var data = parsed ? normalizarDatosV2(parsed) : normalizarDatosV2(null);
+                data.estado_activo = this.estadoActivo;
+                data.estados[this.estadoActivo] = this.getPersistibleSnapshot();
+                return data;
             },
 
             cargarConfiguracion: function () {
                 try {
-                    var rawV2 = localStorage.getItem(STORAGE_KEY);
+                    var parsedV2 = dataStore.get();
                     var data;
-
-                    if (rawV2) {
-                        data = normalizarDatosV2(JSON.parse(rawV2));
+                    if (parsedV2) {
+                        data = normalizarDatosV2(parsedV2);
                     } else {
-                        var legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
+                        var legacyRaw = null;
+                        try { legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY); } catch (eLeg) { /* ignore */ }
                         if (legacyRaw) {
-                            var legacyParsed = JSON.parse(legacyRaw);
+                            var legacyParsed = StorageMod.safeJSONParse(legacyRaw);
                             var estadosMigr = {};
                             for (var mi = 0; mi < ESTADOS_DISPONIBLES.length; mi++) {
                                 var mkey = ESTADOS_DISPONIBLES[mi].key;
@@ -217,39 +301,21 @@
                                     estadosMigr[mkey] = crearValoresEstadoDesdeDefaults();
                                 }
                             }
-                            data = {
-                                version: 2,
-                                estado_activo: ESTADO_DEFAULT,
-                                estados: estadosMigr
-                            };
-                            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                            localStorage.removeItem(LEGACY_STORAGE_KEY);
+                            data = { version: 2, estado_activo: ESTADO_DEFAULT, estados: estadosMigr };
+                            dataStore.set(data);
+                            dataStore.flush();
+                            try { localStorage.removeItem(LEGACY_STORAGE_KEY); } catch (eRm) { /* ignore */ }
                         } else {
-                            var def = crearValoresEstadoDesdeDefaults();
-                            var est = {};
-                            for (var i = 0; i < ESTADOS_DISPONIBLES.length; i++) {
-                                var kk = ESTADOS_DISPONIBLES[i].key;
-                                var c = {};
-                                for (var key in def) {
-                                    if (Object.prototype.hasOwnProperty.call(def, key)) {
-                                        c[key] = def[key];
-                                    }
-                                }
-                                est[kk] = c;
-                            }
-                            data = {
-                                version: 2,
-                                estado_activo: ESTADO_DEFAULT,
-                                estados: est
-                            };
-                            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                            data = { version: 2, estado_activo: ESTADO_DEFAULT, estados: buildDefaultEstadosObj() };
+                            dataStore.set(data);
+                            dataStore.flush();
                         }
                     }
 
                     this.estadoActivo = data.estado_activo;
                     this.aplicarDatos(data.estados[this.estadoActivo], false);
                 } catch (error) {
-                    console.error('Error cargando configuración:', error);
+                    console.error('Error cargando configuracion:', error);
                     this.estadoActivo = ESTADO_DEFAULT;
                     this.aplicarDatos(crearValoresEstadoDesdeDefaults(), false);
                 }
@@ -276,92 +342,35 @@
             cambiarEstado: function (nuevaKey) {
                 var ok = false;
                 for (var i = 0; i < ESTADOS_DISPONIBLES.length; i++) {
-                    if (ESTADOS_DISPONIBLES[i].key === nuevaKey) {
-                        ok = true;
-                        break;
-                    }
+                    if (ESTADOS_DISPONIBLES[i].key === nuevaKey) { ok = true; break; }
                 }
                 if (!ok || nuevaKey === this.estadoActivo) return;
 
-                this.guardarEnLocalStorage();
+                var snapshotActual = this.buildPersistedSnapshot();
+                snapshotActual.estado_activo = nuevaKey;
                 this.estadoActivo = nuevaKey;
-                try {
-                    var raw = localStorage.getItem(STORAGE_KEY);
-                    var data = raw ? normalizarDatosV2(JSON.parse(raw)) : normalizarDatosV2(null);
-                    this.aplicarDatos(data.estados[this.estadoActivo], false);
-                    this.guardarEnLocalStorage();
-                } catch (e) {
-                    console.error('Error al cambiar estado:', e);
-                    this.aplicarDatos(crearValoresEstadoDesdeDefaults(), false);
-                }
+                this.aplicarDatos(snapshotActual.estados[nuevaKey], false);
+                dataStore.set(snapshotActual);
                 this.calcular();
             },
 
             aplicarDatos: function (datos, esReset) {
                 if (esReset === undefined) esReset = false;
-                if (esReset) {
-                    this.precio_venta = datos.precio_venta !== undefined ? datos.precio_venta : VALORES_PREDETERMINADOS.precio_venta;
-                } else {
-                    this.precio_venta = datos.precio_venta !== undefined && datos.precio_venta !== null
-                        ? datos.precio_venta
-                        : (VALORES_PREDETERMINADOS.precio_venta !== undefined ? VALORES_PREDETERMINADOS.precio_venta : '');
-                }
-                this.tipo_cambio = datos.tipo_cambio !== undefined ? datos.tipo_cambio : VALORES_PREDETERMINADOS.tipo_cambio;
-                this.comision_venta = datos.comision_venta !== undefined ? datos.comision_venta : VALORES_PREDETERMINADOS.comision_venta;
-                this.peso_caja = datos.peso_caja !== undefined ? datos.peso_caja : VALORES_PREDETERMINADOS.peso_caja;
-                this.costo_flete_corto_mxn = datos.costo_flete_corto_mxn !== undefined ? datos.costo_flete_corto_mxn : VALORES_PREDETERMINADOS.costo_flete_corto_mxn;
-                this.costo_flete_largo_mxn = datos.costo_flete_largo_mxn !== undefined ? datos.costo_flete_largo_mxn : VALORES_PREDETERMINADOS.costo_flete_largo_mxn;
-                this.costo_aduana_embarque = datos.costo_aduana_embarque !== undefined ? datos.costo_aduana_embarque : VALORES_PREDETERMINADOS.costo_aduana_embarque;
-                this.costo_carton_caja = datos.costo_carton_caja !== undefined ? datos.costo_carton_caja : VALORES_PREDETERMINADOS.costo_carton_caja;
-                this.costo_empaque_caja_mxn = datos.costo_empaque_caja_mxn !== undefined ? datos.costo_empaque_caja_mxn : VALORES_PREDETERMINADOS.costo_empaque_caja_mxn;
-                this.costo_manejo_caja = datos.costo_manejo_caja !== undefined ? datos.costo_manejo_caja : VALORES_PREDETERMINADOS.costo_manejo_caja;
-                this.costo_sobrepeso_embarque = datos.costo_sobrepeso_embarque !== undefined ? datos.costo_sobrepeso_embarque : VALORES_PREDETERMINADOS.costo_sobrepeso_embarque;
-                this.cajas_flete_corto = datos.cajas_flete_corto !== undefined ? datos.cajas_flete_corto : VALORES_PREDETERMINADOS.cajas_flete_corto;
-                this.cajas_flete_largo = datos.cajas_flete_largo !== undefined ? datos.cajas_flete_largo : VALORES_PREDETERMINADOS.cajas_flete_largo;
-            },
-
-            guardarEnLocalStorage: function () {
-                try {
-                    var data;
-                    var raw = localStorage.getItem(STORAGE_KEY);
-                    if (raw) {
-                        data = normalizarDatosV2(JSON.parse(raw));
-                    } else {
-                        var def = crearValoresEstadoDesdeDefaults();
-                        var estN = {};
-                        for (var i = 0; i < ESTADOS_DISPONIBLES.length; i++) {
-                            var key = ESTADOS_DISPONIBLES[i].key;
-                            var c = {};
-                            for (var k in def) {
-                                if (Object.prototype.hasOwnProperty.call(def, k)) {
-                                    c[k] = def[k];
-                                }
-                            }
-                            estN[key] = c;
-                        }
-                        data = {
-                            version: 2,
-                            estado_activo: this.estadoActivo,
-                            estados: estN
-                        };
+                var fuente = datos || {};
+                for (var i = 0; i < CAMPOS_PERSISTIBLES.length; i++) {
+                    var k = CAMPOS_PERSISTIBLES[i];
+                    var v = fuente[k];
+                    if (v === undefined || v === null) {
+                        v = VALORES_PREDETERMINADOS[k];
                     }
-                    data.estado_activo = this.estadoActivo;
-                    data.estados[this.estadoActivo] = this.getPersistibleSnapshot();
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                } catch (error) {
-                    console.error('Error guardando en localStorage:', error);
-                    if (error && error.name === 'QuotaExceededError') {
-                        mostrarErrorCotizador('Almacenamiento lleno. Libera espacio del navegador o borra datos del sitio.');
+                    if (k === 'precio_venta' && (v === undefined || v === null)) {
+                        v = '';
                     }
+                    this[k] = v;
                 }
             },
 
-            validarNumero: function (valor, minimo, maximo) {
-                if (arguments.length === 2) {
-                    return Calc.validarNumero(valor, minimo, Infinity);
-                }
-                return Calc.validarNumero(valor, minimo, maximo);
-            },
+            validarNumero: Numeric.validarNumero,
 
             calcParams: function () {
                 return {
@@ -383,84 +392,70 @@
 
             calcular: function () {
                 try {
-                    var precioRaw = String(this.precio_venta).replace(/,/g, '').trim();
-                    var precioVentaNum = precioRaw === '' ? NaN : parseFloat(precioRaw);
-                    var tipoCambioNum = parseFloat(String(this.tipo_cambio).replace(/,/g, ''));
+                    var precioVentaNum = Numeric.parseFlexible(this.precio_venta);
+                    var tipoCambioNum = Numeric.parseFlexible(this.tipo_cambio);
+                    var pesoCajaNum = Numeric.parseFlexible(this.peso_caja);
+                    var cajasCortoNum = Numeric.parseFlexible(this.cajas_flete_corto);
+                    var cajasLargoNum = Numeric.parseFlexible(this.cajas_flete_largo);
 
-                    var precioNoNumerico = precioRaw !== '' && (isNaN(precioVentaNum) || !isFinite(precioVentaNum));
-                    var precioVacio = precioRaw === '';
-                    if (precioNoNumerico || precioVacio || isNaN(tipoCambioNum) || !isFinite(tipoCambioNum) ||
-                        tipoCambioNum <= 0 || Number(this.peso_caja) <= 0 ||
-                        Number(this.cajas_flete_corto) <= 0 || Number(this.cajas_flete_largo) <= 0) {
+                    var precioInvalido = !isFinite(precioVentaNum) || isNaN(precioVentaNum);
+                    var precioVacio = String(this.precio_venta).trim() === '';
+                    if (precioVacio || precioInvalido ||
+                        !isFinite(tipoCambioNum) || isNaN(tipoCambioNum) || tipoCambioNum <= 0 ||
+                        !isFinite(pesoCajaNum) || pesoCajaNum <= 0 ||
+                        !isFinite(cajasCortoNum) || cajasCortoNum <= 0 ||
+                        !isFinite(cajasLargoNum) || cajasLargoNum <= 0) {
                         this.precio_kg_corto = 0;
                         this.precio_kg_largo = 0;
+                        this.precioInviable = false;
                         return;
                     }
 
-                    var gastosEmbarqueCorto = this.calcularGastosEmbarque(
-                        this.costo_flete_corto_mxn,
-                        this.cajas_flete_corto
-                    );
+                    var gastosEmbarqueCorto = this.calcularGastosEmbarque(this.costo_flete_corto_mxn, this.cajas_flete_corto);
+                    var gastosEmbarqueLargo = this.calcularGastosEmbarque(this.costo_flete_largo_mxn, this.cajas_flete_largo) +
+                        Numeric.validarNumero(this.costo_sobrepeso_embarque, 0, Infinity);
 
-                    var gastosEmbarqueLargo = this.calcularGastosEmbarque(
-                        this.costo_flete_largo_mxn,
-                        this.cajas_flete_largo
-                    ) + this.validarNumero(this.costo_sobrepeso_embarque, 0, Infinity);
+                    var comision = Numeric.validarNumero(this.comision_venta, 0, 100);
+                    var precioNetoCorto = precioVentaNum - (precioVentaNum * comision / 100) - (gastosEmbarqueCorto / cajasCortoNum);
+                    var precioNetoLargo = precioVentaNum - (precioVentaNum * comision / 100) - (gastosEmbarqueLargo / cajasLargoNum);
 
-                    this.precio_kg_corto = this.calcularPrecioKg(
-                        precioVentaNum,
-                        this.comision_venta,
-                        gastosEmbarqueCorto,
-                        this.cajas_flete_corto,
-                        tipoCambioNum,
-                        this.peso_caja
-                    );
+                    this.precio_kg_corto = this.calcularPrecioKg(precioVentaNum, this.comision_venta, gastosEmbarqueCorto, this.cajas_flete_corto, tipoCambioNum, this.peso_caja);
+                    this.precio_kg_largo = this.calcularPrecioKg(precioVentaNum, this.comision_venta, gastosEmbarqueLargo, this.cajas_flete_largo, tipoCambioNum, this.peso_caja);
 
-                    this.precio_kg_largo = this.calcularPrecioKg(
-                        precioVentaNum,
-                        this.comision_venta,
-                        gastosEmbarqueLargo,
-                        this.cajas_flete_largo,
-                        tipoCambioNum,
-                        this.peso_caja
-                    );
-
-                    this.precio_kg_corto = this.validarNumero(this.precio_kg_corto, 0, Infinity);
-                    this.precio_kg_largo = this.validarNumero(this.precio_kg_largo, 0, Infinity);
+                    this.precio_kg_corto = Numeric.validarNumero(this.precio_kg_corto, 0, Infinity);
+                    this.precio_kg_largo = Numeric.validarNumero(this.precio_kg_largo, 0, Infinity);
+                    var netoNegativo = precioNetoCorto < 0 || precioNetoLargo < 0;
+                    this.precioInviable = netoNegativo && !precioVentaParcialParaAdvertencia(this.precio_venta);
                 } catch (error) {
-                    console.error('Error en cálculo:', error);
+                    console.error('Error en calculo:', error);
                     this.precio_kg_corto = 0;
                     this.precio_kg_largo = 0;
+                    this.precioInviable = false;
                 }
             },
 
             guardarConfiguracion: function () {
                 try {
-                    this.guardarEnLocalStorage();
+                    this.scheduleGuardar();
+                    dataStore.flush();
                     this.configuracionGuardada = true;
                     var self = this;
-                    setTimeout(function () {
-                        self.configuracionGuardada = false;
-                    }, 2000);
+                    var t = setTimeout(function () { self.configuracionGuardada = false; }, 2000);
+                    this._toastTimers.push(t);
                 } catch (error) {
-                    console.error('Error al guardar configuración:', error);
+                    console.error('Error al guardar configuracion:', error);
                     this.configuracionGuardada = false;
                 }
             },
 
             resetearValores: function () {
                 var nombre = this.nombreEstadoActivo();
-                var msg = '¿Restaurar valores predeterminados solo para ' + nombre + '? Se perderá la configuración guardada de este estado.';
+                var msg = 'Restaurar valores predeterminados solo para ' + nombre + '? Se perdera la configuracion guardada de este estado.';
                 if (window.confirm(msg)) {
                     try {
-                        var v = {};
-                        for (var key in VALORES_PREDETERMINADOS) {
-                            if (Object.prototype.hasOwnProperty.call(VALORES_PREDETERMINADOS, key)) {
-                                v[key] = VALORES_PREDETERMINADOS[key];
-                            }
-                        }
-                        this.aplicarDatos(v, true);
-                        this.guardarEnLocalStorage();
+                        this.aplicarDatos(crearValoresEstadoDesdeDefaults(), true);
+                        this.scheduleGuardar();
+                        dataStore.flush();
                         this.calcular();
                         this.configuracionGuardada = false;
                     } catch (error) {
@@ -475,16 +470,18 @@
 
             exportarRespaldo: function () {
                 try {
-                    var raw = localStorage.getItem(STORAGE_KEY);
+                    dataStore.flush();
+                    var raw = dataStore.getRaw();
                     if (!raw) {
-                        mostrarErrorCotizador('No hay datos guardados para exportar.');
-                        return;
+                        var seed = this.buildPersistedSnapshot();
+                        raw = JSON.stringify(seed);
                     }
                     var blob = new Blob([raw], { type: 'application/json;charset=utf-8' });
                     var url = URL.createObjectURL(blob);
                     var a = document.createElement('a');
                     a.href = url;
                     a.download = 'cotizador-respaldo-' + new Date().toISOString().split('T')[0] + '.json';
+                    a.rel = 'noopener noreferrer';
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
@@ -499,13 +496,32 @@
                 var input = evt && evt.target;
                 var file = input && input.files && input.files[0];
                 if (!file) return;
+                if (typeof file.size === 'number' && file.size > MAX_BACKUP_BYTES) {
+                    mostrarErrorCotizador('El archivo es demasiado grande para ser un respaldo valido.');
+                    if (input) input.value = '';
+                    return;
+                }
+                if (file.type && file.type !== 'application/json' && !/\.json$/i.test(file.name || '')) {
+                    mostrarErrorCotizador('El archivo debe ser JSON.');
+                    if (input) input.value = '';
+                    return;
+                }
                 var self = this;
                 var reader = new FileReader();
                 reader.onload = function () {
                     try {
-                        var parsed = JSON.parse(String(reader.result || ''));
-                        if (!parsed || parsed.version !== 2 || !parsed.estados || typeof parsed.estados !== 'object') {
-                            mostrarErrorCotizador('El archivo no es un respaldo válido (se espera version 2 y estados).');
+                        var text = String(reader.result || '');
+                        if (text.length > MAX_BACKUP_BYTES * 2) {
+                            mostrarErrorCotizador('El archivo es demasiado grande para procesarlo.');
+                            return;
+                        }
+                        var parsed = JSON.parse(text);
+                        if (!parsed || parsed.version !== 2 || !parsed.estados || typeof parsed.estados !== 'object' || Array.isArray(parsed.estados)) {
+                            mostrarErrorCotizador('El archivo no es un respaldo valido (se espera version 2 y estados).');
+                            return;
+                        }
+                        if (typeof parsed.estado_activo !== 'string') {
+                            mostrarErrorCotizador('El respaldo no tiene estado_activo valido.');
                             return;
                         }
                         for (var i = 0; i < ESTADOS_DISPONIBLES.length; i++) {
@@ -516,13 +532,14 @@
                             }
                         }
                         var data = normalizarDatosV2(parsed);
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                        dataStore.set(data);
+                        dataStore.flush();
                         self.cargarConfiguracion();
                         self.calcular();
                         mostrarErrorCotizador('');
                     } catch (err) {
                         console.error('importarRespaldo:', err);
-                        mostrarErrorCotizador('No se pudo importar el respaldo (JSON inválido o incompatible).');
+                        mostrarErrorCotizador('No se pudo importar el respaldo (JSON invalido o incompatible).');
                     } finally {
                         if (input) input.value = '';
                     }
@@ -554,31 +571,62 @@
                 }
             },
 
-            solicitarLimpiarPonderado: function () {
+            solicitarLimpiarPonderado: function (ev) {
+                this._modalTriggerEl = (ev && ev.currentTarget) || document.activeElement || null;
                 this.mostrarModalLimpiar = true;
+                var self = this;
+                this.$nextTick(function () {
+                    var modal = document.querySelector('.modal-backdrop .modal');
+                    if (!modal) return;
+                    var focusables = modal.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])');
+                    if (focusables.length > 0) focusables[0].focus();
+                    self._modalKeydownHandler = function (e) {
+                        if (e.key !== 'Tab') return;
+                        if (focusables.length === 0) return;
+                        var first = focusables[0];
+                        var last = focusables[focusables.length - 1];
+                        if (e.shiftKey && document.activeElement === first) {
+                            e.preventDefault();
+                            last.focus();
+                        } else if (!e.shiftKey && document.activeElement === last) {
+                            e.preventDefault();
+                            first.focus();
+                        }
+                    };
+                    modal.addEventListener('keydown', self._modalKeydownHandler);
+                });
             },
 
             cancelarLimpiarPonderado: function () {
-                this.mostrarModalLimpiar = false;
+                this._cerrarModalLimpiar();
             },
 
             confirmarLimpiarPonderado: function () {
                 for (var i = 0; i < this.calibres.length; i++) {
-                    this.calibres[i].porcentaje = 0;
-                    this.calibres[i].precio = 0;
+                    this.calibres[i].porcentaje = '';
+                    this.calibres[i].precio = '';
                 }
+                this._cerrarModalLimpiar();
+            },
+
+            _cerrarModalLimpiar: function () {
+                var modal = document.querySelector('.modal-backdrop .modal');
+                if (modal && this._modalKeydownHandler) {
+                    modal.removeEventListener('keydown', this._modalKeydownHandler);
+                }
+                this._modalKeydownHandler = null;
                 this.mostrarModalLimpiar = false;
+                if (this._modalTriggerEl && typeof this._modalTriggerEl.focus === 'function') {
+                    var trigger = this._modalTriggerEl;
+                    this._modalTriggerEl = null;
+                    setTimeout(function () { try { trigger.focus(); } catch (e) { /* ignore */ } }, 0);
+                }
             },
 
             ponderadoSumaValida: function () {
                 return Math.abs(this.sumaPct - 100) <= PONDERADO_TOL;
             },
 
-            /**
-             * Porcentaje aun disponible para asignar (100 - sumaPct).
-             * Positivo = falta, 0 = completo, negativo = excedido.
-             * Redondeo a 2 decimales para evitar artefactos de punto flotante.
-             */
             porcentajeDisponible: function () {
                 var dif = 100 - this.sumaPct;
                 return Math.round(dif * 100) / 100;
@@ -599,7 +647,7 @@
             },
 
             ponderadoValido: function () {
-                return this.ponderadoSumaValida() && this.totalPonderado > 0;
+                return this.ponderadoSumaValida() && this.totalPonderado >= 0.01;
             },
 
             puedeAplicarPonderado: function () {
@@ -622,41 +670,27 @@
                 var destino = this.estadoDestinoPonderado;
                 var valor = this.totalPonderado.toFixed(2);
                 if (destino !== this.estadoActivo) {
-                    /* cambiarEstado persiste el estado actual y carga el destino. */
                     this.cambiarEstado(destino);
                 }
                 this.precio_venta = valor;
                 this.tabActivo = 'basico';
                 this.ponderadoAplicadoOk = true;
                 var self = this;
-                setTimeout(function () { self.ponderadoAplicadoOk = false; }, 2500);
-            },
-
-            guardarPonderadoEnLocalStorage: function () {
-                try {
-                    var data = { version: 1, calibres: this.calibres };
-                    localStorage.setItem(STORAGE_PONDERADO, JSON.stringify(data));
-                } catch (e) {
-                    if (e && e.name === 'QuotaExceededError') {
-                        mostrarErrorCotizador('Almacenamiento lleno. Libera espacio del navegador o borra datos del sitio.');
-                    }
-                }
+                var t = setTimeout(function () { self.ponderadoAplicadoOk = false; }, 2500);
+                this._toastTimers.push(t);
             },
 
             cargarPonderado: function () {
                 try {
-                    var raw = localStorage.getItem(STORAGE_PONDERADO);
-                    if (!raw) return;
-                    var p = JSON.parse(raw);
+                    var p = ponderadoStore.get();
                     if (!p || !Array.isArray(p.calibres)) return;
-                    /* Fusion segura: respetar size fijo de config y solo copiar porcentaje/precio. */
+                    if (p.version !== 1) return;
                     for (var i = 0; i < this.calibres.length; i++) {
                         var size = this.calibres[i].size;
                         var match = null;
                         for (var j = 0; j < p.calibres.length; j++) {
                             if (p.calibres[j] && p.calibres[j].size === size) { match = p.calibres[j]; break; }
                         }
-                        if (!match && p.calibres[i]) match = p.calibres[i];
                         if (match) {
                             this.calibres[i].porcentaje = match.porcentaje !== undefined && match.porcentaje !== null ? match.porcentaje : '';
                             this.calibres[i].precio = match.precio !== undefined && match.precio !== null ? match.precio : '';
@@ -670,49 +704,41 @@
             generarCotizacionHTML: function () {
                 mostrarErrorCotizador('');
                 try {
-                    var precioRaw = String(this.precio_venta).replace(/,/g, '').trim();
-                    var precioVentaNum = precioRaw === '' ? NaN : parseFloat(precioRaw);
-                    var tipoCambioNum = parseFloat(String(this.tipo_cambio).replace(/,/g, '')) || 0;
+                    var precioVentaNum = Numeric.parseFlexible(this.precio_venta);
+                    var tipoCambioNum = Numeric.parseFlexible(this.tipo_cambio);
 
-                    if (precioRaw === '' || isNaN(precioVentaNum) || !isFinite(precioVentaNum)) {
-                        mostrarErrorCotizador('Ingresa un precio de venta válido para generar el informe.');
+                    if (String(this.precio_venta).trim() === '' || isNaN(precioVentaNum) || !isFinite(precioVentaNum)) {
+                        mostrarErrorCotizador('Ingresa un precio de venta valido para generar el informe.');
                         return;
                     }
                     if (precioVentaNum < 0) {
                         mostrarErrorCotizador('El precio de venta no puede ser negativo.');
                         return;
                     }
-                    if (!tipoCambioNum || isNaN(tipoCambioNum) || tipoCambioNum <= 0) {
-                        mostrarErrorCotizador('Ingresa un tipo de cambio válido mayor a cero.');
+                    if (!isFinite(tipoCambioNum) || tipoCambioNum <= 0) {
+                        mostrarErrorCotizador('Ingresa un tipo de cambio valido mayor a cero.');
                         return;
                     }
 
-                    var fecha = new Date().toLocaleDateString('es-MX', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric'
-                    });
-                    var hora = new Date().toLocaleTimeString('es-MX', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
+                    var fecha = new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
+                    var hora = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
                     var self = this;
-                    var tcInf = Calc.validarNumero(tipoCambioNum, 0.01);
+                    var tcInf = Numeric.validarNumero(tipoCambioNum, 0.01);
                     var calcularPasosPorFlete = function (tipo) {
                         var costoFleteMXN = tipo === 'corto' ? self.costo_flete_corto_mxn : self.costo_flete_largo_mxn;
                         var cajas = tipo === 'corto' ? self.cajas_flete_corto : self.cajas_flete_largo;
-                        var cajasNorm = Calc.validarNumero(cajas, 1);
+                        var cajasNorm = Numeric.validarNumero(cajas, 1);
                         var gastosEmbarque = self.calcularGastosEmbarque(costoFleteMXN, cajas);
-                        var gastosTotal = tipo === 'largo' ? gastosEmbarque + self.validarNumero(self.costo_sobrepeso_embarque, 0, Infinity) : gastosEmbarque;
-                        var comision = precioVentaNum * Calc.validarNumero(self.comision_venta, 0, 100) / 100;
+                        var gastosTotal = tipo === 'largo' ? gastosEmbarque + Numeric.validarNumero(self.costo_sobrepeso_embarque, 0, Infinity) : gastosEmbarque;
+                        var comision = precioVentaNum * Numeric.validarNumero(self.comision_venta, 0, 100) / 100;
                         var gastosPorCaja = gastosTotal / cajasNorm;
                         var precioNeto = precioVentaNum - comision - gastosPorCaja;
                         var precioMXN = precioNeto * tcInf;
                         var precioKg = tipo === 'corto' ? self.precio_kg_corto : self.precio_kg_largo;
                         return {
-                            fleteUSD: Calc.validarNumero(costoFleteMXN, 0) / tcInf,
-                            empaqueUSD: Calc.validarNumero(self.costo_empaque_caja_mxn, 0) / tcInf,
+                            fleteUSD: Numeric.validarNumero(costoFleteMXN, 0) / tcInf,
+                            empaqueUSD: Numeric.validarNumero(self.costo_empaque_caja_mxn, 0) / tcInf,
                             gastosTotal: gastosTotal,
                             gastosPorCaja: gastosPorCaja,
                             comision: comision,
@@ -726,24 +752,21 @@
                     var calcLargo = calcularPasosPorFlete('largo');
 
                     var detallesCorto = {
-                        fleteUSD: calcCorto.fleteUSD,
-                        empaqueUSD: calcCorto.empaqueUSD,
-                        cartonTotal: this.costo_carton_caja * this.cajas_flete_corto,
-                        empaqueTotal: calcCorto.empaqueUSD * this.cajas_flete_corto,
-                        manejoTotal: this.costo_manejo_caja * this.cajas_flete_corto
+                        cartonTotal: Numeric.validarNumero(this.costo_carton_caja, 0) * Numeric.validarNumero(this.cajas_flete_corto, 0),
+                        empaqueTotal: calcCorto.empaqueUSD * Numeric.validarNumero(this.cajas_flete_corto, 0),
+                        manejoTotal: Numeric.validarNumero(this.costo_manejo_caja, 0) * Numeric.validarNumero(this.cajas_flete_corto, 0)
                     };
-
                     var detallesLargo = {
-                        fleteUSD: calcLargo.fleteUSD,
-                        empaqueUSD: calcLargo.empaqueUSD,
-                        cartonTotal: this.costo_carton_caja * this.cajas_flete_largo,
-                        empaqueTotal: calcLargo.empaqueUSD * this.cajas_flete_largo,
-                        manejoTotal: this.costo_manejo_caja * this.cajas_flete_largo
+                        cartonTotal: Numeric.validarNumero(this.costo_carton_caja, 0) * Numeric.validarNumero(this.cajas_flete_largo, 0),
+                        empaqueTotal: calcLargo.empaqueUSD * Numeric.validarNumero(this.cajas_flete_largo, 0),
+                        manejoTotal: Numeric.validarNumero(this.costo_manejo_caja, 0) * Numeric.validarNumero(this.cajas_flete_largo, 0)
                     };
 
                     var nl = '\n';
+                    var fmtN = function (n) { return self.formatNumber(n); };
+
                     var datosInforme = {
-                        schemaVersion: CFG.informe.informeJsonSchemaVersion,
+                        schemaVersion: INFORME_SCHEMA,
                         fecha: fecha,
                         hora: hora,
                         estado: this.nombreEstadoActivo(),
@@ -752,85 +775,69 @@
                         precioKgCorto: this.precio_kg_corto,
                         precioKgLargo: this.precio_kg_largo,
                         calcCorto: [
-                            { titulo: 'Paso 1: conversión de flete a USD', badge: 'Conversión', formula: 'Costo flete USD = ' + this.formatNumber(this.costo_flete_corto_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcCorto.fleteUSD) + ' USD', label: 'Costo flete USD:', highlight: false },
-                            { titulo: 'Paso 2: conversión de empaque a USD', badge: 'Conversión', formula: 'Costo empaque USD = ' + this.formatNumber(this.costo_empaque_caja_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcCorto.empaqueUSD) + ' USD', label: 'Costo empaque USD:', highlight: false },
-                            { titulo: 'Paso 3: gastos totales de embarque', badge: 'Suma', formula: '= ' + this.formatNumber(calcCorto.fleteUSD) + ' (flete USD)' + nl + '+ ' + this.formatNumber(this.costo_aduana_embarque) + ' (aduana)' + nl + '+ (' + this.formatNumber(this.costo_carton_caja) + ' × ' + this.formatNumber(this.cajas_flete_corto) + ') = ' + this.formatNumber(detallesCorto.cartonTotal) + ' (cartón)' + nl + '+ (' + this.formatNumber(calcCorto.empaqueUSD) + ' × ' + this.formatNumber(this.cajas_flete_corto) + ') = ' + this.formatNumber(detallesCorto.empaqueTotal) + ' (empaque)' + nl + '+ (' + this.formatNumber(this.costo_manejo_caja) + ' × ' + this.formatNumber(this.cajas_flete_corto) + ') = ' + this.formatNumber(detallesCorto.manejoTotal) + ' (manejo)', resultado: '$' + this.formatNumber(calcCorto.gastosTotal) + ' USD', label: 'Gastos embarque total:', highlight: true },
-                            { titulo: 'Paso 4: gastos prorrateados por caja', badge: 'División', formula: 'Gastos por caja = ' + this.formatNumber(calcCorto.gastosTotal) + ' USD ÷ ' + this.formatNumber(this.cajas_flete_corto) + ' cajas', resultado: '$' + this.formatNumber(calcCorto.gastosPorCaja) + ' USD', label: 'Gastos por caja:', highlight: false },
-                            { titulo: 'Paso 5: descuento por comisión', badge: 'Porcentaje', formula: 'Descuento = ' + this.formatNumber(precioVentaNum) + ' USD × ' + this.formatNumber(this.comision_venta) + '% ÷ 100', resultado: '$' + this.formatNumber(calcCorto.comision) + ' USD', label: 'Descuento comisión:', highlight: false },
-                            { titulo: 'Paso 6: precio neto por caja (USD)', badge: 'Resta', formula: '= ' + this.formatNumber(precioVentaNum) + ' (precio de venta)' + nl + '- ' + this.formatNumber(calcCorto.comision) + ' (comisión)' + nl + '- ' + this.formatNumber(calcCorto.gastosPorCaja) + ' (gastos/caja)', resultado: '$' + this.formatNumber(calcCorto.precioNeto) + ' USD', label: 'Precio neto por caja:', highlight: true },
-                            { titulo: 'Paso 7: conversión a pesos mexicanos', badge: 'Multiplicación', formula: 'Precio MXN = ' + this.formatNumber(calcCorto.precioNeto) + ' USD × ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcCorto.precioMXN) + ' MXN', label: 'Precio en MXN:', highlight: false },
-                            { titulo: 'Paso 8: precio final por kilogramo', badge: 'División', formula: 'Precio/kg = ' + this.formatNumber(calcCorto.precioMXN) + ' MXN ÷ ' + this.formatNumber(this.peso_caja) + ' kg', resultado: '$' + this.formatNumber(calcCorto.precioKg) + ' MXN/kg', label: 'Precio final por kg:', highlight: true, final: true }
+                            { titulo: 'Paso 1: conversion de flete a USD', badge: 'Conversion', formula: 'Costo flete USD = ' + fmtN(this.costo_flete_corto_mxn) + ' MXN / ' + fmtN(tipoCambioNum), resultado: '$' + fmtN(calcCorto.fleteUSD) + ' USD', label: 'Costo flete USD:', highlight: false },
+                            { titulo: 'Paso 2: conversion de empaque a USD', badge: 'Conversion', formula: 'Costo empaque USD = ' + fmtN(this.costo_empaque_caja_mxn) + ' MXN / ' + fmtN(tipoCambioNum), resultado: '$' + fmtN(calcCorto.empaqueUSD) + ' USD', label: 'Costo empaque USD:', highlight: false },
+                            { titulo: 'Paso 3: gastos totales de embarque', badge: 'Suma', formula: '= ' + fmtN(calcCorto.fleteUSD) + ' (flete USD)' + nl + '+ ' + fmtN(this.costo_aduana_embarque) + ' (aduana)' + nl + '+ (' + fmtN(this.costo_carton_caja) + ' x ' + fmtN(this.cajas_flete_corto) + ') = ' + fmtN(detallesCorto.cartonTotal) + ' (carton)' + nl + '+ (' + fmtN(calcCorto.empaqueUSD) + ' x ' + fmtN(this.cajas_flete_corto) + ') = ' + fmtN(detallesCorto.empaqueTotal) + ' (empaque)' + nl + '+ (' + fmtN(this.costo_manejo_caja) + ' x ' + fmtN(this.cajas_flete_corto) + ') = ' + fmtN(detallesCorto.manejoTotal) + ' (manejo)', resultado: '$' + fmtN(calcCorto.gastosTotal) + ' USD', label: 'Gastos embarque total:', highlight: true },
+                            { titulo: 'Paso 4: gastos prorrateados por caja', badge: 'Division', formula: 'Gastos por caja = ' + fmtN(calcCorto.gastosTotal) + ' USD / ' + fmtN(this.cajas_flete_corto) + ' cajas', resultado: '$' + fmtN(calcCorto.gastosPorCaja) + ' USD', label: 'Gastos por caja:', highlight: false },
+                            { titulo: 'Paso 5: descuento por comision', badge: 'Porcentaje', formula: 'Descuento = ' + fmtN(precioVentaNum) + ' USD x ' + fmtN(this.comision_venta) + '% / 100', resultado: '$' + fmtN(calcCorto.comision) + ' USD', label: 'Descuento comision:', highlight: false },
+                            { titulo: 'Paso 6: precio neto por caja (USD)', badge: 'Resta', formula: '= ' + fmtN(precioVentaNum) + ' (precio de venta)' + nl + '- ' + fmtN(calcCorto.comision) + ' (comision)' + nl + '- ' + fmtN(calcCorto.gastosPorCaja) + ' (gastos/caja)', resultado: '$' + fmtN(calcCorto.precioNeto) + ' USD', label: 'Precio neto por caja:', highlight: true },
+                            { titulo: 'Paso 7: conversion a pesos mexicanos', badge: 'Multiplicacion', formula: 'Precio MXN = ' + fmtN(calcCorto.precioNeto) + ' USD x ' + fmtN(tipoCambioNum), resultado: '$' + fmtN(calcCorto.precioMXN) + ' MXN', label: 'Precio en MXN:', highlight: false },
+                            { titulo: 'Paso 8: precio final por kilogramo', badge: 'Division', formula: 'Precio/kg = ' + fmtN(calcCorto.precioMXN) + ' MXN / ' + fmtN(this.peso_caja) + ' kg', resultado: '$' + fmtN(calcCorto.precioKg) + ' MXN/kg', label: 'Precio final por kg:', highlight: true, final: true }
                         ],
                         calcLargo: [
-                            { titulo: 'Paso 1: conversión de flete a USD', badge: 'Conversión', formula: 'Costo flete USD = ' + this.formatNumber(this.costo_flete_largo_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcLargo.fleteUSD) + ' USD', label: 'Costo flete USD:', highlight: false },
-                            { titulo: 'Paso 2: conversión de empaque a USD', badge: 'Conversión', formula: 'Costo empaque USD = ' + this.formatNumber(this.costo_empaque_caja_mxn) + ' MXN ÷ ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcLargo.empaqueUSD) + ' USD', label: 'Costo empaque USD:', highlight: false },
-                            { titulo: 'Paso 3: gastos totales de embarque', badge: 'Suma', formula: '= ' + this.formatNumber(calcLargo.fleteUSD) + ' (flete USD)' + nl + '+ ' + this.formatNumber(this.costo_aduana_embarque) + ' (aduana)' + nl + '+ (' + this.formatNumber(this.costo_carton_caja) + ' × ' + this.formatNumber(this.cajas_flete_largo) + ') = ' + this.formatNumber(detallesLargo.cartonTotal) + ' (cartón)' + nl + '+ (' + this.formatNumber(calcLargo.empaqueUSD) + ' × ' + this.formatNumber(this.cajas_flete_largo) + ') = ' + this.formatNumber(detallesLargo.empaqueTotal) + ' (empaque)' + nl + '+ (' + this.formatNumber(this.costo_manejo_caja) + ' × ' + this.formatNumber(this.cajas_flete_largo) + ') = ' + this.formatNumber(detallesLargo.manejoTotal) + ' (manejo)' + nl + '+ ' + this.formatNumber(this.costo_sobrepeso_embarque) + ' (sobrepeso)', resultado: '$' + this.formatNumber(calcLargo.gastosTotal) + ' USD', label: 'Gastos embarque total:', highlight: true },
-                            { titulo: 'Paso 4: gastos prorrateados por caja', badge: 'División', formula: 'Gastos por caja = ' + this.formatNumber(calcLargo.gastosTotal) + ' USD ÷ ' + this.formatNumber(this.cajas_flete_largo) + ' cajas', resultado: '$' + this.formatNumber(calcLargo.gastosPorCaja) + ' USD', label: 'Gastos por caja:', highlight: false },
-                            { titulo: 'Paso 5: descuento por comisión', badge: 'Porcentaje', formula: 'Descuento = ' + this.formatNumber(precioVentaNum) + ' USD × ' + this.formatNumber(this.comision_venta) + '% ÷ 100', resultado: '$' + this.formatNumber(calcLargo.comision) + ' USD', label: 'Descuento comisión:', highlight: false },
-                            { titulo: 'Paso 6: precio neto por caja (USD)', badge: 'Resta', formula: '= ' + this.formatNumber(precioVentaNum) + ' (precio de venta)' + nl + '- ' + this.formatNumber(calcLargo.comision) + ' (comisión)' + nl + '- ' + this.formatNumber(calcLargo.gastosPorCaja) + ' (gastos/caja)', resultado: '$' + this.formatNumber(calcLargo.precioNeto) + ' USD', label: 'Precio neto por caja:', highlight: true },
-                            { titulo: 'Paso 7: conversión a pesos mexicanos', badge: 'Multiplicación', formula: 'Precio MXN = ' + this.formatNumber(calcLargo.precioNeto) + ' USD × ' + this.formatNumber(tipoCambioNum), resultado: '$' + this.formatNumber(calcLargo.precioMXN) + ' MXN', label: 'Precio en MXN:', highlight: false },
-                            { titulo: 'Paso 8: precio final por kilogramo', badge: 'División', formula: 'Precio/kg = ' + this.formatNumber(calcLargo.precioMXN) + ' MXN ÷ ' + this.formatNumber(this.peso_caja) + ' kg', resultado: '$' + this.formatNumber(calcLargo.precioKg) + ' MXN/kg', label: 'Precio final por kg:', highlight: true, final: true }
+                            { titulo: 'Paso 1: conversion de flete a USD', badge: 'Conversion', formula: 'Costo flete USD = ' + fmtN(this.costo_flete_largo_mxn) + ' MXN / ' + fmtN(tipoCambioNum), resultado: '$' + fmtN(calcLargo.fleteUSD) + ' USD', label: 'Costo flete USD:', highlight: false },
+                            { titulo: 'Paso 2: conversion de empaque a USD', badge: 'Conversion', formula: 'Costo empaque USD = ' + fmtN(this.costo_empaque_caja_mxn) + ' MXN / ' + fmtN(tipoCambioNum), resultado: '$' + fmtN(calcLargo.empaqueUSD) + ' USD', label: 'Costo empaque USD:', highlight: false },
+                            { titulo: 'Paso 3: gastos totales de embarque', badge: 'Suma', formula: '= ' + fmtN(calcLargo.fleteUSD) + ' (flete USD)' + nl + '+ ' + fmtN(this.costo_aduana_embarque) + ' (aduana)' + nl + '+ (' + fmtN(this.costo_carton_caja) + ' x ' + fmtN(this.cajas_flete_largo) + ') = ' + fmtN(detallesLargo.cartonTotal) + ' (carton)' + nl + '+ (' + fmtN(calcLargo.empaqueUSD) + ' x ' + fmtN(this.cajas_flete_largo) + ') = ' + fmtN(detallesLargo.empaqueTotal) + ' (empaque)' + nl + '+ (' + fmtN(this.costo_manejo_caja) + ' x ' + fmtN(this.cajas_flete_largo) + ') = ' + fmtN(detallesLargo.manejoTotal) + ' (manejo)' + nl + '+ ' + fmtN(this.costo_sobrepeso_embarque) + ' (sobrepeso)', resultado: '$' + fmtN(calcLargo.gastosTotal) + ' USD', label: 'Gastos embarque total:', highlight: true },
+                            { titulo: 'Paso 4: gastos prorrateados por caja', badge: 'Division', formula: 'Gastos por caja = ' + fmtN(calcLargo.gastosTotal) + ' USD / ' + fmtN(this.cajas_flete_largo) + ' cajas', resultado: '$' + fmtN(calcLargo.gastosPorCaja) + ' USD', label: 'Gastos por caja:', highlight: false },
+                            { titulo: 'Paso 5: descuento por comision', badge: 'Porcentaje', formula: 'Descuento = ' + fmtN(precioVentaNum) + ' USD x ' + fmtN(this.comision_venta) + '% / 100', resultado: '$' + fmtN(calcLargo.comision) + ' USD', label: 'Descuento comision:', highlight: false },
+                            { titulo: 'Paso 6: precio neto por caja (USD)', badge: 'Resta', formula: '= ' + fmtN(precioVentaNum) + ' (precio de venta)' + nl + '- ' + fmtN(calcLargo.comision) + ' (comision)' + nl + '- ' + fmtN(calcLargo.gastosPorCaja) + ' (gastos/caja)', resultado: '$' + fmtN(calcLargo.precioNeto) + ' USD', label: 'Precio neto por caja:', highlight: true },
+                            { titulo: 'Paso 7: conversion a pesos mexicanos', badge: 'Multiplicacion', formula: 'Precio MXN = ' + fmtN(calcLargo.precioNeto) + ' USD x ' + fmtN(tipoCambioNum), resultado: '$' + fmtN(calcLargo.precioMXN) + ' MXN', label: 'Precio en MXN:', highlight: false },
+                            { titulo: 'Paso 8: precio final por kilogramo', badge: 'Division', formula: 'Precio/kg = ' + fmtN(calcLargo.precioMXN) + ' MXN / ' + fmtN(this.peso_caja) + ' kg', resultado: '$' + fmtN(calcLargo.precioKg) + ' MXN/kg', label: 'Precio final por kg:', highlight: true, final: true }
                         ],
                         parametros: [
-                            { nombre: 'Comisión', valor: this.formatNumber(this.comision_venta) + '%' },
-                            { nombre: 'Peso por caja', valor: this.formatNumber(this.peso_caja) + ' kg' },
-                            { nombre: 'Flete corto', valor: '$' + this.formatNumber(this.costo_flete_corto_mxn) + ' MXN' },
-                            { nombre: 'Flete largo', valor: '$' + this.formatNumber(this.costo_flete_largo_mxn) + ' MXN' },
-                            { nombre: 'Cajas flete corto', valor: this.formatNumber(this.cajas_flete_corto) },
-                            { nombre: 'Cajas flete largo', valor: this.formatNumber(this.cajas_flete_largo) },
-                            { nombre: 'Aduana embarque', valor: '$' + this.formatNumber(this.costo_aduana_embarque) + ' USD' },
-                            { nombre: 'Cartón por caja', valor: '$' + this.formatNumber(this.costo_carton_caja) + ' USD' },
-                            { nombre: 'Empaque por caja', valor: '$' + this.formatNumber(this.costo_empaque_caja_mxn) + ' MXN' },
-                            { nombre: 'Manejo por caja', valor: '$' + this.formatNumber(this.costo_manejo_caja) + ' USD' },
-                            { nombre: 'Sobrepeso', valor: '$' + this.formatNumber(this.costo_sobrepeso_embarque) + ' USD' }
+                            { nombre: 'Comision', valor: fmtN(this.comision_venta) + '%' },
+                            { nombre: 'Peso por caja', valor: fmtN(this.peso_caja) + ' kg' },
+                            { nombre: 'Flete corto', valor: '$' + fmtN(this.costo_flete_corto_mxn) + ' MXN' },
+                            { nombre: 'Flete largo', valor: '$' + fmtN(this.costo_flete_largo_mxn) + ' MXN' },
+                            { nombre: 'Cajas flete corto', valor: fmtN(this.cajas_flete_corto) },
+                            { nombre: 'Cajas flete largo', valor: fmtN(this.cajas_flete_largo) },
+                            { nombre: 'Aduana embarque', valor: '$' + fmtN(this.costo_aduana_embarque) + ' USD' },
+                            { nombre: 'Carton por caja', valor: '$' + fmtN(this.costo_carton_caja) + ' USD' },
+                            { nombre: 'Empaque por caja', valor: '$' + fmtN(this.costo_empaque_caja_mxn) + ' MXN' },
+                            { nombre: 'Manejo por caja', valor: '$' + fmtN(this.costo_manejo_caja) + ' USD' },
+                            { nombre: 'Sobrepeso', valor: '$' + fmtN(this.costo_sobrepeso_embarque) + ' USD' }
                         ]
                     };
 
+                    var datosJSON = JSON.stringify(datosInforme);
+                    var datosEncoded = encodeURIComponent(datosJSON);
+
                     try {
-                        var datosJSON = JSON.stringify(datosInforme);
                         localStorage.setItem(STORAGE_INFORME, datosJSON);
                         sessionStorage.setItem(STORAGE_INFORME, datosJSON);
                         dbg('Datos de informe guardados');
-
-                        var datosEncoded = encodeURIComponent(datosJSON);
-                        var maxH = CFG.informe.maxHashUrlChars;
-
-                        // Solo dos argumentos: con features "noopener" algunos navegadores devuelven null
-                        // aunque la pestaña sí se abrió, y el aviso de bloqueo sería un falso positivo.
-                        if (window.location.protocol === 'file:') {
-                            if (datosEncoded.length > maxH) {
-                                var ventanaL = window.open('./informe.html', '_blank');
-                                if (!ventanaL) {
-                                    mostrarErrorCotizador('No se pudo abrir la ventana del informe. Permite ventanas emergentes.');
-                                }
-                                return;
-                            }
-                            var ventana = window.open('./informe.html#' + datosEncoded, '_blank');
-                            if (!ventana) {
-                                mostrarErrorCotizador('No se pudo abrir la ventana del informe. Permite ventanas emergentes.');
-                            }
-                        } else {
-                            setTimeout(function () {
-                                var w = window.open('./informe.html', '_blank');
-                                if (!w) {
-                                    mostrarErrorCotizador('No se pudo abrir la ventana del informe. Permite ventanas emergentes.');
-                                }
-                            }, 100);
-                        }
                     } catch (storageError) {
-                        console.error('Error guardando datos:', storageError);
+                        console.error('Error guardando informe:', storageError);
                         if (storageError && storageError.name === 'QuotaExceededError') {
                             mostrarErrorCotizador('No hay espacio suficiente para guardar el informe en el navegador.');
-                        } else {
-                            mostrarErrorCotizador('No se pudo guardar el informe. Intenta de nuevo.');
+                            return;
                         }
                     }
+
+                    var url = './informe.html';
+                    if (datosEncoded.length <= MAX_HASH_URL_CHARS) {
+                        url = './informe.html#' + datosEncoded;
+                    }
+                    var ventana = window.open(url, '_blank', 'noopener,noreferrer');
+                    if (ventana === null && window.location.protocol === 'file:') {
+                        mostrarErrorCotizador('No se pudo abrir la ventana del informe. Permite ventanas emergentes.');
+                    }
                 } catch (error) {
-                    console.error('Error generando cotización:', error);
-                    mostrarErrorCotizador('Ocurrió un error al generar el informe.');
+                    console.error('Error generando cotizacion:', error);
+                    mostrarErrorCotizador('Ocurrio un error al generar el informe.');
                 }
             }
-        };
+        });
     }
 
     window.cotizador = cotizador;
