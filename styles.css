@@ -1483,7 +1483,7 @@ body.informe {
 }
 
 body.informe .container {
-    max-width: 900px;
+    max-width: 520px;
     margin: 32px auto;
     background: var(--clay-canvas);
     box-shadow: none;
