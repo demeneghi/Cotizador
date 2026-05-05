@@ -2051,7 +2051,7 @@ body.informe .footer {
 
 .ponderado-row {
     display: grid;
-    grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 0.5fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.8fr);
     gap: 10px;
     align-items: center;
     padding: 6px 12px;
@@ -2436,7 +2436,7 @@ body.informe .footer {
 
 @media (max-width: 600px) {
     .ponderado-row {
-        grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 0.9fr);
         gap: 6px;
         padding: 8px 8px;
     }
