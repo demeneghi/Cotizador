@@ -2295,7 +2295,7 @@ body.informe .footer {
 }
 
 .app-tab {
-    padding: 10px 18px;
+    padding: 10px 14px;
     border: none;
     background: transparent;
     color: var(--clay-muted);
@@ -2309,7 +2309,7 @@ body.informe .footer {
     min-height: 44px;
     margin-bottom: -1px;
     border-bottom: 2px solid transparent;
-    flex: 0 0 200px;
+    flex: 0 0 156px;
     text-align: center;
 }
 
