@@ -68,7 +68,7 @@
         if (!isNonEmptyString(o.fecha, LIMITS.fecha) || !isNonEmptyString(o.hora, LIMITS.hora)) return false;
         if (o.estado !== undefined && !isBoundedString(o.estado, LIMITS.estado)) return false;
         var exp = expectedSchema !== undefined ? expectedSchema : 2;
-        if (o.schemaVersion === undefined || o.schemaVersion !== exp) {
+        if (o.schemaVersion !== undefined && o.schemaVersion !== 1 && o.schemaVersion !== exp) {
             return false;
         }
         for (var i = 0; i < o.calcCorto.length; i++) {

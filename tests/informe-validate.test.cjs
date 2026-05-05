@@ -52,16 +52,16 @@ test('validateInforme rechaza precio negativo o pocos pasos', () => {
     assert.strictEqual(Inv.validateInforme(short, 2), false);
 });
 
-test('validateInforme rechaza schemaVersion inesperado o ausente', () => {
+test('validateInforme rechaza schemaVersion inesperado y acepta legacy (undefined o 1)', () => {
     var o = informeValido();
     o.schemaVersion = 99;
     assert.strictEqual(Inv.validateInforme(o, 2), false);
     var o2 = informeValido();
     delete o2.schemaVersion;
-    assert.strictEqual(Inv.validateInforme(o2, 2), false);
+    assert.strictEqual(Inv.validateInforme(o2, 2), true);
     var o3 = informeValido();
     o3.schemaVersion = 1;
-    assert.strictEqual(Inv.validateInforme(o3, 2), false);
+    assert.strictEqual(Inv.validateInforme(o3, 2), true);
 });
 
 test('validateInforme rechaza strings demasiado largos (DoS por enlace)', () => {
