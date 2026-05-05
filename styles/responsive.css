@@ -152,12 +152,12 @@
     }
 
     .ponderado-input-cell .input-with-prefix {
-        min-height: 42px;
+        min-height: 39px;
     }
 
     .ponderado-input-cell input {
         font-size: 16px;
-        padding: 8px 8px;
+        padding: 7px 8px;
         font-weight: 750;
     }
 
@@ -418,12 +418,12 @@
     }
 
     .ponderado-input-cell .input-with-prefix {
-        min-height: 38px;
+        min-height: 36px;
     }
 
     .ponderado-input-cell input {
         font-size: 15px;
-        padding: 7px 6px;
+        padding: 6px 6px;
         font-weight: 750;
     }
 

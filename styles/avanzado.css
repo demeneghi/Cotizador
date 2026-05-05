@@ -107,7 +107,7 @@
     border-radius: var(--radius-md);
     background: var(--clay-canvas);
     overflow: hidden;
-    min-height: 40px;
+    min-height: 36px;
     min-width: 0;
     transition: border-color 0.15s, outline 0.15s;
 }
@@ -133,7 +133,7 @@
 
 /* Tabla ponderada: más compacta y peso medio en escritorio */
 .ponderado-input-cell input {
-    padding: 6px 10px;
+    padding: 5px 10px;
     border: none;
     background: var(--clay-canvas);
     color: var(--clay-ink);
