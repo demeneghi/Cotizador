@@ -210,6 +210,11 @@
             configuracionGuardada: false,
             tabActivo: 'basico',
 
+            respaldoJson: '',
+            respaldoCopiado: false,
+            mostrarRespaldoModal: false,
+            puedeCompartirRespaldo: false,
+
             calibres: crearCalibresDesdeDefaults(),
             ponderaciones: (function () {
                 var z = [];
@@ -242,6 +247,7 @@
                 this.calcular();
                 this.calcularPonderado();
                 if (!this.estadoDestinoPonderado) this.estadoDestinoPonderado = this.estadoActivo;
+                this.puedeCompartirRespaldo = (typeof navigator !== 'undefined' && typeof navigator.share === 'function');
 
                 var self = this;
                 this.$nextTick(function () {
@@ -473,14 +479,11 @@
 
             exportarRespaldo: function () {
                 try {
-                    var snapshot = this.buildPersistedSnapshot();
-                    var raw = JSON.stringify(snapshot);
-                    dataStore.set(snapshot);
+                    var raw = JSON.stringify(this.buildPersistedSnapshot());
                     dataStore.flush();
 
                     var suggestedName = 'cotizador-respaldo-' + new Date().toISOString().split('T')[0] + '.json';
 
-                    /** Sin vista previa JSON / sheet de compartir cuando el SO lo permite (Chrome/Edge). */
                     function descargaPorEnlaceBinario() {
                         var blob = new Blob([raw], { type: 'application/octet-stream' });
                         var url = URL.createObjectURL(blob);
@@ -515,11 +518,94 @@
                         return;
                     }
 
-                    descargaPorEnlaceBinario();
+                    /** Sin Save Picker (Safari/iOS, Firefox): mostrar modal para copiar/compartir. */
+                    this.respaldoJson = raw;
+                    this.respaldoCopiado = false;
+                    this.mostrarRespaldoModal = true;
+                    var self = this;
+                    this.$nextTick(function () {
+                        var ta = self.$refs && self.$refs.respaldoTextarea;
+                        if (ta && typeof ta.focus === 'function') {
+                            try { ta.focus(); ta.select(); } catch (e) { /* ignore */ }
+                        }
+                    });
                 } catch (e) {
                     console.error('exportarRespaldo:', e);
                     mostrarErrorCotizador('No se pudo exportar el respaldo.');
                 }
+            },
+
+            cerrarRespaldoModal: function () {
+                this.mostrarRespaldoModal = false;
+                this.respaldoJson = '';
+                this.respaldoCopiado = false;
+            },
+
+            copiarRespaldoJson: function () {
+                var self = this;
+                var texto = this.respaldoJson || '';
+                if (!texto) return;
+
+                function marcarCopiado() {
+                    self.respaldoCopiado = true;
+                    var t = setTimeout(function () { self.respaldoCopiado = false; }, 2000);
+                    self._toastTimers.push(t);
+                }
+
+                function fallbackExecCommand() {
+                    try {
+                        var ta = self.$refs && self.$refs.respaldoTextarea;
+                        if (!ta) return false;
+                        ta.removeAttribute('readonly');
+                        ta.focus();
+                        ta.select();
+                        var ok = false;
+                        try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+                        ta.setAttribute('readonly', '');
+                        return ok;
+                    } catch (e) {
+                        return false;
+                    }
+                }
+
+                if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    navigator.clipboard.writeText(texto).then(marcarCopiado).catch(function () {
+                        if (fallbackExecCommand()) marcarCopiado();
+                        else mostrarErrorCotizador('No se pudo copiar el respaldo.');
+                    });
+                    return;
+                }
+
+                if (fallbackExecCommand()) marcarCopiado();
+                else mostrarErrorCotizador('No se pudo copiar el respaldo.');
+            },
+
+            compartirRespaldoJson: function () {
+                if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') return;
+                var texto = this.respaldoJson || '';
+                if (!texto) return;
+                var fileName = 'cotizador-respaldo-' + new Date().toISOString().split('T')[0] + '.json';
+                var data = { title: 'Respaldo cotizador', text: texto };
+
+                try {
+                    var FileCtor = (typeof window !== 'undefined') ? window.File : null;
+                    if (typeof FileCtor === 'function' && typeof navigator.canShare === 'function') {
+                        var file = new FileCtor([texto], fileName, { type: 'application/json' });
+                        var withFiles = { title: data.title, files: [file] };
+                        if (navigator.canShare(withFiles)) {
+                            navigator.share(withFiles).catch(function (err) {
+                                if (err && err.name === 'AbortError') return;
+                                navigator.share(data).catch(function () { /* ignore */ });
+                            });
+                            return;
+                        }
+                    }
+                } catch (e) { /* fallback abajo */ }
+
+                navigator.share(data).catch(function (err) {
+                    if (err && err.name === 'AbortError') return;
+                    console.warn('compartirRespaldoJson:', err && err.message);
+                });
             },
 
             importarRespaldoSeleccionado: function (evt) {

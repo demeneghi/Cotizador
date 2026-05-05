@@ -540,6 +540,46 @@
                 </div>
             </div>
         </div>
+
+        <div
+            class="modal-backdrop"
+            x-show="mostrarRespaldoModal"
+            x-cloak
+            x-transition.opacity
+            @click.self="cerrarRespaldoModal()"
+            @keydown.escape.window="cerrarRespaldoModal()"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-respaldo-title">
+            <div class="modal modal-export" @click.stop>
+                <div class="modal-title" id="modal-respaldo-title">Respaldo de configuracion</div>
+                <div class="modal-message">
+                    Copia el contenido o usa Compartir para guardarlo en otra app.
+                </div>
+                <textarea
+                    class="modal-export-text"
+                    readonly
+                    x-ref="respaldoTextarea"
+                    x-model="respaldoJson"
+                    spellcheck="false"
+                    autocapitalize="off"
+                    wrap="soft"
+                    aria-label="Contenido del respaldo en formato JSON"></textarea>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn-cancel" @click="cerrarRespaldoModal()">
+                        Cerrar
+                    </button>
+                    <template x-if="puedeCompartirRespaldo">
+                        <button type="button" class="modal-btn-secondary" @click="compartirRespaldoJson()">
+                            Compartir
+                        </button>
+                    </template>
+                    <button type="button" class="modal-btn-primary" @click="copiarRespaldoJson()">
+                        <span x-text="respaldoCopiado ? 'Copiado' : 'Copiar'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </main>
 
 </body>
