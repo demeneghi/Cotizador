@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
     <!-- script-src incluye 'unsafe-eval' porque Alpine 3 evalua expresiones de plantilla con new Function. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
@@ -22,6 +22,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=21">
 
     <link rel="stylesheet" href="styles.css">
+
+    <script src="js/disable-mobile-zoom.js"></script>
 
     <noscript>
         <style>.requires-js{display:block;padding:24px;background:#fffaf0;color:#0a0a0a;font-family:system-ui,sans-serif}</style>

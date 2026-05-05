@@ -47,6 +47,7 @@ const SHA_FILES = [
     'sw.js',
     'config/app.json',
     'js/app-config.js',
+    'js/disable-mobile-zoom.js',
     'js/numeric.js',
     'js/calc-core.js',
     'js/format-number.js',
@@ -170,6 +171,7 @@ function main() {
         'index.html': Buffer.from(indexDesired, 'utf8')
     };
     const otherForHash = [
+        'js/disable-mobile-zoom.js',
         'js/numeric.js',
         'js/calc-core.js',
         'js/format-number.js',
