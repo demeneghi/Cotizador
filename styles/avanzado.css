@@ -148,6 +148,12 @@
     outline: none;
 }
 
+.ponderado-input-cell input::placeholder,
+.ponderado-input-cell input::-webkit-input-placeholder {
+    font-size: 0.9em;
+    opacity: 0.5;
+}
+
 .ponderado-pond {
     text-align: right;
     font-size: 18px;
