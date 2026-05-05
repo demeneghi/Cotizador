@@ -434,13 +434,22 @@
                         </div>
 
                         <div class="results-grid ponderado-resultado-grid" aria-live="polite">
-                            <div class="result-card highlight">
-                                <div class="result-label">Precio promedio ponderado</div>
-                                <div class="result-value">
-                                    <span x-show="ponderadoSumaValida()">$<span x-text="formatNumber(totalPonderado)"></span></span>
-                                    <span x-show="!ponderadoSumaValida()" class="ponderado-total-placeholder" aria-label="Pendiente: completa el 100%">—</span>
+                            <div class="result-card highlight ponderado-resultado-card">
+                                <div class="ponderado-resultado-content">
+                                    <div class="result-label">Precio promedio ponderado</div>
+                                    <div class="result-value">
+                                        <span x-show="ponderadoSumaValida()">$<span x-text="formatNumber(totalPonderado)"></span></span>
+                                        <span x-show="!ponderadoSumaValida()" class="ponderado-total-placeholder" aria-label="Pendiente: completa el 100%">—</span>
+                                    </div>
+                                    <div class="result-unit">USD</div>
                                 </div>
-                                <div class="result-unit">USD</div>
+                                <button
+                                    type="button"
+                                    class="ponderado-limpiar"
+                                    @click="solicitarLimpiarPonderado()"
+                                    aria-label="Limpiar tabla de precios ponderados">
+                                    Limpiar
+                                </button>
                             </div>
                         </div>
 
@@ -473,6 +482,34 @@
                     </div>
                 </div><!-- /tabpanel avanzado -->
 
+            </div>
+        </div>
+
+        <!-- Modal: confirmar limpiar tabla ponderado -->
+        <div
+            class="modal-backdrop"
+            x-show="mostrarModalLimpiar"
+            x-cloak
+            x-transition.opacity
+            @click.self="cancelarLimpiarPonderado()"
+            @keydown.escape.window="cancelarLimpiarPonderado()"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-limpiar-title">
+            <div class="modal" @click.stop>
+                <div class="modal-title" id="modal-limpiar-title">Limpiar tabla de precios</div>
+                <div class="modal-message">
+                    ¿Seguro que quieres poner en cero todos los porcentajes y precios de la tabla?
+                    Esta acción no se puede deshacer.
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn-cancel" @click="cancelarLimpiarPonderado()">
+                        Cancelar
+                    </button>
+                    <button type="button" class="modal-btn-confirm" @click="confirmarLimpiarPonderado()">
+                        Limpiar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
