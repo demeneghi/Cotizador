@@ -2157,7 +2157,7 @@ body.informe .footer {
     font-variant-numeric: tabular-nums;
 }
 
-.ponderado-resultado-card {
+.results-grid .ponderado-resultado-card {
     display: grid;
     grid-template-columns: 3fr 1fr;
     align-items: stretch;
@@ -2169,6 +2169,18 @@ body.informe .footer {
     padding: 32px 16px;
     text-align: center;
     min-width: 0;
+}
+
+@media (max-width: 768px) {
+    .ponderado-resultado-content {
+        padding: 22px 12px;
+    }
+}
+
+@media (max-width: 430px) {
+    .ponderado-resultado-content {
+        padding: 18px 10px;
+    }
 }
 
 .ponderado-limpiar {
@@ -2329,8 +2341,9 @@ body.informe .footer {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 6px 12px;
-    margin-bottom: 8px;
+    padding: 6px 10px;
+    margin-top: -18px;
+    margin-bottom: 12px;
     background: var(--clay-canvas);
     border: 1px solid var(--clay-hairline);
     border-radius: var(--radius-md);
