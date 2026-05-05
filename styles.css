@@ -485,7 +485,7 @@ input:-ms-input-placeholder {
     background: var(--clay-canvas);
     transition: border-color 0.15s, outline 0.15s;
     overflow: hidden;
-    min-height: 48px;
+    min-height: 40px;
 }
 
 .param-input-wrapper .input-with-prefix:focus-within {
@@ -508,11 +508,11 @@ input:-ms-input-placeholder {
     align-items: center;
     justify-content: center;
     height: 100%;
-    min-height: 48px;
+    min-height: 40px;
 }
 
 .param-input-wrapper input {
-    padding: 11px 16px;
+    padding: 8px 16px;
     border: none;
     border-radius: var(--radius-md);
     font-size: 14px;
@@ -1106,7 +1106,7 @@ input:-ms-input-placeholder {
     }
 
     .param-input-wrapper .input-with-prefix {
-        min-height: 50px;
+        min-height: 42px;
     }
 
     .param-input-wrapper .input-prefix {
@@ -1118,7 +1118,7 @@ input:-ms-input-placeholder {
 
     .param-input-wrapper input {
         font-size: 16px;
-        padding: 12px 10px;
+        padding: 8px 10px;
     }
 
     .params-section {
@@ -1389,7 +1389,7 @@ input:-ms-input-placeholder {
     }
 
     .param-input-wrapper .input-with-prefix {
-        min-height: 46px;
+        min-height: 38px;
     }
 
     .param-input-wrapper .input-prefix {
@@ -2157,9 +2157,134 @@ body.informe .footer {
     font-variant-numeric: tabular-nums;
 }
 
+.ponderado-resultado-card {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    align-items: stretch;
+    padding: 0;
+    overflow: hidden;
+}
+
+.ponderado-resultado-content {
+    padding: 32px 16px;
+    text-align: center;
+    min-width: 0;
+}
+
+.ponderado-limpiar {
+    border: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(0, 0, 0, 0.12);
+    color: var(--clay-on-primary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: var(--body-tracking);
+    padding: 12px 8px;
+    transition: background 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ponderado-limpiar:hover {
+    background: rgba(0, 0, 0, 0.22);
+}
+
+.ponderado-limpiar:active {
+    background: rgba(0, 0, 0, 0.3);
+}
+
 .ponderado-total-placeholder {
     color: var(--clay-ink-subtle);
     font-weight: 500;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+.modal {
+    background: var(--clay-canvas);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--clay-hairline);
+    max-width: 420px;
+    width: 100%;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--clay-ink);
+    margin-bottom: 12px;
+    letter-spacing: var(--body-tracking);
+}
+
+.modal-message {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--clay-ink-muted);
+    margin-bottom: 24px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.modal-btn-cancel,
+.modal-btn-confirm {
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: var(--body-tracking);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    min-height: 40px;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.modal-btn-cancel {
+    background: var(--clay-canvas);
+    color: var(--clay-ink);
+    border: 1px solid var(--clay-hairline);
+}
+
+.modal-btn-cancel:hover {
+    background: var(--clay-surface-soft);
+}
+
+.modal-btn-confirm {
+    background: var(--clay-error);
+    color: var(--clay-on-primary);
+    border: 1px solid var(--clay-error);
+}
+
+.modal-btn-confirm:hover {
+    background: var(--clay-error-hover);
+    border-color: var(--clay-error-hover);
 }
 
 .ponderado-badge {
