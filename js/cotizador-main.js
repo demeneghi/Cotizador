@@ -477,16 +477,45 @@
                     var raw = JSON.stringify(snapshot);
                     dataStore.set(snapshot);
                     dataStore.flush();
-                    var blob = new Blob([raw], { type: 'application/json;charset=utf-8' });
-                    var url = URL.createObjectURL(blob);
-                    var a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'cotizador-respaldo-' + new Date().toISOString().split('T')[0] + '.json';
-                    a.rel = 'noopener noreferrer';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+
+                    var suggestedName = 'cotizador-respaldo-' + new Date().toISOString().split('T')[0] + '.json';
+
+                    /** Sin vista previa JSON / sheet de compartir cuando el SO lo permite (Chrome/Edge). */
+                    function descargaPorEnlaceBinario() {
+                        var blob = new Blob([raw], { type: 'application/octet-stream' });
+                        var url = URL.createObjectURL(blob);
+                        var a = document.createElement('a');
+                        a.href = url;
+                        a.download = suggestedName;
+                        a.rel = 'noopener noreferrer';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }
+
+                    if (typeof window.showSaveFilePicker === 'function') {
+                        window.showSaveFilePicker({
+                            suggestedName: suggestedName,
+                            types: [{
+                                description: 'Respaldo JSON',
+                                accept: { 'application/json': ['.json'] }
+                            }]
+                        }).then(function (handle) {
+                            return handle.createWritable();
+                        }).then(function (writable) {
+                            var blobJson = new Blob([raw], { type: 'application/json;charset=utf-8' });
+                            return writable.write(blobJson).then(function () {
+                                return writable.close();
+                            });
+                        }).catch(function (err) {
+                            if (err && err.name === 'AbortError') return;
+                            descargaPorEnlaceBinario();
+                        });
+                        return;
+                    }
+
+                    descargaPorEnlaceBinario();
                 } catch (e) {
                     console.error('exportarRespaldo:', e);
                     mostrarErrorCotizador('No se pudo exportar el respaldo.');
