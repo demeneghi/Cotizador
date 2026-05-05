@@ -2,37 +2,37 @@
     'use strict';
 
     var CFG = window.__APP_CONFIG__;
-    if (!CFG) {
-        throw new Error('Falta window.__APP_CONFIG__');
-    }
+    if (!CFG) throw new Error('Falta window.__APP_CONFIG__');
     var Fmt = window.CotizadorFormat;
-    if (!Fmt) {
-        throw new Error('Falta CotizadorFormat (cargar js/format-number.js antes)');
-    }
+    if (!Fmt) throw new Error('Falta CotizadorFormat (cargar js/format-number.js antes)');
     var Inv = window.CotizadorInformeValidate;
-    if (!Inv) {
-        throw new Error('Falta CotizadorInformeValidate (cargar js/informe-validate.js antes)');
-    }
+    if (!Inv) throw new Error('Falta CotizadorInformeValidate (cargar js/informe-validate.js antes)');
 
     var STORAGE_INFORME = CFG.storage.cotizacionInforme;
     var EXPECTED_SCHEMA = CFG.informe.informeJsonSchemaVersion;
+    var MAX_HASH_LEN = (CFG.informe && typeof CFG.informe.maxHashUrlChars === 'number') ? CFG.informe.maxHashUrlChars : 48000;
+    var BRAND = CFG.brand || {};
+    var H2C_SRC = (CFG.cdn && CFG.cdn.html2canvas && CFG.cdn.html2canvas.src) || './js/vendor/html2canvas.min.js';
+    var H2C_INTEGRITY = (CFG.cdn && CFG.cdn.html2canvas && CFG.cdn.html2canvas.integrity) || null;
+    var DOWNLOAD_CSP = "default-src 'none'; img-src 'self' data: blob:; style-src 'unsafe-inline'; font-src data:";
 
-    function formatNumber(num) {
-        return Fmt.formatNumber(num);
-    }
+    function formatNumber(num) { return Fmt.formatNumber(num); }
 
-    function setText(el, text) {
-        el.textContent = text == null ? '' : String(text);
-    }
+    function setText(el, text) { el.textContent = text == null ? '' : String(text); }
 
     function clearNode(node) {
-        while (node.firstChild) {
-            node.removeChild(node.firstChild);
-        }
+        while (node.firstChild) node.removeChild(node.firstChild);
     }
 
     function normalizarFormulaTexto(s) {
         return String(s == null ? '' : s).replace(/<br\s*\/?>/gi, '\n');
+    }
+
+    function escapeHTML(s) {
+        if (s == null) return '';
+        return String(s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
     }
 
     function renderNoData(container) {
@@ -40,7 +40,7 @@
         var wrap = document.createElement('div');
         wrap.className = 'no-data';
         var h2 = document.createElement('h2');
-        setText(h2, 'No hay datos de cotización');
+        setText(h2, 'No hay datos de cotizacion');
         var p = document.createElement('p');
         setText(p, 'Por favor, genera un informe desde el cotizador.');
         var a = document.createElement('a');
@@ -122,13 +122,18 @@
         var header = document.createElement('div');
         header.className = 'header';
         var h1 = document.createElement('h1');
-        setText(h1, 'Cotización de piña');
+        setText(h1, BRAND.tituloInforme || 'Cotizacion de pina');
         var sub = document.createElement('p');
-        sub.appendChild(document.createTextNode('ARU \u2192 '));
-        var subStrong = document.createElement('strong');
-        setText(subStrong, 'Sunrise');
-        sub.appendChild(subStrong);
-        sub.appendChild(document.createTextNode(' \u2190 CBP'));
+        var pre = BRAND.subtituloPre || '';
+        var mid = BRAND.subtituloMid || '';
+        var post = BRAND.subtituloPost || '';
+        if (pre) sub.appendChild(document.createTextNode(pre));
+        if (mid) {
+            var subStrong = document.createElement('strong');
+            setText(subStrong, mid);
+            sub.appendChild(subStrong);
+        }
+        if (post) sub.appendChild(document.createTextNode(post));
         header.appendChild(h1);
         header.appendChild(sub);
         if (informe.estado) {
@@ -149,9 +154,7 @@
         btnPrint.className = 'btn-share btn-print';
         btnPrint.type = 'button';
         btnPrint.textContent = 'Imprimir PDF';
-        btnPrint.addEventListener('click', function () {
-            window.print();
-        });
+        btnPrint.addEventListener('click', function () { window.print(); });
         var btnDl = document.createElement('button');
         btnDl.className = 'btn-share btn-download';
         btnDl.type = 'button';
@@ -248,7 +251,7 @@
         sec3.className = 'section';
         var st3 = document.createElement('div');
         st3.className = 'section-title';
-        setText(st3, 'Flujo de cálculos detallado');
+        setText(st3, 'Flujo de calculos detallado');
         sec3.appendChild(st3);
         var fg = document.createElement('div');
         fg.className = 'flujo-grid';
@@ -267,7 +270,7 @@
         sec4.className = 'section';
         var st4 = document.createElement('div');
         st4.className = 'section-title';
-        setText(st4, 'Parámetros utilizados');
+        setText(st4, 'Parametros utilizados');
         sec4.appendChild(st4);
         var pg = document.createElement('div');
         pg.className = 'parametros-grid';
@@ -293,55 +296,53 @@
         var foot = document.createElement('div');
         foot.className = 'footer';
         var strong = document.createElement('strong');
-        setText(strong, 'Cotizador de piña');
+        setText(strong, BRAND.tituloInforme || 'Cotizacion de pina');
         foot.appendChild(strong);
         foot.appendChild(document.createElement('br'));
-        var ft = document.createTextNode('Documento generado automáticamente el ' + informe.fecha + ' a las ' + informe.hora);
+        var ft = document.createTextNode('Documento generado automaticamente el ' + informe.fecha + ' a las ' + informe.hora);
         foot.appendChild(ft);
         container.appendChild(foot);
+    }
+
+    function leerDatosFuente() {
+        var datos = null;
+        try {
+            if (window.location.hash && window.location.hash.length > 1) {
+                if (window.location.hash.length > MAX_HASH_LEN) {
+                    return { error: 'El enlace del informe es demasiado grande para procesarse.' };
+                }
+                datos = decodeURIComponent(window.location.hash.substring(1));
+            }
+        } catch (e) {
+            return { error: 'No se pudo leer la URL del informe.' };
+        }
+        if (!datos) {
+            try { datos = localStorage.getItem(STORAGE_INFORME); } catch (e) { /* ignore */ }
+        }
+        if (!datos) {
+            try { datos = sessionStorage.getItem(STORAGE_INFORME); } catch (e) { /* ignore */ }
+        }
+        if (!datos) return { empty: true };
+        if (datos.length > MAX_HASH_LEN) {
+            return { error: 'El informe es demasiado grande.' };
+        }
+        var informe;
+        try { informe = JSON.parse(datos); }
+        catch (e) { return { error: 'El contenido del informe no es JSON valido.' }; }
+        if (!Inv.validateInforme(informe, EXPECTED_SCHEMA)) {
+            return { error: 'El informe no tiene el formato esperado. Vuelve a generarlo desde el cotizador.' };
+        }
+        return { informe: informe };
     }
 
     function cargarInforme() {
         var root = document.getElementById('informe-content');
         if (!root) return;
-
-        var datos = null;
+        var res = leerDatosFuente();
+        if (res.empty) { renderNoData(root); return; }
+        if (res.error) { renderError(root, res.error); return; }
         try {
-            if (window.location.hash && window.location.hash.length > 1) {
-                datos = decodeURIComponent(window.location.hash.substring(1));
-            }
-        } catch (e) {
-            renderError(root, 'No se pudo leer la URL del informe.');
-            return;
-        }
-
-        if (!datos) {
-            datos = localStorage.getItem(STORAGE_INFORME);
-        }
-        if (!datos) {
-            datos = sessionStorage.getItem(STORAGE_INFORME);
-        }
-
-        if (!datos) {
-            renderNoData(root);
-            return;
-        }
-
-        var informe;
-        try {
-            informe = JSON.parse(datos);
-        } catch (e) {
-            renderError(root, 'El contenido del informe no es JSON válido.');
-            return;
-        }
-
-        if (!Inv.validateInforme(informe, EXPECTED_SCHEMA)) {
-            renderError(root, 'El informe no tiene el formato esperado. Vuelve a generarlo desde el cotizador.');
-            return;
-        }
-
-        try {
-            renderInforme(root, informe);
+            renderInforme(root, res.informe);
         } catch (e) {
             console.error('Error al pintar el informe:', e);
             renderError(root, 'Error al pintar el informe.');
@@ -349,37 +350,14 @@
     }
 
     function descargarHTML() {
-        var datos = localStorage.getItem(STORAGE_INFORME) || sessionStorage.getItem(STORAGE_INFORME);
-        if (!datos && window.location.hash && window.location.hash.length > 1) {
-            try {
-                datos = decodeURIComponent(window.location.hash.substring(1));
-            } catch (e1) {
-                window.alert('No se pudo leer el fragmento de la URL del informe.');
-                return;
-            }
-        }
-
-        if (!datos) {
-            window.alert('No hay datos para generar el informe');
+        var res = leerDatosFuente();
+        if (res.empty || res.error) {
+            window.alert(res.error || 'No hay datos para generar el informe');
             return;
         }
-
-        var informe;
-        try {
-            informe = JSON.parse(datos);
-        } catch (e2) {
-            window.alert('Los datos del informe no son JSON válido.');
-            return;
-        }
-
-        if (!Inv.validateInforme(informe, EXPECTED_SCHEMA)) {
-            window.alert('El informe no tiene el formato esperado. Vuelve a generarlo desde el cotizador.');
-            return;
-        }
-
         var shell = document.createElement('div');
         try {
-            renderInforme(shell, informe);
+            renderInforme(shell, res.informe);
         } catch (e3) {
             console.error('descargarHTML render:', e3);
             window.alert('No se pudo reconstruir el informe para exportar.');
@@ -392,17 +370,25 @@
                 return r.text();
             })
             .then(function (cssContent) {
-                var htmlCompleto = '<!DOCTYPE html>\n<html lang="es">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>Cotización de Piña - Informe</title>\n<style>' +
-                    cssContent.replace(/<\/style/gi, '<\\/style') +
-                    '</style>\n</head>\n<body class="informe">\n<div class="container">\n' +
-                    shell.innerHTML +
+                var safeCSS = cssContent.replace(/<\/style/gi, '<\\/style');
+                var safeBody = shell.innerHTML.replace(/<\/body/gi, '<\\/body').replace(/<script/gi, '<\\script');
+                var htmlCompleto = '<!DOCTYPE html>\n<html lang="es">\n<head>\n' +
+                    '<meta charset="UTF-8">\n' +
+                    '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">\n' +
+                    '<meta http-equiv="Content-Security-Policy" content="' + escapeHTML(DOWNLOAD_CSP) + '">\n' +
+                    '<meta name="referrer" content="no-referrer">\n' +
+                    '<title>Cotizacion - Informe</title>\n' +
+                    '<style>' + safeCSS + '</style>\n' +
+                    '</head>\n<body class="informe">\n<div class="container">\n' +
+                    safeBody +
                     '\n</div>\n</body>\n</html>';
 
                 var blob = new Blob([htmlCompleto], { type: 'text/html;charset=utf-8' });
                 var url = URL.createObjectURL(blob);
                 var a = document.createElement('a');
                 a.href = url;
-                a.download = 'Cotizacion-Pina-' + new Date().toISOString().split('T')[0] + '.html';
+                a.download = 'Cotizacion-' + new Date().toISOString().split('T')[0] + '.html';
+                a.rel = 'noopener noreferrer';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -410,37 +396,63 @@
                 window.alert('Informe descargado. Puedes compartirlo como archivo.');
             })
             .catch(function () {
-                window.alert('No se pudo descargar el HTML (sin red o sin styles.css en caché).');
+                window.alert('No se pudo descargar el HTML (sin red o sin styles.css en cache).');
             });
+    }
+
+    var html2canvasPromise = null;
+    function ensureHtml2canvas() {
+        if (typeof window.html2canvas === 'function') return Promise.resolve(window.html2canvas);
+        if (html2canvasPromise) return html2canvasPromise;
+        html2canvasPromise = new Promise(function (resolve, reject) {
+            var s = document.createElement('script');
+            s.src = H2C_SRC;
+            if (H2C_INTEGRITY) {
+                s.integrity = H2C_INTEGRITY;
+                s.crossOrigin = 'anonymous';
+            }
+            s.async = true;
+            s.onload = function () {
+                if (typeof window.html2canvas === 'function') resolve(window.html2canvas);
+                else reject(new Error('html2canvas cargado pero no disponible'));
+            };
+            s.onerror = function () { reject(new Error('No se pudo cargar html2canvas')); };
+            document.head.appendChild(s);
+        });
+        return html2canvasPromise;
     }
 
     function descargarImagen() {
         var botones = document.querySelector('.informe-actions');
         var container = document.querySelector('.container');
-        if (!container || typeof html2canvas !== 'function') {
-            window.alert('html2canvas no está disponible');
+        if (!container) {
+            window.alert('No hay contenido para exportar.');
             return;
         }
-
-        if (botones) botones.classList.add('informe-actions--hidden');
-
-        html2canvas(container, {
-            scale: 2,
-            backgroundColor: '#ffffff',
-            logging: false,
-            windowWidth: 900,
-            windowHeight: container.scrollHeight
+        ensureHtml2canvas().then(function (h2c) {
+            if (botones) botones.classList.add('informe-actions--hidden');
+            var devMem = (typeof navigator !== 'undefined' && typeof navigator.deviceMemory === 'number') ? navigator.deviceMemory : 4;
+            var scale = devMem < 4 ? 1 : 2;
+            var width = container.offsetWidth || 900;
+            return h2c(container, {
+                scale: scale,
+                backgroundColor: '#ffffff',
+                logging: false,
+                windowWidth: width,
+                windowHeight: container.scrollHeight
+            });
         }).then(function (canvas) {
             if (botones) botones.classList.remove('informe-actions--hidden');
             canvas.toBlob(function (blob) {
                 if (!blob) {
-                    window.alert('No se pudo generar la imagen (blob vacío).');
+                    window.alert('No se pudo generar la imagen (blob vacio).');
                     return;
                 }
                 var url = URL.createObjectURL(blob);
                 var a = document.createElement('a');
                 a.href = url;
-                a.download = 'Cotizacion-Pina-' + new Date().toISOString().split('T')[0] + '.png';
+                a.download = 'Cotizacion-' + new Date().toISOString().split('T')[0] + '.png';
+                a.rel = 'noopener noreferrer';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -450,11 +462,9 @@
         }).catch(function (err) {
             if (botones) botones.classList.remove('informe-actions--hidden');
             console.error('Error generando imagen:', err);
-            window.alert('Error al generar la imagen');
+            window.alert('Error al generar la imagen: ' + (err && err.message ? err.message : 'desconocido'));
         });
     }
 
     window.addEventListener('load', cargarInforme);
-    window.descargarHTML = descargarHTML;
-    window.descargarImagen = descargarImagen;
 })();
