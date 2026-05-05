@@ -61,6 +61,11 @@
         font-size: 14px;
     }
 
+    .brand-route-pride-icon svg {
+        width: 15px;
+        height: 11px;
+    }
+
     .content {
         padding: 20px 12px;
         overflow-x: hidden;
@@ -147,17 +152,17 @@
     }
 
     .ponderado-input-cell .input-with-prefix {
-        min-height: 44px;
+        min-height: 42px;
     }
 
     .ponderado-input-cell input {
-        font-size: 17px;
-        padding: 9px 8px;
-        font-weight: 700;
+        font-size: 16px;
+        padding: 8px 8px;
+        font-weight: 750;
     }
 
     .ponderado-input-cell .input-prefix {
-        font-size: 15px;
+        font-size: 14px;
     }
 
     .result-card {
@@ -345,6 +350,11 @@
         font-size: 15px;
     }
 
+    .brand-route-pride-icon svg {
+        width: 14px;
+        height: 10px;
+    }
+
     .content {
         padding: 15px 10px;
     }
@@ -408,17 +418,17 @@
     }
 
     .ponderado-input-cell .input-with-prefix {
-        min-height: 40px;
+        min-height: 38px;
     }
 
     .ponderado-input-cell input {
-        font-size: 16px;
-        padding: 8px 6px;
-        font-weight: 700;
+        font-size: 15px;
+        padding: 7px 6px;
+        font-weight: 750;
     }
 
     .ponderado-input-cell .input-prefix {
-        font-size: 13px;
+        font-size: 12px;
         padding: 0 8px;
     }
 

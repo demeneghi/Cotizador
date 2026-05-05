@@ -184,6 +184,30 @@ body.informe .header h1,
     letter-spacing: var(--body-tracking);
 }
 
+/* Agrupa mini banderas orgullo + "Sunrise" + mini banderas (mismo SVG, ids distintos) */
+.brand-route-mid-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    vertical-align: baseline;
+    margin: 0 1px;
+}
+
+.brand-route-pride-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    line-height: 0;
+}
+
+.brand-route-pride-icon svg {
+    width: 17px;
+    height: 12px;
+    display: block;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(10, 10, 10, 0.1);
+}
+
 /* Subtítulo de marca: realce solo tipográfico. */
 .header p.brand-route {
     margin-top: 8px;
@@ -196,15 +220,68 @@ body.informe .header h1,
 
 .header p.brand-route .brand-route-code {
     color: var(--clay-ink);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.06em;
     font-variant-numeric: tabular-nums;
 }
 
+/* "Sunrise" (brandSubtituloMid): arcoíris en texto + iconos a lados; sin subrayado */
 .header p.brand-route .brand-route-season {
-    color: var(--clay-brand-coral);
+    display: inline-block;
     font-weight: 800;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.04em;
+    color: var(--clay-brand-coral);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .header p.brand-route .brand-route-season {
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+        background-image: linear-gradient(
+            110deg,
+            #e40303 0%,
+            #ff5900 14%,
+            #ffed00 28%,
+            #00c853 42%,
+            #24408e 58%,
+            #750787 74%,
+            #ff218e 88%,
+            #e40303 100%
+        );
+        background-size: 220% 100%;
+        background-position: 0% 50%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        animation: brandRoutePrideShift 14s ease-in-out infinite alternate;
+    }
+}
+
+@keyframes brandRoutePrideShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .header p.brand-route .brand-route-season {
+        animation: none;
+        background-size: 100% 100%;
+        background-position: 0% 50%;
+    }
+}
+
+@media print {
+    .header p.brand-route .brand-route-season {
+        color: var(--clay-ink);
+        -webkit-text-fill-color: var(--clay-ink);
+        background: none;
+        background-image: none;
+        animation: none;
+    }
 }
 
 /* Header centrado (solo aplica con la clase modificadora; preserva informe.html). */

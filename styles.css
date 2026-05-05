@@ -186,6 +186,30 @@ body.informe .header h1,
     letter-spacing: var(--body-tracking);
 }
 
+/* Agrupa mini banderas orgullo + "Sunrise" + mini banderas (mismo SVG, ids distintos) */
+.brand-route-mid-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    vertical-align: baseline;
+    margin: 0 1px;
+}
+
+.brand-route-pride-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    line-height: 0;
+}
+
+.brand-route-pride-icon svg {
+    width: 17px;
+    height: 12px;
+    display: block;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(10, 10, 10, 0.1);
+}
+
 /* Subtítulo de marca: realce solo tipográfico. */
 .header p.brand-route {
     margin-top: 8px;
@@ -198,15 +222,68 @@ body.informe .header h1,
 
 .header p.brand-route .brand-route-code {
     color: var(--clay-ink);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.06em;
     font-variant-numeric: tabular-nums;
 }
 
+/* "Sunrise" (brandSubtituloMid): arcoíris en texto + iconos a lados; sin subrayado */
 .header p.brand-route .brand-route-season {
-    color: var(--clay-brand-coral);
+    display: inline-block;
     font-weight: 800;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.04em;
+    color: var(--clay-brand-coral);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .header p.brand-route .brand-route-season {
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+        background-image: linear-gradient(
+            110deg,
+            #e40303 0%,
+            #ff5900 14%,
+            #ffed00 28%,
+            #00c853 42%,
+            #24408e 58%,
+            #750787 74%,
+            #ff218e 88%,
+            #e40303 100%
+        );
+        background-size: 220% 100%;
+        background-position: 0% 50%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        animation: brandRoutePrideShift 14s ease-in-out infinite alternate;
+    }
+}
+
+@keyframes brandRoutePrideShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .header p.brand-route .brand-route-season {
+        animation: none;
+        background-size: 100% 100%;
+        background-position: 0% 50%;
+    }
+}
+
+@media print {
+    .header p.brand-route .brand-route-season {
+        color: var(--clay-ink);
+        -webkit-text-fill-color: var(--clay-ink);
+        background: none;
+        background-image: none;
+        animation: none;
+    }
 }
 
 /* Header centrado (solo aplica con la clase modificadora; preserva informe.html). */
@@ -1080,6 +1157,11 @@ body.update-modal-open {
         font-size: 14px;
     }
 
+    .brand-route-pride-icon svg {
+        width: 15px;
+        height: 11px;
+    }
+
     .content {
         padding: 20px 12px;
         overflow-x: hidden;
@@ -1166,17 +1248,17 @@ body.update-modal-open {
     }
 
     .ponderado-input-cell .input-with-prefix {
-        min-height: 44px;
+        min-height: 42px;
     }
 
     .ponderado-input-cell input {
-        font-size: 17px;
-        padding: 9px 8px;
-        font-weight: 700;
+        font-size: 16px;
+        padding: 8px 8px;
+        font-weight: 750;
     }
 
     .ponderado-input-cell .input-prefix {
-        font-size: 15px;
+        font-size: 14px;
     }
 
     .result-card {
@@ -1364,6 +1446,11 @@ body.update-modal-open {
         font-size: 15px;
     }
 
+    .brand-route-pride-icon svg {
+        width: 14px;
+        height: 10px;
+    }
+
     .content {
         padding: 15px 10px;
     }
@@ -1427,17 +1514,17 @@ body.update-modal-open {
     }
 
     .ponderado-input-cell .input-with-prefix {
-        min-height: 40px;
+        min-height: 38px;
     }
 
     .ponderado-input-cell input {
-        font-size: 16px;
-        padding: 8px 6px;
-        font-weight: 700;
+        font-size: 15px;
+        padding: 7px 6px;
+        font-weight: 750;
     }
 
     .ponderado-input-cell .input-prefix {
-        font-size: 13px;
+        font-size: 12px;
         padding: 0 8px;
     }
 
@@ -2432,7 +2519,7 @@ body.informe .footer {
     border-radius: var(--radius-md);
     background: var(--clay-canvas);
     overflow: hidden;
-    min-height: 42px;
+    min-height: 40px;
     min-width: 0;
     transition: border-color 0.15s, outline 0.15s;
 }
@@ -2445,7 +2532,7 @@ body.informe .footer {
 
 .ponderado-input-cell .input-prefix {
     padding: 0 10px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--clay-ink-muted);
     background: var(--clay-surface-card);
@@ -2456,14 +2543,14 @@ body.informe .footer {
     flex-shrink: 0;
 }
 
-/* Tabla ponderada: un punto menos y caja más baja que el bloque principal */
+/* Tabla ponderada: más compacta y peso medio en escritorio */
 .ponderado-input-cell input {
-    padding: 8px 10px;
+    padding: 6px 10px;
     border: none;
     background: var(--clay-canvas);
     color: var(--clay-ink);
-    font-size: 19px;
-    font-weight: 400;
+    font-size: 18px;
+    font-weight: 500;
     font-family: var(--font-sans);
     text-align: right;
     flex: 1;
@@ -2483,7 +2570,7 @@ body.informe .footer {
 
 .ponderado-pond {
     text-align: right;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--clay-ink);
     font-variant-numeric: tabular-nums;
@@ -2857,7 +2944,7 @@ body.informe .footer {
     }
 
     .ponderado-pond {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .ponderado-size {

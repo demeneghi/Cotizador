@@ -64,7 +64,41 @@
                 <h1 x-text="brandTitulo">Cotizador de piña</h1>
                 <p class="brand-route" aria-label="Ruta ARU - Sunrise - CBP">
                     <span class="brand-route-code" x-text="brandSubtituloPre"></span>
-                    <strong class="brand-route-season" x-text="brandSubtituloMid"></strong>
+                    <span class="brand-route-mid-wrap" title="Orgullo LGTB+">
+                        <span class="brand-route-pride-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="14" viewBox="0 0 20 14" focusable="false">
+                                <defs>
+                                    <linearGradient id="brandRoutePrideIconGradL" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#e40303"/>
+                                        <stop offset="16%" stop-color="#ff8c00"/>
+                                        <stop offset="33%" stop-color="#ffed00"/>
+                                        <stop offset="50%" stop-color="#008026"/>
+                                        <stop offset="66%" stop-color="#24408e"/>
+                                        <stop offset="83%" stop-color="#732982"/>
+                                        <stop offset="100%" stop-color="#ff218e"/>
+                                    </linearGradient>
+                                </defs>
+                                <rect width="20" height="14" rx="2.5" fill="url(#brandRoutePrideIconGradL)"/>
+                            </svg>
+                        </span>
+                        <strong class="brand-route-season" x-text="brandSubtituloMid"></strong>
+                        <span class="brand-route-pride-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="14" viewBox="0 0 20 14" focusable="false">
+                                <defs>
+                                    <linearGradient id="brandRoutePrideIconGradR" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#e40303"/>
+                                        <stop offset="16%" stop-color="#ff8c00"/>
+                                        <stop offset="33%" stop-color="#ffed00"/>
+                                        <stop offset="50%" stop-color="#008026"/>
+                                        <stop offset="66%" stop-color="#24408e"/>
+                                        <stop offset="83%" stop-color="#732982"/>
+                                        <stop offset="100%" stop-color="#ff218e"/>
+                                    </linearGradient>
+                                </defs>
+                                <rect width="20" height="14" rx="2.5" fill="url(#brandRoutePrideIconGradR)"/>
+                            </svg>
+                        </span>
+                    </span>
                     <span class="brand-route-code" x-text="brandSubtituloPost"></span>
                 </p>
                 <div class="app-tabs" role="tablist" aria-label="Modo de cotizacion">
