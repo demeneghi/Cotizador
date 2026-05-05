@@ -39,7 +39,9 @@
             var root = document.querySelector('[x-data]');
             if (!root) return;
             var d = Alpine.$data(root);
-            if (d && typeof d.scheduleGuardar === 'function') {
+            if (d && typeof d.volcarPersistenciaSync === 'function') {
+                d.volcarPersistenciaSync();
+            } else if (d && typeof d.scheduleGuardar === 'function') {
                 d.scheduleGuardar();
             }
         } catch (e) {

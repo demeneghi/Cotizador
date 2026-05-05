@@ -254,14 +254,31 @@
                     self.calcular();
                 });
 
-                window.addEventListener('beforeunload', function () {
+                function persistirAntesDeIrse() {
+                    self.scheduleGuardar();
+                    self.scheduleGuardarPonderado();
                     dataStore.flush();
                     ponderadoStore.flush();
+                }
+
+                window.addEventListener('beforeunload', persistirAntesDeIrse);
+                window.addEventListener('pagehide', persistirAntesDeIrse);
+
+                window.addEventListener('pageshow', function (ev) {
+                    if (!ev || !ev.persisted) return;
+                    try {
+                        self.cargarConfiguracion();
+                        self.cargarPonderado();
+                        self.calcular();
+                        self.calcularPonderado();
+                    } catch (e) {
+                        console.warn('pageshow BFCache:', e && e.message);
+                    }
                 });
-                window.addEventListener('pagehide', function () {
-                    dataStore.flush();
-                    ponderadoStore.flush();
-                });
+
+                if (typeof document !== 'undefined' && 'onfreeze' in document) {
+                    document.addEventListener('freeze', persistirAntesDeIrse);
+                }
             },
 
             scheduleGuardar: function () {
@@ -445,6 +462,18 @@
                 } catch (error) {
                     console.error('Error al guardar configuracion:', error);
                     this.configuracionGuardada = false;
+                }
+            },
+
+            /** Persistencia sincrona (SW reload, moviles donde beforeunload falla). */
+            volcarPersistenciaSync: function () {
+                try {
+                    this.scheduleGuardar();
+                    this.scheduleGuardarPonderado();
+                    dataStore.flush();
+                    ponderadoStore.flush();
+                } catch (e) {
+                    console.warn('volcarPersistenciaSync:', e && e.message);
                 }
             },
 
