@@ -2266,7 +2266,7 @@ body.informe .footer {
 
 .ponderado-head {
     background: var(--clay-surface-card);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--clay-ink-muted);
     text-transform: uppercase;
@@ -2283,7 +2283,7 @@ body.informe .footer {
 
 .ponderado-size {
     font-weight: 700;
-    font-size: 16px;
+    font-size: 18px;
     color: var(--clay-ink);
     text-align: center;
 }
@@ -2299,7 +2299,7 @@ body.informe .footer {
     border-radius: var(--radius-md);
     background: var(--clay-canvas);
     overflow: hidden;
-    min-height: 40px;
+    min-height: 42px;
     min-width: 0;
     transition: border-color 0.15s, outline 0.15s;
 }
@@ -2312,7 +2312,7 @@ body.informe .footer {
 
 .ponderado-input-cell .input-prefix {
     padding: 0 10px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--clay-ink-muted);
     background: var(--clay-surface-card);
@@ -2328,21 +2328,21 @@ body.informe .footer {
     border: none;
     background: var(--clay-canvas);
     color: var(--clay-ink);
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     font-family: var(--font-sans);
     text-align: right;
     flex: 1;
     min-width: 0;
     align-self: stretch;
-    min-height: 44px;
+    min-height: 46px;
     box-sizing: border-box;
     outline: none;
 }
 
 .ponderado-pond {
     text-align: right;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: var(--clay-ink);
     font-variant-numeric: tabular-nums;
@@ -2569,7 +2569,7 @@ body.informe .footer {
     display: inline-block;
     padding: 4px 10px;
     border-radius: var(--radius-pill);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     background: var(--clay-surface-card);
@@ -2598,7 +2598,7 @@ body.informe .footer {
 }
 
 .ponderado-badge-lg {
-    font-size: 14px;
+    font-size: 15px;
     padding: 6px 14px;
 }
 
@@ -2616,7 +2616,7 @@ body.informe .footer {
 }
 
 .ponderado-disponible-label {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--clay-ink-muted);
     text-transform: uppercase;
@@ -2658,7 +2658,7 @@ body.informe .footer {
     border: 1px solid var(--clay-hairline);
     border-radius: var(--radius-pill);
     cursor: pointer;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
     color: var(--clay-ink);
     transition: background 0.15s, border-color 0.15s;
@@ -2709,23 +2709,23 @@ body.informe .footer {
 
     .ponderado-input-cell .input-prefix {
         padding: 0 6px;
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .ponderado-input-cell input {
         padding: 6px 6px;
-        font-size: 14px;
+        font-size: 15px;
     }
 
     .ponderado-pond {
-        font-size: 14px;
+        font-size: 15px;
     }
 
     .ponderado-size {
-        font-size: 14px;
+        font-size: 15px;
     }
 
     .ponderado-head {
-        font-size: 10px;
+        font-size: 11px;
     }
 }
