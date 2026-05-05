@@ -377,6 +377,27 @@
                     }
                     this[k] = v;
                 }
+                /** Miles en vivo solo corre en input del usuario; tras cargar desde LS hay que reformatar el DOM. */
+                var self = this;
+                this.$nextTick(function () {
+                    self.$nextTick(function () {
+                        self.refrescarFormatoInputsNumericos();
+                    });
+                });
+            },
+
+            refrescarFormatoInputsNumericos: function () {
+                var InputsFormat = window.CotizadorInputsFormat;
+                if (!InputsFormat || typeof InputsFormat.reformat !== 'function') return;
+                var sel = InputsFormat.SELECTOR || 'input[data-format-numeric]';
+                var root = document.querySelector('main.container');
+                if (!root) return;
+                var inputs = root.querySelectorAll(sel);
+                for (var i = 0; i < inputs.length; i++) {
+                    try {
+                        InputsFormat.reformat(inputs[i]);
+                    } catch (e) { /* ignore */ }
+                }
             },
 
             validarNumero: Numeric.validarNumero,
