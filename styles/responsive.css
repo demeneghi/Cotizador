@@ -1,0 +1,542 @@
+/* ==========================================
+   MEDIA QUERIES - ESCRITORIO (más margen, columna más estrecha)
+   ========================================== */
+@media (min-width: 769px) {
+    body:not(.informe) {
+        padding: 24px 48px 48px;
+    }
+
+    .container {
+        max-width: 520px;
+        padding: 0 24px;
+    }
+
+    .card {
+        max-width: 100%;
+    }
+
+    body.informe {
+        padding: 24px 48px 48px;
+    }
+
+    body.informe .container {
+        max-width: 520px;
+    }
+}
+
+/* ==========================================
+   MEDIA QUERIES - MOBILE
+   ========================================== */
+@media (max-width: 768px) {
+    body {
+        padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+        align-items: flex-start;
+        overflow-x: hidden;
+    }
+
+    .container {
+        padding: 0 6px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .card {
+        border-radius: var(--radius-lg);
+        overflow-x: hidden;
+    }
+
+    .header {
+        padding: 20px 15px;
+    }
+
+    .header h1 {
+        font-size: 28px;
+        line-height: 1.12;
+        letter-spacing: var(--type-h1-tracking);
+    }
+
+    .header p {
+        font-size: 14px;
+    }
+
+    .content {
+        padding: 20px 12px;
+        overflow-x: hidden;
+    }
+
+    .section {
+        margin-bottom: 20px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .section-title {
+        font-size: 13px;
+    }
+
+    .params-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .params-grid .param-label {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        line-height: 1.25;
+    }
+
+    /* Precio/kg: dos columnas en móvil; parámetros de configuración también en dos */
+    .results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .input-group {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .input-wrapper {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .input-wrapper label {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .input-wrapper .input-with-prefix {
+        min-height: 50px;
+        border-width: 1px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .input-wrapper .input-with-prefix:focus-within {
+        outline: 2px solid var(--clay-primary);
+        outline-offset: -2px;
+        border-bottom: 2px solid var(--clay-primary);
+        box-shadow: none;
+    }
+
+    .input-wrapper .input-prefix {
+        padding: 0 10px;
+        font-size: 16px;
+        background: var(--clay-surface-1);
+        border-right: 1px solid var(--clay-hairline);
+        display: flex;
+        align-items: center;
+        height: 100%;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .input-wrapper input {
+        font-size: 18px;
+        padding: 12px 8px;
+        flex: 1;
+        min-width: 0;
+        font-weight: 700;
+    }
+
+    .result-card {
+        padding: 20px 12px;
+    }
+
+    .result-label {
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+
+    .result-value {
+        font-size: 32px;
+    }
+
+    .result-unit {
+        font-size: 12px;
+        margin-top: 6px;
+    }
+
+    .accordion-header {
+        padding: 12px 15px;
+        font-size: 13px;
+        min-height: 50px;
+    }
+
+    .accordion-icon {
+        font-size: 18px;
+    }
+
+    .param-input-wrapper .input-with-prefix {
+        min-height: 42px;
+    }
+
+    .param-input-wrapper .input-prefix {
+        padding: 0 10px;
+        font-size: 14px;
+        background: var(--clay-surface-1);
+        border-right: 1px solid var(--clay-hairline);
+    }
+
+    .param-input-wrapper input {
+        font-size: 16px;
+        padding: 8px 10px;
+    }
+
+    .params-section {
+        padding: 12px;
+    }
+
+    .param-group {
+        margin-bottom: 15px;
+    }
+
+    .param-group-title {
+        font-size: 11px;
+        margin-bottom: 8px;
+        padding-bottom: 5px;
+    }
+
+    .param-item {
+        padding: 12px;
+    }
+
+    .param-label {
+        font-size: 12px;
+    }
+
+    .button-group {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-save,
+    .btn-reset,
+    .btn-export-backup,
+    .btn-import-backup {
+        padding: 14px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        min-height: 50px;
+    }
+
+    .formula-section {
+        padding: 12px;
+    }
+
+    .calc-step {
+        padding: 12px;
+    }
+
+    .calc-step-title {
+        font-size: 10px;
+    }
+
+    .calc-step-badge {
+        font-size: 9px;
+        padding: 2px 6px;
+    }
+
+    .calc-formula {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        padding: 8px 10px;
+    }
+
+    .calc-value {
+        font-family: var(--font-mono);
+        font-size: 11px;
+    }
+
+    .calc-result-label {
+        font-size: 11px;
+    }
+
+    .calc-result-value {
+        font-family: var(--font-mono);
+        font-size: 16px;
+    }
+
+    .calc-tab {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+    .calc-arrow {
+        font-size: 20px;
+        margin: 3px 0;
+    }
+
+    .btn-compartir {
+        padding: 14px 28px;
+        font-size: 15px;
+        margin-top: 25px;
+    }
+
+    .toast-update {
+        bottom: 15px;
+        left: 10px;
+        right: 10px;
+        transform: none;
+        min-width: auto;
+        padding: 14px 18px;
+        gap: 12px;
+    }
+
+    .toast-update-message {
+        font-size: 13px;
+    }
+
+    .toast-update-button {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+}
+
+/* ==========================================
+   MEDIA QUERIES - SMALL MOBILE
+   ========================================== */
+@media (max-width: 430px) {
+    body {
+        padding: 6px;
+    }
+
+    .container {
+        padding: 0 6px;
+    }
+
+    .header {
+        padding: 18px 12px;
+    }
+
+    .header h1 {
+        font-size: 32px;
+        line-height: var(--type-h1-lh);
+        letter-spacing: var(--type-h1-tracking);
+    }
+
+    .header p {
+        font-size: 15px;
+    }
+
+    .content {
+        padding: 15px 10px;
+    }
+
+    .section {
+        margin-bottom: 18px;
+    }
+
+    .section-title {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .input-group {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .input-wrapper {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .input-wrapper label {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 3px;
+    }
+
+    .input-wrapper .input-with-prefix {
+        min-height: 46px;
+        border-width: 1px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .input-wrapper .input-with-prefix:focus-within {
+        box-shadow: none;
+    }
+
+    .input-wrapper .input-prefix {
+        font-size: 14px;
+        padding: 0 8px;
+        background: var(--clay-surface-1);
+        border-right: 1px solid var(--clay-hairline);
+        display: flex;
+        align-items: center;
+        height: 100%;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .input-wrapper input {
+        font-size: 17px;
+        padding: 10px 6px;
+        flex: 1;
+        min-width: 0;
+        font-weight: 700;
+    }
+
+    .result-card {
+        padding: 22px 18px;
+    }
+
+    .result-label {
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+
+    .result-value {
+        font-size: 32px;
+    }
+
+    .result-unit {
+        font-size: 12px;
+        margin-top: 6px;
+    }
+
+    /* Precio/kg: seguir en 2 columnas; compactar para ~320px de ancho */
+    .results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .results-grid .result-card {
+        padding: 14px 8px;
+    }
+
+    .results-grid .result-label {
+        font-size: 11px;
+        margin-bottom: 6px;
+    }
+
+    .results-grid .result-value {
+        font-size: 24px;
+        line-height: 1.15;
+    }
+
+    .results-grid .result-unit {
+        font-size: 11px;
+        margin-top: 4px;
+    }
+
+    .accordion-header {
+        padding: 12px;
+        font-size: 13px;
+        min-height: 48px;
+    }
+
+    .param-item {
+        padding: 10px;
+    }
+
+    .param-label {
+        font-size: 11px;
+    }
+
+    .param-input-wrapper .input-with-prefix {
+        min-height: 38px;
+    }
+
+    .param-input-wrapper .input-prefix {
+        padding: 0 8px;
+        font-size: 12px;
+        background: var(--clay-surface-1);
+        border-right: 1px solid var(--clay-hairline);
+    }
+
+    .param-input-wrapper input {
+        font-size: 16px;
+    }
+
+    .params-section,
+    .formula-section {
+        padding: 10px;
+    }
+
+    .calc-step {
+        padding: 10px;
+    }
+
+    .calc-formula {
+        font-family: var(--font-mono);
+        font-size: 9px;
+    }
+
+    .calc-value {
+        font-family: var(--font-mono);
+        font-size: 10px;
+    }
+
+    .calc-result-label {
+        font-size: 10px;
+    }
+
+    .calc-result-value {
+        font-family: var(--font-mono);
+        font-size: 14px;
+    }
+
+    .calc-tab {
+        font-size: 11px;
+        padding: 8px 10px;
+    }
+
+    .btn-save,
+    .btn-reset,
+    .btn-export-backup,
+    .btn-import-backup {
+        font-size: 14px;
+    }
+
+    .toast-update {
+        bottom: 10px;
+        left: 8px;
+        right: 8px;
+        padding: 12px 14px;
+        gap: 10px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .toast-update-message {
+        font-size: 12px;
+    }
+
+    .toast-update-button {
+        width: 100%;
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+
+    .btn-compartir {
+        padding: 14px 24px;
+        font-size: 15px;
+        margin-top: 25px;
+    }
+}
+
+/* ==========================================
