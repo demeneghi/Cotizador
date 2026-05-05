@@ -2115,7 +2115,7 @@ body.informe .footer {
 
 .ponderado-input-cell .input-prefix {
     padding: 0 10px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--clay-ink-muted);
     background: var(--clay-surface-card);
@@ -2305,7 +2305,7 @@ body.informe .footer {
 
     .ponderado-input-cell .input-prefix {
         padding: 0 6px;
-        font-size: 12px;
+        font-size: 11px;
     }
 
     .ponderado-input-cell input {
