@@ -53,12 +53,12 @@
 
     <main class="container" x-data="cotizador()">
         <div class="card">
-            <div class="header">
+            <div class="header header--centered">
                 <h1 x-text="brandTitulo">Cotizador de pina</h1>
-                <p>
-                    <span x-text="brandSubtituloPre"></span>
-                    <strong x-text="brandSubtituloMid"></strong>
-                    <span x-text="brandSubtituloPost"></span>
+                <p class="brand-route" aria-label="Ruta ARU - Sunrise - CBP">
+                    <span class="brand-route-code" x-text="brandSubtituloPre"></span>
+                    <strong class="brand-route-season" x-text="brandSubtituloMid"></strong>
+                    <span class="brand-route-code" x-text="brandSubtituloPost"></span>
                 </p>
                 <div class="app-tabs" role="tablist" aria-label="Modo de cotizacion">
                     <button

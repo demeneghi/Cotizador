@@ -50,7 +50,7 @@ body.informe .header p {
     font-size: 14px;
 }
 
-/* Estado — chip contrastado (teal marca + texto crema) para máxima legibilidad */
+/* Estado — chip ocre marca + texto oscuro (contraste sobre lienzo crema) */
 body.informe .informe-header-row .informe-estado-badge {
     flex: 0 0 25%;
     max-width: 25%;
@@ -68,12 +68,12 @@ body.informe .informe-estado-badge {
     font-weight: 700;
     letter-spacing: 0.02em;
     line-height: 1.2;
-    color: var(--clay-canvas);
-    background: var(--clay-brand-teal);
-    border: 2px solid rgba(10, 10, 10, 0.35);
+    color: var(--clay-ink);
+    background: var(--clay-brand-ochre);
+    border: 2px solid rgba(10, 10, 10, 0.28);
     border-radius: var(--radius-md);
     box-sizing: border-box;
-    box-shadow: 0 2px 0 rgba(10, 10, 10, 0.12);
+    box-shadow: 0 2px 0 rgba(10, 10, 10, 0.1);
     word-break: break-word;
     hyphens: auto;
 }
