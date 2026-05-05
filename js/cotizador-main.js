@@ -171,6 +171,7 @@
             totalPonderado: 0,
             estadoDestinoPonderado: ESTADO_DEFAULT,
             ponderadoAplicadoOk: false,
+            mostrarModalLimpiar: false,
 
             init: function () {
                 this.cargarConfiguracion();
@@ -551,6 +552,22 @@
                     this.sumaPct = 0;
                     this.totalPonderado = 0;
                 }
+            },
+
+            solicitarLimpiarPonderado: function () {
+                this.mostrarModalLimpiar = true;
+            },
+
+            cancelarLimpiarPonderado: function () {
+                this.mostrarModalLimpiar = false;
+            },
+
+            confirmarLimpiarPonderado: function () {
+                for (var i = 0; i < this.calibres.length; i++) {
+                    this.calibres[i].porcentaje = 0;
+                    this.calibres[i].precio = 0;
+                }
+                this.mostrarModalLimpiar = false;
             },
 
             ponderadoSumaValida: function () {
