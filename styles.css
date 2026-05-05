@@ -1546,20 +1546,20 @@ body.informe .header p {
     font-size: 14px;
 }
 
-body.informe .estado-informe {
-    color: var(--clay-ink-muted);
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.55;
-    margin-top: 8px;
-    margin-bottom: 0;
-}
-
-.fecha {
+/* Estado — acento lavender (no usado en cabecera ni tarjetas de precios del informe) */
+body.informe .informe-estado-badge {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 7px 16px;
     font-size: 13px;
-    margin-top: 12px;
-    opacity: 1;
-    color: var(--clay-ink-subtle);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+    color: var(--clay-brand-teal);
+    background: var(--clay-brand-lavender);
+    border: 1px solid rgba(26, 58, 58, 0.22);
+    border-radius: var(--radius-pill);
+    box-sizing: border-box;
 }
 
 .informe-actions {
@@ -2001,9 +2001,10 @@ body.informe .footer {
         font-size: 12px;
     }
 
-    body.informe .fecha {
+    body.informe .informe-estado-badge {
         font-size: 12px;
-        margin-top: 8px;
+        padding: 6px 14px;
+        margin-top: 10px;
     }
 
     body.informe .content {

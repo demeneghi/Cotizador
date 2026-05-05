@@ -120,29 +120,15 @@
         header.className = 'header';
         var h1 = document.createElement('h1');
         setText(h1, BRAND.tituloInforme || 'Cotizacion de pina');
-        var sub = document.createElement('p');
-        var pre = BRAND.subtituloPre || '';
-        var mid = BRAND.subtituloMid || '';
-        var post = BRAND.subtituloPost || '';
-        if (pre) sub.appendChild(document.createTextNode(pre));
-        if (mid) {
-            var subStrong = document.createElement('strong');
-            setText(subStrong, mid);
-            sub.appendChild(subStrong);
-        }
-        if (post) sub.appendChild(document.createTextNode(post));
         header.appendChild(h1);
-        header.appendChild(sub);
         if (informe.estado) {
-            var edo = document.createElement('p');
-            edo.className = 'estado-informe';
-            setText(edo, 'Estado: ' + informe.estado);
-            header.appendChild(edo);
+            var badge = document.createElement('span');
+            badge.className = 'informe-estado-badge';
+            badge.setAttribute('role', 'status');
+            badge.setAttribute('aria-label', 'Estado: ' + informe.estado);
+            setText(badge, informe.estado);
+            header.appendChild(badge);
         }
-        var fecha = document.createElement('div');
-        fecha.className = 'fecha';
-        setText(fecha, informe.fecha + ' - ' + informe.hora);
-        header.appendChild(fecha);
         container.appendChild(header);
 
         var actions = document.createElement('div');
