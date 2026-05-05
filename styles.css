@@ -2299,7 +2299,7 @@ body.informe .footer {
     border-radius: var(--radius-md);
     background: var(--clay-canvas);
     overflow: hidden;
-    min-height: 42px;
+    min-height: 34px;
     min-width: 0;
     transition: border-color 0.15s, outline 0.15s;
 }
@@ -2324,7 +2324,7 @@ body.informe .footer {
 }
 
 .ponderado-input-cell input {
-    padding: 8px 10px;
+    padding: 4px 10px;
     border: none;
     background: var(--clay-canvas);
     color: var(--clay-ink);
@@ -2335,7 +2335,7 @@ body.informe .footer {
     flex: 1;
     min-width: 0;
     align-self: stretch;
-    min-height: 46px;
+    min-height: 0;
     box-sizing: border-box;
     outline: none;
 }
@@ -2713,7 +2713,7 @@ body.informe .footer {
     }
 
     .ponderado-input-cell input {
-        padding: 6px 6px;
+        padding: 3px 6px;
         font-size: 15px;
     }
 
