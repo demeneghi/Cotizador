@@ -171,6 +171,125 @@ body.easter-sunrise-no-scroll {
     transform: scale(0.98);
 }
 
+.easter-sunrise-que-roberto-wrap {
+    margin: 14px 0 0;
+    text-align: center;
+}
+
+.easter-sunrise-que-roberto-link {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font-family: var(--font-sans, system-ui, sans-serif);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #64748b;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.easter-sunrise-que-roberto-link:hover {
+    color: #475569;
+}
+
+.easter-sunrise-que-roberto-link:focus-visible {
+    outline: 2px solid #9333ea;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.easter-roberto-reveal {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(12px, 4vw, 32px);
+    pointer-events: none;
+}
+
+.easter-roberto-reveal.is-hidden {
+    display: none !important;
+}
+
+.easter-roberto-reveal:not(.is-hidden) {
+    pointer-events: auto;
+}
+
+.easter-roberto-reveal-backdrop {
+    position: absolute;
+    inset: 0;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    background: rgba(8, 8, 12, 0.92);
+    animation: easterRobertoBackdropIn 0.35s ease-out;
+}
+
+@keyframes easterRobertoBackdropIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.easter-roberto-reveal-text {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    max-width: 95vw;
+    font-family: var(--font-sans, system-ui, sans-serif);
+    font-size: clamp(1.75rem, 7.5vw, 4.25rem);
+    font-weight: 900;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    text-align: center;
+    color: #fef2f2;
+    text-shadow:
+        0 0 40px rgba(244, 63, 94, 0.55),
+        0 4px 24px rgba(0, 0, 0, 0.65);
+    animation: easterRobertoTextPop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both,
+        easterRobertoTextPulse 2.2s ease-in-out 0.7s infinite alternate;
+    pointer-events: none;
+    user-select: none;
+}
+
+@keyframes easterRobertoTextPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.35) rotate(-6deg);
+        filter: blur(12px);
+    }
+
+    55% {
+        opacity: 1;
+        filter: blur(0);
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+@keyframes easterRobertoTextPulse {
+    0% {
+        transform: scale(1);
+        letter-spacing: -0.03em;
+    }
+
+    100% {
+        transform: scale(1.04);
+        letter-spacing: -0.01em;
+    }
+}
+
 @keyframes easterBtnGlow {
     0%,
     100% {
@@ -207,7 +326,9 @@ body.easter-sunrise-no-scroll {
     .easter-sunrise-dialog,
     .easter-sunrise-title,
     .easter-sunrise-btn,
-    .easter-sunrise-sparkles {
+    .easter-sunrise-sparkles,
+    .easter-roberto-reveal-backdrop,
+    .easter-roberto-reveal-text {
         animation: none !important;
     }
 
@@ -224,5 +345,11 @@ body.easter-sunrise-no-scroll {
 
     .easter-sunrise-btn {
         background: #9333ea;
+    }
+
+    .easter-roberto-reveal-text {
+        opacity: 1;
+        transform: none;
+        filter: none;
     }
 }

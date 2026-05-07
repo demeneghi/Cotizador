@@ -11,6 +11,9 @@
     var canvas = document.getElementById('easterSunriseConfetti');
     var closeBtn = document.getElementById('easterSunriseClose');
     var trigger = document.querySelector('.brand-route-season');
+    var queRobertoBtn = document.getElementById('easterQueRobertoBtn');
+    var robertoReveal = document.getElementById('easterRobertoReveal');
+    var robertoRevealBackdrop = document.getElementById('easterRobertoRevealBackdrop');
 
     if (!root || !backdrop || !canvas || !closeBtn || !trigger) return;
 
@@ -147,7 +150,30 @@
         closeBtn.focus();
     }
 
+    function closeRobertoReveal() {
+        if (!robertoReveal || robertoReveal.classList.contains('is-hidden')) return;
+        robertoReveal.classList.add('is-hidden');
+        robertoReveal.setAttribute('aria-hidden', 'true');
+        try {
+            if (queRobertoBtn) queRobertoBtn.focus();
+        } catch (e) { /* ignore */ }
+    }
+
+    function openRobertoReveal(ev) {
+        if (!robertoReveal) return;
+        if (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+        }
+        robertoReveal.classList.remove('is-hidden');
+        robertoReveal.setAttribute('aria-hidden', 'false');
+        try {
+            robertoReveal.focus();
+        } catch (e) { /* ignore */ }
+    }
+
     function closeModal() {
+        closeRobertoReveal();
         root.classList.add('is-hidden');
         root.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('easter-sunrise-no-scroll');
@@ -178,8 +204,19 @@
     closeBtn.addEventListener('click', closeModal);
     backdrop.addEventListener('click', closeModal);
 
+    if (queRobertoBtn && robertoReveal && robertoRevealBackdrop) {
+        queRobertoBtn.addEventListener('click', openRobertoReveal);
+        robertoRevealBackdrop.addEventListener('click', closeRobertoReveal);
+    }
+
     document.addEventListener('keydown', function (ev) {
-        if (ev.key === 'Escape' && !root.classList.contains('is-hidden')) {
+        if (ev.key !== 'Escape') return;
+        if (robertoReveal && !robertoReveal.classList.contains('is-hidden')) {
+            ev.preventDefault();
+            closeRobertoReveal();
+            return;
+        }
+        if (!root.classList.contains('is-hidden')) {
             closeModal();
         }
     });
