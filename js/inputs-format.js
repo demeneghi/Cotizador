@@ -21,6 +21,15 @@
         return el.matches && el.matches(SELECTOR);
     }
 
+    function syncModelAndInputEvent(input, formatted) {
+        if (input._x_model && typeof input._x_model.set === 'function') {
+            try { input._x_model.set(formatted); } catch (e) { /* ignore */ }
+        }
+        try {
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        } catch (e) { /* navegadores antiguos sin Event constructor */ }
+    }
+
     function reformat(input) {
         var prevValue = input.value;
         if (prevValue.length > Numeric.MAX_INPUT_LEN) {
@@ -37,12 +46,50 @@
             if (newPos > formatted.length) newPos = formatted.length;
             try { input.setSelectionRange(newPos, newPos); } catch (e) { /* ignore */ }
         }
-        if (input._x_model && typeof input._x_model.set === 'function') {
-            try { input._x_model.set(formatted); } catch (e) { /* ignore */ }
+        syncModelAndInputEvent(input, formatted);
+    }
+
+    function readArrowStep(input) {
+        var raw = input.getAttribute('data-arrow-step');
+        if (raw == null || String(raw).trim() === '') return null;
+        var step = Numeric.parseFlexible(raw);
+        if (!isFinite(step) || isNaN(step) || step <= 0) return null;
+        return step;
+    }
+
+    function readArrowMin(input) {
+        var raw = input.getAttribute('data-arrow-min');
+        if (raw == null || String(raw).trim() === '') return null;
+        var lo = Numeric.parseFlexible(raw);
+        if (!isFinite(lo) || isNaN(lo)) return null;
+        return lo;
+    }
+
+    /**
+     * Asigna un valor numerico ya validado, formatea como el resto de la app y sincroniza Alpine.
+     */
+    function setInputNumericValue(input, num) {
+        var s = Numeric.formatNumber(num);
+        var formatted = Numeric.formatInputLive(s);
+        input.value = formatted;
+        if (typeof input.setSelectionRange === 'function') {
+            try { input.setSelectionRange(formatted.length, formatted.length); } catch (e) { /* ignore */ }
         }
-        try {
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-        } catch (e) { /* navegadores antiguos sin Event constructor */ }
+        syncModelAndInputEvent(input, formatted);
+    }
+
+    function applyArrowStep(input, direction) {
+        var step = readArrowStep(input);
+        if (step == null) return false;
+        var minBound = readArrowMin(input);
+        if (minBound == null) minBound = 0;
+        var rawTrim = String(input.value).trim();
+        var cur = Numeric.parseFlexible(input.value);
+        var base = (rawTrim === '' || !isFinite(cur) || isNaN(cur)) ? 0 : cur;
+        var next = base + direction * step;
+        if (next < minBound) next = minBound;
+        setInputNumericValue(input, next);
+        return true;
     }
 
     function attach(root) {
@@ -59,6 +106,18 @@
         doc.addEventListener('change', function (ev) {
             if (!isFormatTarget(ev.target)) return;
             reformat(ev.target);
+        }, true);
+
+        doc.addEventListener('keydown', function (ev) {
+            if (ev.key !== 'ArrowUp' && ev.key !== 'ArrowDown') return;
+            if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+            if (!isFormatTarget(ev.target)) return;
+            var input = ev.target;
+            if (input.readOnly || input.disabled) return;
+            if (readArrowStep(input) == null) return;
+            ev.preventDefault();
+            var dir = ev.key === 'ArrowUp' ? 1 : -1;
+            applyArrowStep(input, dir);
         }, true);
     }
 
